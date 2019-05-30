@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">VoiceList</string>
     <string name="action_settings">Settings</string>
+
+    // Content
+
+    <string name="this_is_icon">this is icon</string>
 </resources>

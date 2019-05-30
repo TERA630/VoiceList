@@ -1,13 +1,11 @@
 package com.example.voicelist
+
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.design.widget.Snackbar
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView
+import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
-import com.example.voicelist.R
-
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
@@ -59,12 +57,10 @@ class MainActivity : AppCompatActivity() {
     // Private function
     private fun makeListAdaptor(savedInstanceState: Bundle?){
         val resultOptional = savedInstanceState?.getStringArrayList(CURRENT_ITEMS)
-        val result = if (resultOptional.isNullOrEmpty()) arrayListOf("one", "two", "three", "four", "five")
+        val result =
+            if (resultOptional.isNullOrEmpty()) arrayListOf("one,0", "two,1", "three,0", "four,1", "five,0", "six,1")
         else resultOptional
         mAdaptor = CardListAdaptor(result)
         recyclerView.adapter = mAdaptor
-
-
     }
-
 }
