@@ -24,7 +24,9 @@ class CardListAdaptor(private var mResults: ArrayList<String>) : RecyclerView.Ad
     override fun getItemViewType(position: Int): Int = extractViewTypeFromString(mResults[position])
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        holder.itemView.rowText.text = mResults[position].split(",")[0]
+        val list = mResults[position].split(",")
+        holder.itemView.rowText.text = list[0]
+        if (holder is ViewHolderOfFolder) holder.childList = list.subList(2, list.lastIndex).toMutableList()
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -41,6 +43,6 @@ class CardListAdaptor(private var mResults: ArrayList<String>) : RecyclerView.Ad
     }
     class ViewHolderOfCell(rowView: View) : RecyclerView.ViewHolder(rowView)
     class ViewHolderOfFolder(rowView: View) : RecyclerView.ViewHolder(rowView) {
-        val childList: MutableList<String> = emptyList<String>().toMutableList()
+        var childList: MutableList<String> = emptyList<String>().toMutableList()
     }
 }
