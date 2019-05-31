@@ -66,7 +66,8 @@ class MainActivity : AppCompatActivity() {
         recyclerView.adapter = mAdaptor
         mAdaptor.setButtonClickHandlr(object : CardListAdaptor.onButtonClickHander {
             override fun onBottonClicked(view: View) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                supportFragmentManager.beginTransaction()
+                    .replace(activityFrame,)
             }
         })
 
