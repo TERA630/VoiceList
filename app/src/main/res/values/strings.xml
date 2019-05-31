@@ -4,5 +4,5 @@
 
     // Content
 
-    <string name="this_is_icon">this is icon</string>
+    <string name="button">push to action</string>
 </resources>

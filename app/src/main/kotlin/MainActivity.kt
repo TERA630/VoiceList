@@ -6,6 +6,7 @@ import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
@@ -25,6 +26,7 @@ class MainActivity : AppCompatActivity() {
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
         }
+
     }
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
         super.onRestoreInstanceState(savedInstanceState)
@@ -62,5 +64,11 @@ class MainActivity : AppCompatActivity() {
         else resultOptional
         mAdaptor = CardListAdaptor(result)
         recyclerView.adapter = mAdaptor
+        mAdaptor.setButtonClickHandlr(object : CardListAdaptor.onButtonClickHander {
+            override fun onBottonClicked(view: View) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+        })
+
     }
 }
