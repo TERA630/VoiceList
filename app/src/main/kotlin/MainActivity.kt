@@ -8,7 +8,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.fragment_main.*
 
 
 const val CURRENT_ITEMS ="currentItems"
@@ -54,6 +54,7 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
+
         }
     }
     // Private function
@@ -67,7 +68,8 @@ class MainActivity : AppCompatActivity() {
         mAdaptor.setButtonClickHandlr(object : CardListAdaptor.onButtonClickHander {
             override fun onBottonClicked(view: View) {
                 supportFragmentManager.beginTransaction()
-                    .replace(activityFrame,)
+                    .replace(R.id.activityFrame, ChildFragment())
+                    .commit()
             }
         })
 
