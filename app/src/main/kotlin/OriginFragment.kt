@@ -14,7 +14,7 @@ import kotlinx.android.synthetic.main.fragment_origin.*
 private const val ARG_PARAM1 = "param1"
 
 class OriginFragment : Fragment() {
-    private lateinit var mAdaptor: CardListAdaptor
+    private lateinit var mAdaptor: OriginListAdaptor
     private lateinit var mList: MutableList<String>
 
     companion object {
@@ -34,11 +34,11 @@ class OriginFragment : Fragment() {
             if (!list.isNullOrEmpty()) {
                 mList = list.toMutableList()
             }
-            mAdaptor = CardListAdaptor(mList)
+            mAdaptor = OriginListAdaptor(mList)
             mAdaptor.setUIHandler(object : DeliverEventToActivity {
-                override fun onUserInterAction(_list: List<String>) {
+                override fun onUserInterAction(parentString: String, _list: List<String>) {
                     val activity = this@OriginFragment.activity
-                    if (activity is MainActivity) activity.transitOriginToChildFragment(ArrayList(_list))
+                    if (activity is MainActivity) activity.transitOriginToChildFragment(parentString, ArrayList(_list))
                     else Log.w("test", "fail to handle adaptor event")
                 }
             })
@@ -59,7 +59,7 @@ class OriginFragment : Fragment() {
     }
 
     interface DeliverEventToActivity {
-        fun onUserInterAction(_list: List<String>)
+        fun onUserInterAction(parentString: String, _list: List<String>)
     }
 
 }

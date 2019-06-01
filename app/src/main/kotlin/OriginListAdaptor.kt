@@ -9,8 +9,9 @@ import kotlinx.android.synthetic.main.card_folder.view.*
 import kotlinx.android.synthetic.main.card_list.view.rowText
 import java.util.*
 
-class CardListAdaptor(private var mResults: MutableList<String>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class OriginListAdaptor(private var mResults: MutableList<String>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     // ViewType 0 or except 1: item, 1: folder
+    // String   "something, some1 , some 2 , ..."
     private lateinit var mHandler: OriginFragment.DeliverEventToActivity
 
     fun addResult(result: String) {
@@ -24,17 +25,19 @@ class CardListAdaptor(private var mResults: MutableList<String>) : RecyclerView.
     override fun getItemCount(): Int = mResults.size
     fun getResults(): MutableList<String> = mResults
 
-    override fun getItemViewType(position: Int): Int = extractViewTypeFromString(mResults[position])
+    override fun getItemViewType(position: Int): Int = indicateViewType(mResults[position])
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val list = mResults[position].split(",")
-        holder.itemView.rowText.text = list[0]
         if (holder is ViewHolderOfFolder) {
+            val parentString = list[0]
+            holder.rowView.rowText.text = parentString
+            holder.parent = parentString
             val droppedList = list.drop(2)
             holder.childList = droppedList.toMutableList()
             holder.rowView.folderIcon.setOnClickListener {
                 Log.i("test", "folder clicked ${holder.childList}")
-                mHandler.onUserInterAction(holder.childList)
+                mHandler.onUserInterAction(parentString, holder.childList)
             }
         }
     }
@@ -50,12 +53,13 @@ class CardListAdaptor(private var mResults: MutableList<String>) : RecyclerView.
         this.mHandler = _handler
     }
     // private method
-    private fun extractViewTypeFromString(_string: String): Int {
+    private fun indicateViewType(_string: String): Int {
         val list = _string.split(",")
-        return list[1].toInt()
+        return if (list.size > 2) 1 else 0 // ITEMが一つなら　ViewType:0　Itemをかえす。　そうでなければFolderをかえす。
     }
     class ViewHolderOfCell(rowView: View) : RecyclerView.ViewHolder(rowView)
     class ViewHolderOfFolder(val rowView: View) : RecyclerView.ViewHolder(rowView) {
+        var parent: String = ""
         var childList: MutableList<String> = emptyList<String>().toMutableList()
     }
 

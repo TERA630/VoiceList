@@ -11,7 +11,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 const val CURRENT_ITEMS ="currentItems"
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var mAdaptor: CardListAdaptor
+    private lateinit var mAdaptor: OriginListAdaptor
     // Activity life cycles
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +29,6 @@ class MainActivity : AppCompatActivity() {
         val stringArray = savedInstanceState?.getStringArrayList(CURRENT_ITEMS)
         if (!stringArray.isNullOrEmpty()) mAdaptor.upDateResultList(stringArray)
     }
-
     override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
         // on Pauseや回転後 on Stop前
         super.onSaveInstanceState(outState, outPersistentState)
@@ -53,10 +52,11 @@ class MainActivity : AppCompatActivity() {
 
         }
     }
-    fun transitOriginToChildFragment(arrayList: ArrayList<String>) {
 
+    fun transitOriginToChildFragment(parentString: String, arrayList: ArrayList<String>) {
         supportFragmentManager.beginTransaction()
-            .replace(R.id.activityFrame, ChildFragment.newInstance(arrayList))
+            .addToBackStack(null)
+            .replace(R.id.activityFrame, ChildFragment.newInstance(parentString, arrayList.toList()))
             .commit()
     }
     // Private function

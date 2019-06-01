@@ -4,10 +4,15 @@ package com.example.voicelist
 import android.support.test.InstrumentationRegistry
 import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.assertion.ViewAssertions.matches
+import android.support.test.espresso.matcher.BoundedMatcher
 import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
 import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
+import android.support.v7.widget.RecyclerView
+import android.view.View
+import org.hamcrest.Description
+import org.hamcrest.Matcher
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -38,5 +43,37 @@ class ActivityTest {
     fun activitySnack() {
         onView(withId(R.id.activityFrame)).check(matches(isDisplayed()))
         onView(withId(R.id.originList)).check(matches(isDisplayed()))
+        onView(withId(R.id.originList)).check(matches(isDisplayed()))
     }
 }
+
+class CustomMatchers {
+    var innerText: String? = null
+
+    companion object {
+        fun hasText(position: Int, test: String): Matcher<View> {
+            return object : BoundedMatcher<View, RecyclerView>(RecyclerView::class.java) {
+                override fun describeTo(description: Description?) {
+                    description?.appendText("Recycler view has..")
+                }
+
+                override fun matchesSafely(view: RecyclerView?): Boolean {
+                    if (view !is RecyclerView) return false // throw IllegalStateException("The asserted view is not RecyclerView")
+                    if (view.adapter == null) return false // throw IllegalStateException("No adapter is assigned to RecyclerView")
+                    else {
+                        val holder = view.findViewHolderForAdapterPosition(position) as OriginListAdaptor
+                    }
+
+
+                }
+            }
+
+
+        }
+    }
+}
+
+
+
+}
+
