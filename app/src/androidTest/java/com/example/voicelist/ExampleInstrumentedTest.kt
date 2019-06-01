@@ -11,6 +11,8 @@ import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
 import android.support.v7.widget.RecyclerView
 import android.view.View
+import com.example.voicelist.CustomMatchers.Companion.hasText
+import kotlinx.android.synthetic.main.card_list.view.*
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.junit.Assert.assertEquals
@@ -44,6 +46,7 @@ class ActivityTest {
         onView(withId(R.id.activityFrame)).check(matches(isDisplayed()))
         onView(withId(R.id.originList)).check(matches(isDisplayed()))
         onView(withId(R.id.originList)).check(matches(isDisplayed()))
+        onView(withId(R.id.originList)).check(matches(hasText(1, "two")))
     }
 }
 
@@ -51,20 +54,27 @@ class CustomMatchers {
     var innerText: String? = null
 
     companion object {
-        fun hasText(position: Int, test: String): Matcher<View> {
+        fun hasText(position: Int, testString: String): Matcher<View> {
             return object : BoundedMatcher<View, RecyclerView>(RecyclerView::class.java) {
                 override fun describeTo(description: Description?) {
-                    description?.appendText("Recycler view has..")
+                    description?.appendText("Recycler view has $testString")
                 }
 
                 override fun matchesSafely(view: RecyclerView?): Boolean {
                     if (view !is RecyclerView) return false // throw IllegalStateException("The asserted view is not RecyclerView")
                     if (view.adapter == null) return false // throw IllegalStateException("No adapter is assigned to RecyclerView")
                     else {
-                        val holder = view.findViewHolderForAdapterPosition(position) as OriginListAdaptor
+                        val holder = view.findViewHolderForAdapterPosition(position)
+                        val text = if (holder is OriginListAdaptor.ViewHolderOfCell) {
+                            holder.itemView.rowText.text
+                        } else if (holder is OriginListAdaptor.ViewHolderOfFolder) {
+                            holder.itemView.rowText.text
+                        } else {
+                            "void"
+                        }
+                        val judge = (text == testString)
+                        return judge
                     }
-
-
                 }
             }
 
@@ -72,8 +82,3 @@ class CustomMatchers {
         }
     }
 }
-
-
-
-}
-

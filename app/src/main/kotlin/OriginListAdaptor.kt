@@ -29,16 +29,21 @@ class OriginListAdaptor(private var mResults: MutableList<String>) : RecyclerVie
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val list = mResults[position].split(",")
+        val parentString = list[0]
+        holder.itemView.rowText.setOnClickListener { view ->
+            editParent(view, parentString, position)
+        }
         if (holder is ViewHolderOfFolder) {
-            val parentString = list[0]
-            holder.rowView.rowText.text = parentString
+            holder.rowView.rowText.setText(parentString)
             holder.parent = parentString
-            val droppedList = list.drop(2)
+            val droppedList = list.drop(1)
             holder.childList = droppedList.toMutableList()
             holder.rowView.folderIcon.setOnClickListener {
                 Log.i("test", "folder clicked ${holder.childList}")
                 mHandler.onUserInterAction(parentString, holder.childList)
             }
+        } else if (holder is ViewHolderOfCell) {
+            holder.rowView.rowText.setText(parentString)
         }
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -53,11 +58,18 @@ class OriginListAdaptor(private var mResults: MutableList<String>) : RecyclerVie
         this.mHandler = _handler
     }
     // private method
+
+    private fun editParent(_view: View, parentString: String, _position: Int) {
+
+
+    }
     private fun indicateViewType(_string: String): Int {
         val list = _string.split(",")
         return if (list.size > 2) 1 else 0 // ITEMが一つなら　ViewType:0　Itemをかえす。　そうでなければFolderをかえす。
     }
-    class ViewHolderOfCell(rowView: View) : RecyclerView.ViewHolder(rowView)
+
+
+    class ViewHolderOfCell(val rowView: View) : RecyclerView.ViewHolder(rowView)
     class ViewHolderOfFolder(val rowView: View) : RecyclerView.ViewHolder(rowView) {
         var parent: String = ""
         var childList: MutableList<String> = emptyList<String>().toMutableList()

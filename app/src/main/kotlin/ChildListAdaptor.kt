@@ -18,7 +18,7 @@ class ChildListAdaptor(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as ChildRowHolder).itemView.childRowText.text = mList[position]
+        (holder as ChildRowHolder).itemView.childRowText.setText(mList[position])
     }
 
     override fun getItemCount(): Int = mList.size
