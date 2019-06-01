@@ -1,15 +1,15 @@
 package com.example.voicelist
 
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.card_folder.view.*
-import kotlinx.android.synthetic.main.card_list.view.*
 import kotlinx.android.synthetic.main.card_list.view.rowText
 import java.util.*
 
-class CardListAdaptor(private var mResults: ArrayList<String>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class CardListAdaptor(private var mResults: MutableList<String>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     // ViewType 0 or except 1: item, 1: folder
     lateinit var mHander: onButtonClickHander
 
@@ -23,7 +23,7 @@ class CardListAdaptor(private var mResults: ArrayList<String>) : RecyclerView.Ad
         notifyDataSetChanged()
     }
     override fun getItemCount(): Int = mResults.size
-    fun getResults(): ArrayList<String> = mResults
+    fun getResults(): MutableList<String> = mResults
 
     override fun getItemViewType(position: Int): Int = extractViewTypeFromString(mResults[position])
 
@@ -31,9 +31,11 @@ class CardListAdaptor(private var mResults: ArrayList<String>) : RecyclerView.Ad
         val list = mResults[position].split(",")
         holder.itemView.rowText.text = list[0]
         if (holder is ViewHolderOfFolder) {
-            holder.childList = list.drop(2).toMutableList()
-            holder.rowView.folderIcon.setOnClickListener { }
-
+            val droppedList = list.drop(2)
+            holder.childList = droppedList.toMutableList()
+            holder.rowView.folderIcon.setOnClickListener {
+                Log.i("test", "folder clicked ${holder.childList}")
+            }
         }
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -44,7 +46,7 @@ class CardListAdaptor(private var mResults: ArrayList<String>) : RecyclerView.Ad
         }
     }
 
-    fun setButtonClickHandlr(_handler: CardListAdaptor.onButtonClickHander) {
+    fun setButtonClickHandler(_handler: onButtonClickHander) {
         this.mHander = _handler
     }
     // private method
@@ -56,7 +58,6 @@ class CardListAdaptor(private var mResults: ArrayList<String>) : RecyclerView.Ad
     class ViewHolderOfFolder(val rowView: View) : RecyclerView.ViewHolder(rowView) {
         var childList: MutableList<String> = emptyList<String>().toMutableList()
     }
-
     interface onButtonClickHander {
         fun onBottonClicked(view: View)
     }
