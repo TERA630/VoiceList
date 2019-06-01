@@ -11,8 +11,7 @@ import java.util.*
 
 class CardListAdaptor(private var mResults: MutableList<String>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     // ViewType 0 or except 1: item, 1: folder
-    lateinit var mHander: onButtonClickHander
-
+    private lateinit var mHandler: OriginFragment.DeliverEventToActivity
 
     fun addResult(result: String) {
         mResults.add(0, "$result,0")
@@ -35,6 +34,7 @@ class CardListAdaptor(private var mResults: MutableList<String>) : RecyclerView.
             holder.childList = droppedList.toMutableList()
             holder.rowView.folderIcon.setOnClickListener {
                 Log.i("test", "folder clicked ${holder.childList}")
+                mHandler.onUserInterAction(holder.childList)
             }
         }
     }
@@ -46,8 +46,8 @@ class CardListAdaptor(private var mResults: MutableList<String>) : RecyclerView.
         }
     }
 
-    fun setButtonClickHandler(_handler: onButtonClickHander) {
-        this.mHander = _handler
+    fun setUIHandler(_handler: OriginFragment.DeliverEventToActivity) {
+        this.mHandler = _handler
     }
     // private method
     private fun extractViewTypeFromString(_string: String): Int {
@@ -58,7 +58,5 @@ class CardListAdaptor(private var mResults: MutableList<String>) : RecyclerView.
     class ViewHolderOfFolder(val rowView: View) : RecyclerView.ViewHolder(rowView) {
         var childList: MutableList<String> = emptyList<String>().toMutableList()
     }
-    interface onButtonClickHander {
-        fun onBottonClicked(view: View)
-    }
+
 }

@@ -2,6 +2,7 @@ package com.example.voicelist
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +15,6 @@ private const val ARG_PARAM1 = "param1"
 
 class OriginFragment : Fragment() {
     private lateinit var mAdaptor: CardListAdaptor
-    private lateinit var mHandler: CardListAdaptor.onButtonClickHander
     private lateinit var mList: MutableList<String>
 
     companion object {
@@ -35,9 +35,15 @@ class OriginFragment : Fragment() {
                 mList = list.toMutableList()
             }
             mAdaptor = CardListAdaptor(mList)
+            mAdaptor.setUIHandler(object : DeliverEventToActivity {
+                override fun onUserInterAction(_list: List<String>) {
+                    val activity = this@OriginFragment.activity
+                    if (activity is MainActivity) activity.transitOriginToChildFragment(ArrayList(_list))
+                    else Log.w("test", "fail to handle adaptor event")
+                }
+            })
         }
     }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -49,7 +55,11 @@ class OriginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         originList.adapter = mAdaptor
-        //   mAdaptor.setButtonClickHandler()
+        //   mAdaptor.setUIHandler()
+    }
+
+    interface DeliverEventToActivity {
+        fun onUserInterAction(_list: List<String>)
     }
 
 }

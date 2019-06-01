@@ -53,11 +53,10 @@ class MainActivity : AppCompatActivity() {
 
         }
     }
-
     fun transitOriginToChildFragment(arrayList: ArrayList<String>) {
 
         supportFragmentManager.beginTransaction()
-            //           .replace(R.id.activityFrame,ChildFragment.newInstance(arrayList))
+            .replace(R.id.activityFrame, ChildFragment.newInstance(arrayList))
             .commit()
     }
     // Private function
