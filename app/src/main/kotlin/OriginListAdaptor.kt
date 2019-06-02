@@ -5,7 +5,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import android.widget.ViewAnimator
 import kotlinx.android.synthetic.main.card_folder.view.*
+import kotlinx.android.synthetic.main.card_list.view.*
 import kotlinx.android.synthetic.main.card_list.view.rowText
 import java.util.*
 
@@ -30,11 +33,11 @@ class OriginListAdaptor(private var mResults: MutableList<String>) : RecyclerVie
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val list = mResults[position].split(",")
         val parentString = list[0]
-        holder.itemView.rowText.setOnClickListener { view ->
-            editParent(view, parentString, position)
+        holder.itemView.rowText.setOnClickListener {
+            Log.i("test", "EditText clicked")
         }
         if (holder is ViewHolderOfFolder) {
-            holder.rowView.rowText.setText(parentString)
+            holder.rowView.rowText.text = parentString
             holder.parent = parentString
             val droppedList = list.drop(1)
             holder.childList = droppedList.toMutableList()
@@ -43,14 +46,21 @@ class OriginListAdaptor(private var mResults: MutableList<String>) : RecyclerVie
                 mHandler.onUserInterAction(parentString, holder.childList)
             }
         } else if (holder is ViewHolderOfCell) {
-            holder.rowView.rowText.setText(parentString)
+            holder.rowView.rowText.text = parentString
         }
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        return when (viewType) {
-            1 -> ViewHolderOfFolder(inflater.inflate(R.layout.card_folder, parent, false))
-            else -> ViewHolderOfCell(inflater.inflate(R.layout.card_list, parent, false))
+        when (viewType) {
+            1 -> {
+                return ViewHolderOfFolder(inflater.inflate(R.layout.card_folder, parent, false))
+            }
+            else -> {
+                val VH = ViewHolderOfCell(inflater.inflate(R.layout.card_list, parent, false))
+                VH.textWrapper = parent.textWrapper
+                return VH
+            }
+
         }
     }
 
@@ -60,6 +70,12 @@ class OriginListAdaptor(private var mResults: MutableList<String>) : RecyclerVie
     // private method
 
     private fun editParent(_view: View, parentString: String, _position: Int) {
+        if (_view is TextView) {
+
+
+        } else {
+
+        }
 
 
     }
@@ -69,7 +85,9 @@ class OriginListAdaptor(private var mResults: MutableList<String>) : RecyclerVie
     }
 
 
-    class ViewHolderOfCell(val rowView: View) : RecyclerView.ViewHolder(rowView)
+    class ViewHolderOfCell(val rowView: View) : RecyclerView.ViewHolder(rowView) {
+        var textWrapper: ViewAnimator? = null
+    }
     class ViewHolderOfFolder(val rowView: View) : RecyclerView.ViewHolder(rowView) {
         var parent: String = ""
         var childList: MutableList<String> = emptyList<String>().toMutableList()
