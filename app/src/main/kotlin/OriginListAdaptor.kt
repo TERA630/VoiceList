@@ -5,15 +5,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.android.synthetic.main.card_folder.view.*
 import kotlinx.android.synthetic.main.card_list.view.*
-import kotlinx.android.synthetic.main.card_list.view.rowText
 import java.util.*
 
 class
 OriginListAdaptor(private var mResults: MutableList<String>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     // ViewType 0 or except 1: item, 1: folder
-    // String   "something, some1 , some 2 , ..."
+    // String   "title(contents):root, descending1 , descending2 , ..."
     private lateinit var mHandler: OriginFragment.DeliverEventToActivity
 
     // Lifecycle of Recycler View
@@ -40,7 +38,7 @@ OriginListAdaptor(private var mResults: MutableList<String>) : RecyclerView.Adap
         val vH = holder as ViewHolderOfCell
         if (vH.hasChild) {
             vH.childList = droppedList.toMutableList()
-            vH.rowView.folderIcon.visibility = View.VISIBLE
+            vH.itemView.folderIcon.visibility = View.VISIBLE
         } else {
             vH.rowView.folderIcon.visibility = View.GONE
         }
@@ -69,13 +67,8 @@ OriginListAdaptor(private var mResults: MutableList<String>) : RecyclerView.Adap
 
     /*  private fun editParent(_view: View, parentString: String, _position: Int) {
           if (_view is TextView) {
-
-
           } else {
-
           }
-
-
       }*/
     private fun indicateViewType(_string: String): Int {
         val list = _string.split(",")

@@ -1,6 +1,7 @@
 package com.example.voicelist
 
 
+import android.content.res.Resources
 import android.support.test.InstrumentationRegistry
 import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.assertion.ViewAssertions.matches
@@ -15,6 +16,7 @@ import com.example.voicelist.CustomMatchers.Companion.hasText
 import kotlinx.android.synthetic.main.card_list.view.*
 import org.hamcrest.Description
 import org.hamcrest.Matcher
+import org.hamcrest.TypeSafeMatcher
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -42,11 +44,12 @@ class ActivityTest {
     val mActivityTestRule = ActivityTestRule(MainActivity::class.java)
 
     @Test
-    fun activitySnack() {
+    fun viewCheck() {
         onView(withId(R.id.activityFrame)).check(matches(isDisplayed()))
         onView(withId(R.id.originList)).check(matches(isDisplayed()))
         onView(withId(R.id.originList)).check(matches(isDisplayed()))
-        onView(withId(R.id.originList)).check(matches(hasText(1, "two")))
+        onView(withId(R.id.originList)).check(matches(hasText(0, "1")))
+
     }
 }
 
@@ -65,13 +68,7 @@ class CustomMatchers {
                     if (view.adapter == null) return false // throw IllegalStateException("No adapter is assigned to RecyclerView")
                     else {
                         val holder = view.findViewHolderForAdapterPosition(position)
-                        val text = if (holder is OriginListAdaptor.ViewHolderOfCell) {
-                            holder.itemView.rowText.text
-                        } else if (holder is OriginListAdaptor.ViewHolderOfFolder) {
-                            holder.itemView.rowText.text
-                        } else {
-                            "void"
-                        }
+                        val text = holder?.itemView?.rowText?.text ?: "null"
                         val judge = (text == testString)
                         return judge
                     }
@@ -80,5 +77,58 @@ class CustomMatchers {
 
 
         }
+    }
+}
+
+fun withRecyclerView(recyclerViewId: Int): RecyclerViewMatcher {
+    return RecyclerViewMatcher(recyclerViewId)
+}
+
+class RecyclerViewMatcher(val mRecyclerViewId: Int) {
+    fun atPosition(position: Int): Matcher<View> {
+        return atPositionOnView(position, -1)
+    }
+
+    fun atPositionOnView(position: Int, targetViewId: Int): Matcher<View> {
+
+        val typeSafeMatcher = object : TypeSafeMatcher<View>() {
+            var resources: Resources? = null
+            var childView: View? = null
+            override fun describeTo(description: Description?) {
+                val id = if (targetViewId == -1) {
+                    mRecyclerViewId
+                } else {
+                    targetViewId
+                }
+                var idDescription = id.toString()
+                this.resources?.let {
+                    try {
+                        idDescription = it.getResourceName(id)
+                    } catch (var4: Resources.NotFoundException) {
+                        idDescription += "$id not found"
+                    }
+                }
+                description?.appendText("with id:$idDescription")
+            }
+
+            override fun matchesSafely(item: View): Boolean {
+                this.resources = item.resources
+                if (childView == null) {
+                    val recyclerView = item.rootView.findViewById<RecyclerView>(mRecyclerViewId)
+                    if (recyclerView != null) {
+                        childView = recyclerView.findViewHolderForAdapterPosition(position)?.itemView
+                    } else {
+                        return false
+                    }
+                }
+                if (targetViewId == -1) {
+                    return (item == childView)
+                } else {
+                    val targetView = childView?.findViewById<View>(targetViewId)
+                    return (item == targetView)
+                }
+            }
+        }
+        return typeSafeMatcher
     }
 }
