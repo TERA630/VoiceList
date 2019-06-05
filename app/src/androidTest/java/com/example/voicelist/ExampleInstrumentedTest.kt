@@ -48,7 +48,9 @@ class ActivityTest {
         onView(withId(R.id.activityFrame)).check(matches(isDisplayed()))
         onView(withId(R.id.originList)).check(matches(isDisplayed()))
         onView(withId(R.id.originList)).check(matches(isDisplayed()))
-        onView(withId(R.id.originList)).check(matches(hasText(0, "1")))
+        onView(withId(R.id.originList)).check(matches(hasText(0, "one")))
+        onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.folderIcon)).check(matches(isDisplayed()))
+        onView(withRecyclerView(R.id.originList).atPositionOnView(0, R.id.textWrapper)).check(matches(isDisplayed()))
 
     }
 }
@@ -74,8 +76,6 @@ class CustomMatchers {
                     }
                 }
             }
-
-
         }
     }
 }
