@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import kotlinx.android.synthetic.main.card_list.view.*
+import kotlinx.android.synthetic.main.origin_list.view.*
 import java.util.*
 
 class
@@ -20,14 +20,10 @@ OriginListAdaptor(private var mResults: MutableList<String>) : RecyclerView.Adap
     override fun getItemViewType(position: Int): Int = indicateViewType(mResults[position])
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val viewHolder = ViewHolderOfCell(inflater.inflate(R.layout.card_list, parent, false))
-        when (viewType) {
-            1 -> {
-                viewHolder.hasChild = true
-            }
-            else -> {
-                viewHolder.hasChild = false
-            }
+        val viewHolder = ViewHolderOfCell(inflater.inflate(R.layout.origin_list, parent, false))
+        viewHolder.hasChild = when (viewType) {
+            1 -> true
+            else -> false
         }
         return viewHolder
     }
@@ -50,11 +46,19 @@ OriginListAdaptor(private var mResults: MutableList<String>) : RecyclerView.Adap
         lV.rowText.setOnClickListener {
             Log.i("test", "TextView was clicked")
             lV.textWrapper.showNext()
+            lV.imageWrapper.showNext()
         }
         lV.rowEditText.setText(head, TextView.BufferType.NORMAL)
         lV.rowEditText.setOnClickListener {
             Log.i("test", "EditText was clicked")
             lV.textWrapper.showPrevious()
+            lV.imageWrapper.showPrevious()
+        }
+        lV.editEndButton.setOnClickListener {
+            Log.i("test", "text edit end. ")
+            lV.textWrapper.showPrevious()
+            lV.imageWrapper.showPrevious()
+
         }
         lV.rowEditText.setOnFocusChangeListener { v, hasFocus ->
             when (hasFocus) {
@@ -64,13 +68,12 @@ OriginListAdaptor(private var mResults: MutableList<String>) : RecyclerView.Adap
                 false -> {
                     Log.i("test", "focus was gone. ")
                 }
-
             }
         }
     }
 
     fun addResult(result: String) {
-        mResults.add(0, "$result,0")
+        mResults.add(0, result)
         notifyItemInserted(0)
     }
     fun getResults(): MutableList<String> = mResults
@@ -90,7 +93,7 @@ OriginListAdaptor(private var mResults: MutableList<String>) : RecyclerView.Adap
       }*/
     private fun indicateViewType(_string: String): Int {
         val list = _string.split(",")
-        return if (list.size > 2) 1 else 0 // ITEMが一つなら　ViewType:0　Itemをかえす。　そうでなければFolderをかえす。
+        return if (list.size > 1) 1 else 0 // ITEMが一つなら　ViewType:0　Itemをかえす。　そうでなければFolderをかえす。
     }
     class ViewHolderOfCell(val rowView: View) : RecyclerView.ViewHolder(rowView) {
         var headString = ""

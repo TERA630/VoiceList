@@ -4,6 +4,7 @@ package com.example.voicelist
 import android.content.res.Resources
 import android.support.test.InstrumentationRegistry
 import android.support.test.espresso.Espresso.onView
+import android.support.test.espresso.action.ViewActions
 import android.support.test.espresso.assertion.ViewAssertions.matches
 import android.support.test.espresso.matcher.BoundedMatcher
 import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -13,7 +14,7 @@ import android.support.test.runner.AndroidJUnit4
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import com.example.voicelist.CustomMatchers.Companion.hasText
-import kotlinx.android.synthetic.main.card_list.view.*
+import kotlinx.android.synthetic.main.origin_list.view.*
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
@@ -51,6 +52,13 @@ class ActivityTest {
         onView(withId(R.id.originList)).check(matches(hasText(0, "one")))
         onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.folderIcon)).check(matches(isDisplayed()))
         onView(withRecyclerView(R.id.originList).atPositionOnView(0, R.id.textWrapper)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun viewClick() {
+        onView(withRecyclerView(R.id.originList).atPositionOnView(0, R.id.rowText)).perform(ViewActions.click())
+        onView(withRecyclerView(R.id.originList).atPositionOnView(0, R.id.rowEditText)).check(matches(isDisplayed()))
+        onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.rowText)).perform(ViewActions.click())
 
     }
 }

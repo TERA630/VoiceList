@@ -64,12 +64,12 @@ class MainActivity : AppCompatActivity() {
         val resultOptional = savedInstanceState?.getStringArrayList(CURRENT_ITEMS)
         val result =
             if (resultOptional.isNullOrEmpty()) arrayListOf(
-                "one,0",
-                "two,1,win,won,wan",
-                "three,0",
-                "four,1,hat,hut,hot",
-                "five,0",
-                "six,1,sox,sex,sax"
+                "one",
+                "two,win,won,wan",
+                "three",
+                "four,hat,hut,hot",
+                "five",
+                "six,sox,sex,sax"
             )
             else resultOptional
         if (savedInstanceState == null) { // 初回起動でのみフラグメント追加
