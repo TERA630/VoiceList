@@ -1,5 +1,6 @@
 package com.example.voicelist
 
+import android.arch.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.design.widget.Snackbar
@@ -16,6 +17,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val model = ViewModelProvider.of(this)
+
+        
         setSupportActionBar(toolbar)
         makeListAdaptor(savedInstanceState)
         fab.setOnClickListener { view ->

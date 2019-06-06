@@ -1,7 +1,5 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
 
 android {
@@ -36,6 +34,9 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    // LifeCycle
+    implementation "android.arch.lifecycle:viewmodel:$lifecycle_version"
+    // Support
     implementation "com.android.support:appcompat-v7:$support_version"
     implementation "com.android.support:cardview-v7:$support_version"
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
