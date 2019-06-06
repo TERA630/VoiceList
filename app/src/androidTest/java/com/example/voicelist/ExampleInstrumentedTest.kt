@@ -6,8 +6,7 @@ import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.action.ViewActions
 import android.support.test.espresso.assertion.ViewAssertions.matches
 import android.support.test.espresso.matcher.BoundedMatcher
-import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
-import android.support.test.espresso.matcher.ViewMatchers.withId
+import android.support.test.espresso.matcher.ViewMatchers.*
 import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
 import android.support.v7.widget.RecyclerView
@@ -73,7 +72,11 @@ class ActivityTest {
         onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.editEndButton)).perform(ViewActions.click())
         onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.rowText)).check(matches(isDisplayed()))
         //      onView(withRecyclerView(R.id.originList).atPositionOnView(1,R.id.rowText)).check(matches(hasText(1,"Test One")))
-        //  onView(withRecyclerView(R.id.originList).atPositionOnView(1,R.id.editEndButton)).check(matches(withEffectiveVisibility(Visibility.INVISIBLE)))
+        onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.editEndButton)).check(
+            matches(
+                withEffectiveVisibility(Visibility.GONE)
+            )
+        )
 
     }
 }

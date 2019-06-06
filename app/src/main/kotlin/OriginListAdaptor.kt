@@ -8,14 +8,18 @@ import android.widget.TextView
 import kotlinx.android.synthetic.main.origin_list.view.*
 import java.util.*
 
-class OriginListAdaptor(private var mResults: MutableList<String>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class OriginListAdaptor(
+    private var mResults: MutableList<String>,
+    private val mModel: MainViewModel
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     // ViewType 0 or except 1: item, 1: folder
     // String   "title(contents):root, descending1 , descending2 , ..."
     private lateinit var mHandler: OriginFragment.DeliverEventToActivity
 
     // Lifecycle of Recycler View
     override fun getItemCount(): Int = mResults.size
-    override fun getItemViewType(position: Int): Int = indicateViewType(mResults[position])
+
+    override fun getItemViewType(position: Int): Int = indicateViewType(position)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val viewHolder = ViewHolderOfCell(inflater.inflate(R.layout.origin_list, parent, false))
@@ -28,14 +32,15 @@ class OriginListAdaptor(private var mResults: MutableList<String>) : RecyclerVie
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val list = mResults[position].split(",")
-        val head = list[0]
-        val droppedList = list.drop(1)
+        val head = mModel.getOriginList()[position]
+
+        val childList = mModel.getChildListAt(position)
         val vH = holder as ViewHolderOfCell
         vH.headString = head
         val lV = vH.rowView // list View
 
         if (vH.hasChild) {
-            vH.childList = droppedList.toMutableList()
+            vH.childList = childList.toMutableList()
             lV.folderIcon.visibility = View.VISIBLE
         } else {
             lV.folderIcon.visibility = View.GONE
@@ -87,9 +92,9 @@ class OriginListAdaptor(private var mResults: MutableList<String>) : RecyclerVie
           } else {
           }
       }*/
-    private fun indicateViewType(_string: String): Int {
-        val list = _string.split(",")
-        return if (list.size > 1) 1 else 0 // ITEMが一つなら　ViewType:0　Itemをかえす。　そうでなければFolderをかえす。
+    private fun indicateViewType(position: Int): Int {
+        val childList = mModel.getChildListAt(position)
+        return if (childList.isNotEmpty()) 1 else 0 // ChildItemがなければ　ViewType:0　Itemをかえす。　そうでなければFolderをかえす。
     }
     class ViewHolderOfCell(val rowView: View) : RecyclerView.ViewHolder(rowView) {
         var headString = ""

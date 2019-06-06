@@ -1,5 +1,6 @@
 package com.example.voicelist
 
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
@@ -8,9 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_origin.*
 
-
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 
 class OriginFragment : Fragment() {
@@ -29,12 +27,14 @@ class OriginFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val model = ViewModelProviders.of(this.activity!!).get(MainViewModel::class.java)
+
         arguments?.let {
             val list = it.getStringArrayList(ARG_PARAM1)
             if (!list.isNullOrEmpty()) {
                 mList = list.toMutableList()
             }
-            mAdaptor = OriginListAdaptor(mList)
+            mAdaptor = OriginListAdaptor(mList, model)
             mAdaptor.setUIHandler(object : DeliverEventToActivity {
                 override fun onUserInterAction(parentString: String, _list: List<String>) {
                     val activity = this@OriginFragment.activity

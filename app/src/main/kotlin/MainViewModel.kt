@@ -1,11 +1,45 @@
 package com.example.voicelist
 
+import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.ViewModel
 import android.content.Context
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 
-class MainViewModel {
-    val OriginList: MutableList<String> = emptyList<String>().toMutableList()
+
+class MainViewModel : ViewModel() {
+    val errorList = listOf("OriginList", "was", "null", "or", "empty", "Check", "the", "code.")
+    lateinit var originList: MutableLiveData<MutableList<String>>
+
+    fun initLiveList(_list: List<String>) {
+        originList.value = _list.toMutableList()
+    }
+
+    fun getOriginList(): List<String> {
+        if (originList.value == null) return errorList
+        else {
+            val titleRegex = "^(.+):origin,.*".toRegex()
+            val safeOriginList = originList.value as MutableList<String>
+            val result = mutableListOf<String>()
+            for (i in safeOriginList.indices) {
+                val matchResult = titleRegex.matchEntire(safeOriginList[i])
+                matchResult?.destructured?.let { (header) ->
+                    result.add(header)
+                }
+            }
+            return result
+        }
+    }
+
+    fun getChildListAt(index: Int): List<String> {
+        if (originList.value == null) return errorList
+        else {
+            val safeOriginList = originList.value as MutableList<String>
+            val headAndChildCSV = safeOriginList[index]
+            val list = headAndChildCSV.split(",")
+            return list.drop(1)
+        }
+    }
 }
 
 fun View.hideSoftKeyBoard() {
