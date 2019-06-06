@@ -1,7 +1,6 @@
 package com.example.voicelist
 
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,8 +8,7 @@ import android.widget.TextView
 import kotlinx.android.synthetic.main.origin_list.view.*
 import java.util.*
 
-class
-OriginListAdaptor(private var mResults: MutableList<String>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class OriginListAdaptor(private var mResults: MutableList<String>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     // ViewType 0 or except 1: item, 1: folder
     // String   "title(contents):root, descending1 , descending2 , ..."
     private lateinit var mHandler: OriginFragment.DeliverEventToActivity
@@ -44,34 +42,32 @@ OriginListAdaptor(private var mResults: MutableList<String>) : RecyclerView.Adap
         }
         lV.rowText.text = head
         lV.rowText.setOnClickListener {
-            Log.i("test", "TextView was clicked")
             lV.textWrapper.showNext()
             lV.imageWrapper.showNext()
         }
         lV.rowEditText.setText(head, TextView.BufferType.NORMAL)
-        lV.rowEditText.setOnClickListener {
-            Log.i("test", "EditText was clicked")
+        lV.editEndButton.setOnClickListener { v ->
+            val newText = lV.rowEditText.text
+            vH.headString = newText.toString()
+            this.mResults[position] = newText.toString()
+            lV.rowText.text = newText
+            this@OriginListAdaptor.notifyItemChanged(position)
             lV.textWrapper.showPrevious()
-            lV.imageWrapper.showPrevious()
-        }
-        lV.editEndButton.setOnClickListener {
-            Log.i("test", "text edit end. ")
-            lV.textWrapper.showPrevious()
-            lV.imageWrapper.showPrevious()
-
+            if (vH.hasChild) lV.imageWrapper.showPrevious()
+            else v.visibility = View.GONE
+            v.hideSoftKeyBoard()
         }
         lV.rowEditText.setOnFocusChangeListener { v, hasFocus ->
             when (hasFocus) {
                 true -> {
-                    Log.i("test", "focus is coming. ime will on")
+                    v.showSoftKeyBoard()
                 }
                 false -> {
-                    Log.i("test", "focus was gone. ")
+                    v.hideSoftKeyBoard()
                 }
             }
         }
     }
-
     fun addResult(result: String) {
         mResults.add(0, result)
         notifyItemInserted(0)

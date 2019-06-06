@@ -1,6 +1,5 @@
 package com.example.voicelist
 
-
 import android.content.res.Resources
 import android.support.test.InstrumentationRegistry
 import android.support.test.espresso.Espresso.onView
@@ -56,9 +55,25 @@ class ActivityTest {
 
     @Test
     fun viewClick() {
+        //　テキストクリック→編集
         onView(withRecyclerView(R.id.originList).atPositionOnView(0, R.id.rowText)).perform(ViewActions.click())
         onView(withRecyclerView(R.id.originList).atPositionOnView(0, R.id.rowEditText)).check(matches(isDisplayed()))
         onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.rowText)).perform(ViewActions.click())
+        //　テキスト編集、終了
+        onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.rowEditText)).check(matches(isDisplayed()))
+        onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.rowEditText)).perform(ViewActions.clearText())
+        onView(
+            withRecyclerView(R.id.originList).atPositionOnView(
+                1,
+                R.id.rowEditText
+            )
+        ).perform(ViewActions.typeText("Test One"))
+        // テキスト編集終了
+        onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.editEndButton)).check(matches(isDisplayed()))
+        onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.editEndButton)).perform(ViewActions.click())
+        onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.rowText)).check(matches(isDisplayed()))
+        //      onView(withRecyclerView(R.id.originList).atPositionOnView(1,R.id.rowText)).check(matches(hasText(1,"Test One")))
+        //  onView(withRecyclerView(R.id.originList).atPositionOnView(1,R.id.editEndButton)).check(matches(withEffectiveVisibility(Visibility.INVISIBLE)))
 
     }
 }
@@ -70,12 +85,12 @@ class CustomMatchers {
         fun hasText(position: Int, testString: String): Matcher<View> {
             return object : BoundedMatcher<View, RecyclerView>(RecyclerView::class.java) {
                 override fun describeTo(description: Description?) {
-                    description?.appendText("Recycler view has $testString")
+                    description?.appendText("position $position of the recycler view has $testString")
                 }
 
                 override fun matchesSafely(view: RecyclerView?): Boolean {
-                    if (view !is RecyclerView) return false // throw IllegalStateException("The asserted view is not RecyclerView")
-                    if (view.adapter == null) return false // throw IllegalStateException("No adapter is assigned to RecyclerView")
+                    if (view !is RecyclerView) throw IllegalStateException("The asserted view is not RecyclerView")
+                    if (view.adapter == null) throw IllegalStateException("No adapter is assigned to RecyclerView")
                     else {
                         val holder = view.findViewHolderForAdapterPosition(position)
                         val text = holder?.itemView?.rowText?.text ?: "null"
@@ -99,7 +114,7 @@ class RecyclerViewMatcher(val mRecyclerViewId: Int) {
 
     fun atPositionOnView(position: Int, targetViewId: Int): Matcher<View> {
 
-        val typeSafeMatcher = object : TypeSafeMatcher<View>() {
+        return object : TypeSafeMatcher<View>() {
             var resources: Resources? = null
             var childView: View? = null
             override fun describeTo(description: Description?) {
@@ -118,7 +133,6 @@ class RecyclerViewMatcher(val mRecyclerViewId: Int) {
                 }
                 description?.appendText("with id:$idDescription")
             }
-
             override fun matchesSafely(item: View): Boolean {
                 this.resources = item.resources
                 if (childView == null) {
@@ -137,6 +151,5 @@ class RecyclerViewMatcher(val mRecyclerViewId: Int) {
                 }
             }
         }
-        return typeSafeMatcher
     }
 }
