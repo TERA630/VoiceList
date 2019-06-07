@@ -7,10 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import kotlinx.android.synthetic.main.origin_list.view.*
-import java.util.*
 
 class OriginListAdaptor(
-    private var mResults: MutableList<String>,
     private val mModel: MainViewModel
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     // ViewType 0 or except 1: item, 1: folder
@@ -77,10 +75,6 @@ class OriginListAdaptor(
                 }
             }
         }
-    }
-    fun upDateResultList(stringArray: ArrayList<String>) {
-        mResults = stringArray
-        notifyDataSetChanged()
     }
     fun setUIHandler(_handler: OriginFragment.DeliverEventToActivity) {
         this.mHandler = _handler

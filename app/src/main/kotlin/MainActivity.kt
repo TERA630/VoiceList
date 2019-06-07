@@ -30,7 +30,9 @@ class MainActivity : AppCompatActivity() {
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
         super.onRestoreInstanceState(savedInstanceState)
         val stringArray = savedInstanceState?.getStringArrayList(CURRENT_ITEMS)
-        if (!stringArray.isNullOrEmpty()) mAdaptor.upDateResultList(stringArray)
+        stringArray?.let {
+            vModel.initLiveList(it.toMutableList())
+        }
     }
     override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
         // on Pauseや回転後 on Stop前
@@ -79,7 +81,7 @@ class MainActivity : AppCompatActivity() {
         model.initLiveList(result.toMutableList())
 
         if (savedInstanceState == null) { // 初回起動でのみフラグメント追加
-            val originFragment = OriginFragment.newInstance(result)
+            val originFragment = OriginFragment.newInstance()
             supportFragmentManager.beginTransaction()
                 .add(R.id.activityFrame, originFragment)
                 .commit()

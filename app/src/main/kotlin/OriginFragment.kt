@@ -13,28 +13,17 @@ private const val ARG_PARAM1 = "param1"
 
 class OriginFragment : Fragment() {
     private lateinit var mAdaptor: OriginListAdaptor
-    private lateinit var mList: MutableList<String>
-
     companion object {
         @JvmStatic
-        fun newInstance(arrayList: ArrayList<String>) =
-            OriginFragment().apply {
-                arguments = Bundle().apply {
-                    putStringArrayList(ARG_PARAM1, arrayList)
-                }
-            }
+        fun newInstance() =
+            OriginFragment()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val model = ViewModelProviders.of(this.activity!!).get(MainViewModel::class.java)
 
-        arguments?.let {
-            val list = it.getStringArrayList(ARG_PARAM1)
-            if (!list.isNullOrEmpty()) {
-                mList = list.toMutableList()
-            }
-            mAdaptor = OriginListAdaptor(mList, model)
+        mAdaptor = OriginListAdaptor(model)
             mAdaptor.setUIHandler(object : DeliverEventToActivity {
                 override fun onUserInterAction(parentString: String, _list: List<String>) {
                     val activity = this@OriginFragment.activity
@@ -43,7 +32,6 @@ class OriginFragment : Fragment() {
                 }
             })
         }
-    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -55,7 +43,6 @@ class OriginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         originList.adapter = mAdaptor
-        //   mAdaptor.setUIHandler()
     }
 
     interface DeliverEventToActivity {

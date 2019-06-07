@@ -10,11 +10,27 @@ import android.view.inputmethod.InputMethodManager
 class MainViewModel : ViewModel() {
     val errorList = listOf("OriginList", "was", "null", "or", "empty", "Check", "the", "code.")
     var originList: MutableLiveData<MutableList<String>> = MutableLiveData()
-
+    // Init
     fun initLiveList(_list: MutableList<String>) {
         originList.postValue(_list)
     }
 
+    // Public methods
+    fun getAllArray(): ArrayList<String> {
+        if (originList.value == null) return ArrayList(errorList)
+        val safeOriginList = originList.value as MutableList<String>
+        return ArrayList(safeOriginList)
+    }
+
+    fun getChildListAt(index: Int): List<String> {
+        if (originList.value == null) return errorList
+        else {
+            val safeOriginList = originList.value as MutableList<String>
+            val headAndChildCSV = safeOriginList[index]
+            val list = headAndChildCSV.split(",")
+            return list.drop(1)
+        }
+    }
     fun getOriginList(): List<String> {
         if (originList.value == null) return errorList
         else {
@@ -28,16 +44,6 @@ class MainViewModel : ViewModel() {
                 }
             }
             return result
-        }
-    }
-
-    fun getChildListAt(index: Int): List<String> {
-        if (originList.value == null) return errorList
-        else {
-            val safeOriginList = originList.value as MutableList<String>
-            val headAndChildCSV = safeOriginList[index]
-            val list = headAndChildCSV.split(",")
-            return list.drop(1)
         }
     }
 
