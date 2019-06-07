@@ -3,9 +3,9 @@ package com.example.voicelist
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import org.junit.experimental.theories.DataPoints
 import org.junit.experimental.theories.Theories
 import org.junit.experimental.theories.Theory
+import org.junit.experimental.theories.suppliers.TestedOn
 import org.junit.runner.RunWith
 
 /**
@@ -28,12 +28,18 @@ class RegexTest {
         "two:origin,give,gave,given",
         "three:origin,fire,blizzard,thunder",
         "four:origin,fire,fira,figa",
-        "five",
+        "five:origin,thunder,thundara,thundaga",
         "six:origin,Tina,Rock,Mash,Edo"
     )
-    @DataPoints
-    val dataOne = Fixture(1, listOf("had", "had"))
-    val dataTwo = Fixture(2, listOf("give", "gave", "given"))
+    val sampleIndexToExpected = mapOf(
+        0 to listOf("had", "had"),
+        1 to listOf("give", "gave", "given"),
+        2 to listOf("fire", "blizzard", "thunder"),
+        3 to listOf("fire", "fira", "figa"),
+        4 to listOf("thunder", "thundara", "thundaga"),
+        5 to listOf("Tina", "Rock", "Mash", "Edo")
+    )
+
 
     @Test
     fun testOriginRegEx() {
@@ -45,18 +51,14 @@ class RegexTest {
                 result.add(header)
             }
         }
-        assertThat(result).isEqualTo(mutableListOf("have", "two", "three", "four", "six"))
+        assertThat(result).isEqualTo(mutableListOf("have", "two", "three", "four", "five", "six"))
     }
-
-    data class Fixture(val dataIndex: Int, val dataList: List<String>)
-
-
     @Theory
-    fun testChildList(index: Int, expected: List<String>) {
-        val headAndChildCSV = sampleData[index]
+    fun testChildList(@TestedOn(ints = intArrayOf(0, 1, 2, 3, 4)) int: Int) {
+        val headAndChildCSV = sampleData[int]
         val list = headAndChildCSV.split(",")
         val result = list.drop(1)
-        assertThat(result).isEqualTo(expected)
+        assertThat(result).isEqualTo(sampleIndexToExpected[int])
     }
 
 
