@@ -17,10 +17,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        val model = ViewModelProviders.of(this@MainActivity).get(MainViewModel::class.java)
+        val vModel = ViewModelProviders.of(this@MainActivity).get(MainViewModel::class.java)
         setSupportActionBar(toolbar)
-        makeListAdaptor(savedInstanceState, model)
+        makeListAdaptor(savedInstanceState, vModel)
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
@@ -76,7 +75,7 @@ class MainActivity : AppCompatActivity() {
             )
             else resultOptional
 
-        model.initLiveList(result.toList())
+        model.initLiveList(result.toMutableList())
 
         if (savedInstanceState == null) { // 初回起動でのみフラグメント追加
             val originFragment = OriginFragment.newInstance(result)

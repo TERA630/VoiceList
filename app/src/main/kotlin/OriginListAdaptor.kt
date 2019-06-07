@@ -1,5 +1,6 @@
 package com.example.voicelist
 
+import android.support.design.widget.Snackbar
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -51,6 +52,10 @@ class OriginListAdaptor(
             lV.imageWrapper.showNext()
         }
         lV.rowEditText.setText(head, TextView.BufferType.NORMAL)
+        lV.folderIcon.setOnClickListener { v ->
+            Snackbar.make(v, "$childList", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
+        }
         lV.editEndButton.setOnClickListener { v ->
             val newText = lV.rowEditText.text
             vH.headString = newText.toString()

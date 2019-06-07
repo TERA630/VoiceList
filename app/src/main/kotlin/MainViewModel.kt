@@ -9,10 +9,10 @@ import android.view.inputmethod.InputMethodManager
 
 class MainViewModel : ViewModel() {
     val errorList = listOf("OriginList", "was", "null", "or", "empty", "Check", "the", "code.")
-    lateinit var originList: MutableLiveData<MutableList<String>>
+    var originList: MutableLiveData<MutableList<String>> = MutableLiveData()
 
-    fun initLiveList(_list: List<String>) {
-        originList.value = _list.toMutableList()
+    fun initLiveList(_list: MutableList<String>) {
+        originList.postValue(_list)
     }
 
     fun getOriginList(): List<String> {
