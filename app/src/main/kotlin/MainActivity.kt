@@ -66,12 +66,12 @@ class MainActivity : AppCompatActivity() {
         val resultOptional = savedInstanceState?.getStringArrayList(CURRENT_ITEMS)
         val result =
             if (resultOptional.isNullOrEmpty()) arrayListOf(
-                "one",
-                "two,win,won,wan",
+                "one:origin",
+                "two:origin,win,won,wan",
                 "three",
-                "four,hat,hut,hot",
-                "five",
-                "six,sox,sex,sax"
+                "four:origin,hat,hut,hot",
+                "five:origin",
+                "six:origin,sox,sex,sax"
             )
             else resultOptional
 

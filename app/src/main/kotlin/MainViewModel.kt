@@ -18,7 +18,7 @@ class MainViewModel : ViewModel() {
     fun getOriginList(): List<String> {
         if (originList.value == null) return errorList
         else {
-            val titleRegex = "^(.+):origin,.*".toRegex()
+            val titleRegex = "^(.+):origin.*".toRegex()
             val safeOriginList = originList.value as MutableList<String>
             val result = mutableListOf<String>()
             for (i in safeOriginList.indices) {
@@ -38,6 +38,15 @@ class MainViewModel : ViewModel() {
             val headAndChildCSV = safeOriginList[index]
             val list = headAndChildCSV.split(",")
             return list.drop(1)
+        }
+    }
+
+    fun setOriginListAt(index: Int, _value: String) {
+        if (originList.value == null) return
+        else {
+            val safeOriginList = originList.value as MutableList<String>
+            safeOriginList[index] = _value
+            originList.postValue(safeOriginList)
         }
     }
 }

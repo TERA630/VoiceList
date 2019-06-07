@@ -18,7 +18,7 @@ class OriginListAdaptor(
     private lateinit var mHandler: OriginFragment.DeliverEventToActivity
 
     // Lifecycle of Recycler View
-    override fun getItemCount(): Int = mResults.size
+    override fun getItemCount(): Int = mModel.getOriginList().size
 
     override fun getItemViewType(position: Int): Int = indicateViewType(position)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -32,8 +32,8 @@ class OriginListAdaptor(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val list = mResults[position].split(",")
-        val head = mModel.getOriginList()[position]
+        val list = mModel.getOriginList()
+        val head = if (list.isNotEmpty()) list[position] else "empty!!!"
 
         val childList = mModel.getChildListAt(position)
         val vH = holder as ViewHolderOfCell
@@ -57,9 +57,9 @@ class OriginListAdaptor(
                 .setAction("Action", null).show()
         }
         lV.editEndButton.setOnClickListener { v ->
-            val newText = lV.rowEditText.text
-            vH.headString = newText.toString()
-            this.mResults[position] = newText.toString()
+            val newText = lV.rowEditText.text.toString()
+            vH.headString = newText
+            mModel.setOriginListAt(position, newText)
             lV.rowText.text = newText
             this@OriginListAdaptor.notifyItemChanged(position)
             lV.textWrapper.showPrevious()
@@ -78,11 +78,6 @@ class OriginListAdaptor(
             }
         }
     }
-    fun addResult(result: String) {
-        mResults.add(0, result)
-        notifyItemInserted(0)
-    }
-    fun getResults(): MutableList<String> = mResults
     fun upDateResultList(stringArray: ArrayList<String>) {
         mResults = stringArray
         notifyDataSetChanged()
