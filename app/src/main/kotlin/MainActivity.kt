@@ -13,11 +13,12 @@ const val CURRENT_ITEMS ="currentItems"
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mAdaptor: OriginListAdaptor
+    private lateinit var vModel: MainViewModel
     // Activity life cycles
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val vModel = ViewModelProviders.of(this@MainActivity).get(MainViewModel::class.java)
+        vModel = ViewModelProviders.of(this@MainActivity).get(MainViewModel::class.java)
         setSupportActionBar(toolbar)
         makeListAdaptor(savedInstanceState, vModel)
         fab.setOnClickListener { view ->
@@ -35,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         // on Pauseや回転後 on Stop前
         super.onSaveInstanceState(outState, outPersistentState)
         outState?.apply {
-            putStringArrayList(CURRENT_ITEMS, ArrayList(mAdaptor.getResults()))
+            putStringArrayList(CURRENT_ITEMS, ArrayList(vModel.getOriginList()))
         }
     }
     // Activity Event
