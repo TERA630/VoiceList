@@ -33,7 +33,6 @@ class OriginListAdaptor(
         val list = mModel.getLiveListHeader()
         val head = if (list.isNotEmpty()) list[position] else "empty!!!"
 
-
         val vH = holder as ViewHolderOfCell
         vH.headString = head
         val lV = vH.rowView // list View

@@ -68,14 +68,14 @@ class MainActivity : AppCompatActivity() {
         val result =
             if (resultOptional.isNullOrEmpty()) arrayListOf(
                 "one",
-                "two,Firion,Maria,Ricard,Minwu",
+                //    "two,Firion,Maria,Ricard,Minwu",
                 "three,Monk,White Mage,Thief,Dragoon,Summoner",
                 "four,Cecil,Kain,Rydia,Rosa,Edge",
                 "five,Bartz,Faris,Galuf,Lenna,Krile",
                 "six,Terra,Locke,Celes,Shadow",
-                "seven,Cloud,Tifa,Aeris",
-                "eight,Squall,Rinoa,Quistis",
-                "nine,Zidane,Vivi,Garnet,Freya",
+                //    "seven,Cloud,Tifa,Aeris",
+                //    "eight,Squall,Rinoa,Quistis",
+                //    "nine,Zidane,Vivi,Garnet,Freya",
                 "ten,Yuna"
             )
             else resultOptional
