@@ -6,12 +6,12 @@ import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.action.ViewActions
 import android.support.test.espresso.assertion.ViewAssertions.matches
 import android.support.test.espresso.matcher.BoundedMatcher
-import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
-import android.support.test.espresso.matcher.ViewMatchers.withId
+import android.support.test.espresso.matcher.ViewMatchers.*
 import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
 import android.support.v7.widget.RecyclerView
 import android.view.View
+import android.view.ViewGroup
 import kotlinx.android.synthetic.main.origin_list.view.*
 import org.hamcrest.Description
 import org.hamcrest.Matcher
@@ -49,22 +49,17 @@ class ActivityTest {
     @Test
     fun viewClick() {
         //　テキストクリック→編集
-        onView(withRecyclerView(R.id.originList).atPositionOnView(0, R.id.rowText)).perform(ViewActions.click())
-        onView(withRecyclerView(R.id.originList).atPositionOnView(0, R.id.rowEditText)).check(matches(isDisplayed()))
-        onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.rowText)).perform(ViewActions.click())
+        val rowEdit = onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.rowText))
+        rowEdit.perform(ViewActions.click())
         //　テキスト編集、終了
         val rowEditText = onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.rowEditText))
-        rowEditText.check(matches(isDisplayed()))
-        rowEditText.perform(ViewActions.clearText())
-        rowEditText.perform(ViewActions.typeText("Test One"))
+        rowEditText.perform(ViewActions.replaceText("Test One"))
         val endButton = onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.editEndButton))
         endButton.check(matches(isDisplayed()))
-        // error   endButton.perform(ViewActions.click())
+        endButton.perform(ViewActions.click())
+        endButton.check(matches(withEffectiveVisibility(Visibility.GONE)))
         // テキスト編集終了
-
-        // onView(withRecyclerView(R.id.liveList).atPositionOnView(1, R.id.editEndButton)).perform(ViewActions.click())
-        //      onView(withRecyclerView(R.id.liveList).atPositionOnView(1, R.id.rowText)).check(matches(isDisplayed()))
-        //      onView(withRecyclerView(R.id.liveList).atPositionOnView(1,R.id.rowText)).check(matches(hasText(1,"Test One")))
+        //    onView(withRecyclerView(R.id.originList).atPositionOnView(1,R.id.rowText)).check(matches(hasText(1,"Test One")))
 //        onView(withRecyclerView(R.id.liveList).atPositionOnView(1, R.id.editEndButton)).check(matches(withEffectiveVisibility(Visibility.GONE))
 //        )
 
@@ -72,8 +67,6 @@ class ActivityTest {
 }
 
 class CustomMatchers {
-    var innerText: String? = null
-
     companion object {
         fun hasText(position: Int, testString: String): Matcher<View> {
             return object : BoundedMatcher<View, RecyclerView>(RecyclerView::class.java) {
@@ -96,6 +89,23 @@ class CustomMatchers {
     }
 }
 
+private fun childAtPosition(
+    parentMatcher: Matcher<View>, position: Int
+): Matcher<View> {
+
+    return object : TypeSafeMatcher<View>() {
+        override fun describeTo(description: Description) {
+            description.appendText("Child at position $position in parent ")
+            parentMatcher.describeTo(description)
+        }
+
+        public override fun matchesSafely(view: View): Boolean {
+            val parent = view.parent
+            return (parent is ViewGroup && parentMatcher.matches(parent)
+                    && view == parent.getChildAt(position))
+        }
+    }
+}
 fun withRecyclerView(recyclerViewId: Int): RecyclerViewMatcher {
     return RecyclerViewMatcher(recyclerViewId)
 }
