@@ -30,16 +30,16 @@ class OriginListAdaptor(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val list = mModel.getLiveList()
+        val list = mModel.getLiveListHeader()
         val head = if (list.isNotEmpty()) list[position] else "empty!!!"
 
-        val childList = mModel.getChildListAt(position)
+
         val vH = holder as ViewHolderOfCell
         vH.headString = head
         val lV = vH.rowView // list View
 
-        if (vH.hasChild && vH.childList.isNotEmpty()) {
-            vH.childList = childList.toMutableList()
+        if (vH.hasChild) {
+            vH.childList = mModel.getChildListAt(position).toMutableList()
             lV.folderIcon.visibility = View.VISIBLE
         } else {
             lV.folderIcon.visibility = View.GONE
@@ -51,7 +51,7 @@ class OriginListAdaptor(
         }
         lV.rowEditText.setText(head, TextView.BufferType.NORMAL)
         lV.folderIcon.setOnClickListener { v ->
-            Snackbar.make(v, "$childList", Snackbar.LENGTH_LONG)
+            Snackbar.make(v, "${vH.childList}", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
         }
         lV.editEndButton.setOnClickListener { v ->
@@ -79,7 +79,6 @@ class OriginListAdaptor(
     fun setUIHandler(_handler: OriginFragment.DeliverEventToActivity) {
         this.mHandler = _handler
     }
-
     private fun indicateViewType(position: Int): Int {
         val childList = mModel.getChildListAt(position)
         return if (childList.isNotEmpty()) 1 else 0 // ChildItemがなければ　ViewType:0　Itemをかえす。　そうでなければFolderをかえす。

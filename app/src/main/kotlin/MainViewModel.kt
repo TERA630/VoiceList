@@ -38,11 +38,28 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun getLiveListHeader(): MutableList<String> {
+        // Liveリストの先頭要素のみを並べたもの
+        if (liveList.value == null) return errorList.toMutableList()
+        else {
+            val safeLiveList = liveList.value as MutableList<String>
+            val safeLiveListHeaders = mutableListOf<String>()
+            for (i in safeLiveList.indices) {
+                val list = safeLiveList[i].split(",")
+                safeLiveListHeaders.add(list[0])
+            }
+            return safeLiveListHeaders
+        }
+    }
+
     fun setOriginListAt(index: Int, _value: String) {
         if (liveList.value == null) return
         else {
             val safeLiveList = liveList.value as MutableList<String>
-            safeLiveList[index] = _value
+            val safeLiveListDestructed = safeLiveList[index].split(",").toMutableList()
+            safeLiveListDestructed[0] = _value
+            val newListElement = safeLiveListDestructed.joinToString()
+            safeLiveList[index] = newListElement
             liveList.postValue(safeLiveList)
         }
     }

@@ -12,13 +12,11 @@ import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
 import android.support.v7.widget.RecyclerView
 import android.view.View
-import com.example.voicelist.CustomMatchers.Companion.hasText
 import kotlinx.android.synthetic.main.origin_list.view.*
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
 import org.junit.Assert.assertEquals
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,14 +37,13 @@ class ActivityTest {
     @JvmField
     val mActivityTestRule = ActivityTestRule(MainActivity::class.java)
 
-    @Ignore
+    @Test
     fun viewCheck() {
         onView(withId(R.id.activityFrame)).check(matches(isDisplayed()))
         onView(withId(R.id.originList)).check(matches(isDisplayed()))
-        onView(withId(R.id.originList)).check(matches(hasText(0, "one")))
-        onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.folderIcon)).check(matches(isDisplayed()))
+        onView(withRecyclerView(R.id.originList).atPositionOnView(0, R.id.imageWrapper)).check(matches(isDisplayed()))
         onView(withRecyclerView(R.id.originList).atPositionOnView(0, R.id.textWrapper)).check(matches(isDisplayed()))
-        onView(withRecyclerView(R.id.originList).atPositionOnView(2, R.id.imageWrapper)).check(matches(isDisplayed()))
+        //  onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.imageWrapper)).check(matches(isDisplayed()))
     }
 
     @Test
@@ -56,14 +53,10 @@ class ActivityTest {
         onView(withRecyclerView(R.id.originList).atPositionOnView(0, R.id.rowEditText)).check(matches(isDisplayed()))
         onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.rowText)).perform(ViewActions.click())
         //　テキスト編集、終了
-        onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.rowEditText)).check(matches(isDisplayed()))
-        onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.rowEditText)).perform(ViewActions.clearText())
-        onView(
-            withRecyclerView(R.id.originList).atPositionOnView(
-                1,
-                R.id.rowEditText
-            )
-        ).perform(ViewActions.typeText("Test One"))
+        val rowEditText = onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.rowEditText))
+        rowEditText.check(matches(isDisplayed()))
+        rowEditText.perform(ViewActions.clearText())
+        rowEditText.perform(ViewActions.typeText("Test One"))
         val endButton = onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.editEndButton))
         endButton.check(matches(isDisplayed()))
         // error   endButton.perform(ViewActions.click())
