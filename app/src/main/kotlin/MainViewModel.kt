@@ -3,57 +3,62 @@ package com.example.voicelist
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.content.Context
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 
 class MainViewModel : ViewModel() {
-    val errorList = listOf("OriginList", "was", "null", "or", "empty", "Check", "the", "code.")
+    private val errorList = listOf("OriginList", "was", "null", "or", "empty", "Check", "the", "code.")
     var liveList: MutableLiveData<MutableList<String>> = MutableLiveData()
-    // Init
+    // Initialization of liveList   Must to be called at First.. before calling other methods
     fun initLiveList(_list: MutableList<String>) {
         liveList.postValue(_list)
     }
 
-    // Public methods
-    fun getLiveListAsArrayList(): ArrayList<String> {
-        if (liveList.value == null) return ArrayList(errorList)
-        val safeOriginList = liveList.value as MutableList<String>
-        return ArrayList(safeOriginList)
+    // Public methods which deals liveList
+
+    fun addLiveList(_value: String) {
+        if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
+        val safeLiveList = liveList.value as MutableList<String>
+        safeLiveList.add(_value)
+        liveList.postValue(safeLiveList)
     }
 
+
     fun getChildListAt(index: Int): List<String> {
-        if (liveList.value == null) return errorList
-        else {
-            val safeOriginList = liveList.value as MutableList<String>
-            val headAndChildCSV = safeOriginList[index]
+        val headAndChildCSV = getLiveList()[index]
             val list = headAndChildCSV.split(",")
             return list.drop(1)
-        }
     }
 
     fun getLiveList(): List<String> {
-        if (liveList.value == null) return errorList
+        if (liveList.value == null) {
+            Log.w("test", "Failed to access liveList.")
+            return errorList
+        }
         else {
             return liveList.value as MutableList<String>
         }
     }
 
+    fun getLiveListAsArrayList(): ArrayList<String> {
+        if (liveList.value == null) return ArrayList(errorList)
+        val safeOriginList = liveList.value as MutableList<String>
+        return ArrayList(safeOriginList)
+    }
     fun getLiveListHeader(): MutableList<String> {
         // Liveリストの先頭要素のみを並べたもの
-        if (liveList.value == null) return errorList.toMutableList()
-        else {
-            val safeLiveList = liveList.value as MutableList<String>
+        val safeLiveList = getLiveList()
             val safeLiveListHeaders = mutableListOf<String>()
             for (i in safeLiveList.indices) {
                 val list = safeLiveList[i].split(",")
                 safeLiveListHeaders.add(list[0])
             }
             return safeLiveListHeaders
-        }
     }
 
     fun setOriginListAt(index: Int, _value: String) {
-        if (liveList.value == null) return
+        if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         else {
             val safeLiveList = liveList.value as MutableList<String>
             val safeLiveListDestructed = safeLiveList[index].split(",").toMutableList()

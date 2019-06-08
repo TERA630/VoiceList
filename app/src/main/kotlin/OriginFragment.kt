@@ -1,5 +1,6 @@
 package com.example.voicelist
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -43,6 +44,14 @@ class OriginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         originList.adapter = mAdaptor
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val model = ViewModelProviders.of(this.activity!!).get(MainViewModel::class.java)
+        model.liveList.observe(this, Observer {
+            mAdaptor.notifyDataSetChanged()
+        })
     }
     interface DeliverEventToActivity {
         fun onUserInterAction(parentString: String, _list: List<String>)

@@ -76,6 +76,8 @@ class OriginListAdaptor(
             }
         }
     }
+
+    // public method
     fun setUIHandler(_handler: OriginFragment.DeliverEventToActivity) {
         this.mHandler = _handler
     }

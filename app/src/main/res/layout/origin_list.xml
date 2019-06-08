@@ -10,7 +10,8 @@
         android:theme="@style/ThemeOverlay.AppCompat.Light"
         app:cardCornerRadius="4dp"
         app:cardElevation="1dp"
-        app:cardUseCompatPadding="true">
+        app:cardUseCompatPadding="true"
+        android:fitsSystemWindows="true">
 
     <android.support.constraint.ConstraintLayout
             android:id="@+id/linear"
