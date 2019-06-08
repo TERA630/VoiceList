@@ -16,7 +16,7 @@ class OriginListAdaptor(
     private lateinit var mHandler: OriginFragment.DeliverEventToActivity
 
     // Lifecycle of Recycler View
-    override fun getItemCount(): Int = mModel.getOriginList().size
+    override fun getItemCount(): Int = mModel.getLiveList().size
 
     override fun getItemViewType(position: Int): Int = indicateViewType(position)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -30,7 +30,7 @@ class OriginListAdaptor(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val list = mModel.getOriginList()
+        val list = mModel.getLiveList()
         val head = if (list.isNotEmpty()) list[position] else "empty!!!"
 
         val childList = mModel.getChildListAt(position)
@@ -38,7 +38,7 @@ class OriginListAdaptor(
         vH.headString = head
         val lV = vH.rowView // list View
 
-        if (vH.hasChild) {
+        if (vH.hasChild && vH.childList.isNotEmpty()) {
             vH.childList = childList.toMutableList()
             lV.folderIcon.visibility = View.VISIBLE
         } else {
@@ -79,13 +79,7 @@ class OriginListAdaptor(
     fun setUIHandler(_handler: OriginFragment.DeliverEventToActivity) {
         this.mHandler = _handler
     }
-    // private method
 
-    /*  private fun editParent(_view: View, parentString: String, _position: Int) {
-          if (_view is TextView) {
-          } else {
-          }
-      }*/
     private fun indicateViewType(position: Int): Int {
         val childList = mModel.getChildListAt(position)
         return if (childList.isNotEmpty()) 1 else 0 // ChildItemがなければ　ViewType:0　Itemをかえす。　そうでなければFolderをかえす。

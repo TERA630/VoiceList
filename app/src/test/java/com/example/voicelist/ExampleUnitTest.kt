@@ -2,6 +2,7 @@ package com.example.voicelist
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert.assertEquals
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.experimental.theories.Theories
 import org.junit.experimental.theories.Theory
@@ -14,7 +15,7 @@ import org.junit.runner.RunWith
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 class ExampleUnitTest {
-    @Test
+    @Ignore
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
     }

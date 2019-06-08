@@ -44,9 +44,7 @@ class OriginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         originList.adapter = mAdaptor
     }
-
     interface DeliverEventToActivity {
         fun onUserInterAction(parentString: String, _list: List<String>)
     }
-
 }

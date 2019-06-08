@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         // on Pauseや回転後 on Stop前
         super.onSaveInstanceState(outState, outPersistentState)
         outState?.apply {
-            putStringArrayList(CURRENT_ITEMS, ArrayList(vModel.getOriginList()))
+            putStringArrayList(CURRENT_ITEMS, ArrayList(vModel.getLiveListAsArrayList()))
         }
     }
     // Activity Event
@@ -69,12 +69,12 @@ class MainActivity : AppCompatActivity() {
         val resultOptional = savedInstanceState?.getStringArrayList(CURRENT_ITEMS)
         val result =
             if (resultOptional.isNullOrEmpty()) arrayListOf(
-                "one:origin",
-                "two:origin,win,won,wan",
+                "one,have,has,had",
+                "two,win,won,wan",
                 "three",
-                "four:origin,hat,hut,hot",
-                "five:origin",
-                "six:origin,sox,sex,sax"
+                "four,hat,hut,hot",
+                "five",
+                "six,sox,sex,sax"
             )
             else resultOptional
 
