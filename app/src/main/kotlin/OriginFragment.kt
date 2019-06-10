@@ -51,8 +51,7 @@ class OriginFragment : Fragment() {
         super.onStart()
         val model = ViewModelProviders.of(this.activity!!).get(MainViewModel::class.java)
         model.liveList.observe(this, Observer {
-            mAdaptor.notifyItemInserted(0)
-            originList.smoothScrollToPosition(model.getLiveList().lastIndex)
+            mAdaptor.notifyDataSetChanged()
         })
     }
     interface DeliverEventToActivity {
