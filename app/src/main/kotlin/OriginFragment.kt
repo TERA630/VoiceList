@@ -44,6 +44,7 @@ class OriginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         originList.adapter = mAdaptor
+        originList.setHasFixedSize(true)
     }
 
     override fun onStart() {

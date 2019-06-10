@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
         val resultOptional = savedInstanceState?.getStringArrayList(CURRENT_ITEMS)
         val result =
             if (resultOptional.isNullOrEmpty()) arrayListOf(
-                "one",
+                "one,knight",
                 "two,Firion,Maria,Ricard,Minwu",
                 "three,Monk,White Mage,Thief,Dragoon,Summoner",
                 "four,Cecil,Kain,Rydia,Rosa,Edge",
