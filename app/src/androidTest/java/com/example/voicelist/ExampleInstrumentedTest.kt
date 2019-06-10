@@ -6,8 +6,7 @@ import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.action.ViewActions
 import android.support.test.espresso.assertion.ViewAssertions.matches
 import android.support.test.espresso.matcher.BoundedMatcher
-import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
-import android.support.test.espresso.matcher.ViewMatchers.withId
+import android.support.test.espresso.matcher.ViewMatchers.*
 import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
 import android.support.v7.widget.RecyclerView
@@ -56,8 +55,8 @@ class ActivityTest {
         rowEditText.perform(ViewActions.replaceText("Test One"))
         val endButton = onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.editEndButton))
         endButton.check(matches(isDisplayed()))
-        //   endButton.perform(ViewActions.click())
-        //   endButton.check(matches(withEffectiveVisibility(Visibility.GONE)))
+        endButton.perform(ViewActions.click())
+        endButton.check(matches(withEffectiveVisibility(Visibility.GONE)))
         // テキスト編集終了
         //    onView(withRecyclerView(R.id.originList).atPositionOnView(1,R.id.rowText)).check(matches(hasText(1,"Test One")))
 //        onView(withRecyclerView(R.id.liveList).atPositionOnView(1, R.id.editEndButton)).check(matches(withEffectiveVisibility(Visibility.GONE))
