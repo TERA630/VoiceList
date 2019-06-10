@@ -56,7 +56,7 @@ class OriginListAdaptor(
         lV.editEndButton.setOnClickListener { v ->
             val newText = lV.rowEditText.text.toString()
             vH.headString = newText
-            mModel.setOriginListAt(position, newText)
+            mModel.setOriginListAt(position, 0, newText)
             lV.rowText.text = newText
             this@OriginListAdaptor.notifyItemChanged(position)
             lV.textWrapper.showPrevious()
@@ -87,6 +87,6 @@ class OriginListAdaptor(
     class ViewHolderOfCell(val rowView: View) : RecyclerView.ViewHolder(rowView) {
         var headString = ""
         var hasChild = false
-        var childList: MutableList<String> = emptyList<String>().toMutableList()
+        var childList = mutableListOf<String>()
     }
 }

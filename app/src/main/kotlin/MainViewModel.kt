@@ -57,14 +57,14 @@ class MainViewModel : ViewModel() {
             return safeLiveListHeaders
     }
 
-    fun setOriginListAt(index: Int, _value: String) {
+    fun setOriginListAt(rowIndex: Int, columnIndex: Int, _value: String) { // CSV 形式のリストに　値を設定します。
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         else {
             val safeLiveList = liveList.value as MutableList<String>
-            val safeLiveListDestructed = safeLiveList[index].split(",").toMutableList()
-            safeLiveListDestructed[0] = _value
+            val safeLiveListDestructed = safeLiveList[rowIndex].split(",").toMutableList()
+            safeLiveListDestructed[columnIndex] = _value
             val newListElement = safeLiveListDestructed.joinToString()
-            safeLiveList[index] = newListElement
+            safeLiveList[rowIndex] = newListElement
             liveList.postValue(safeLiveList)
         }
     }
