@@ -24,7 +24,16 @@ class MainViewModel : ViewModel() {
         liveList.postValue(safeLiveList)
     }
 
+    fun findIndexOfOrigin(_string: String): Int {
+        val result = getOriginList().firstOrNull { it.matches("^$_string,".toRegex()) }
+        if (result != null) {
+            Log.i("test", "$_string was found at")
+            return result
+        } else {
+        }
 
+        return result
+    }
     fun getChildListAt(index: Int): List<String> {
         val headAndChildCSV = getLiveList()[index]
             val list = headAndChildCSV.split(",")
@@ -46,7 +55,8 @@ class MainViewModel : ViewModel() {
         val safeOriginList = liveList.value as MutableList<String>
         return ArrayList(safeOriginList)
     }
-    fun getLiveListHeader(): MutableList<String> {
+
+    fun getOriginList(): MutableList<String> {
         // Liveリストの先頭要素のみを並べたもの
         val safeLiveList = getLiveList()
             val safeLiveListHeaders = mutableListOf<String>()
@@ -57,7 +67,7 @@ class MainViewModel : ViewModel() {
             return safeLiveListHeaders
     }
 
-    fun setOriginListAt(rowIndex: Int, columnIndex: Int, _value: String) { // CSV 形式のリストに　値を設定します。
+    fun setLiveListAt(rowIndex: Int, columnIndex: Int, _value: String) { // CSV 形式のリストに　値を設定します。
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         else {
             val safeLiveList = liveList.value as MutableList<String>

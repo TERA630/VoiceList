@@ -30,7 +30,7 @@ class OriginListAdaptor(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val list = mModel.getLiveListHeader()
+        val list = mModel.getOriginList()
         val head = if (list.isNotEmpty()) list[position] else "empty!!!"
 
         val vH = holder as ViewHolderOfCell
@@ -56,7 +56,7 @@ class OriginListAdaptor(
         lV.editEndButton.setOnClickListener { v ->
             val newText = lV.rowEditText.text.toString()
             vH.headString = newText
-            mModel.setOriginListAt(position, 0, newText)
+            mModel.setLiveListAt(position, 0, newText)
             lV.rowText.text = newText
             this@OriginListAdaptor.notifyItemChanged(position)
             lV.textWrapper.showPrevious()
