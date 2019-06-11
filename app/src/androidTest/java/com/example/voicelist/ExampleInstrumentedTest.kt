@@ -146,11 +146,11 @@ class RecyclerViewMatcher(val mRecyclerViewId: Int) {
                         return false
                     }
                 }
-                if (targetViewId == -1) {
-                    return (item == childView)
+                return if (targetViewId == -1) {
+                    (item == childView)
                 } else {
                     val targetView = childView?.findViewById<View>(targetViewId)
-                    return (item == targetView)
+                    (item == targetView)
                 }
             }
         }

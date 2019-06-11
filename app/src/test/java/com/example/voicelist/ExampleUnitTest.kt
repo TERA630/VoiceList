@@ -24,7 +24,7 @@ class ExampleUnitTest {
 
 @RunWith(Theories::class)
 class RegexTest {
-    val sampleData = listOf(
+    private val sampleData = listOf(
         "have:origin,had,had",
         "two:origin,give,gave,given",
         "three:origin,fire,blizzard,thunder",
@@ -55,7 +55,7 @@ class RegexTest {
         assertThat(result).isEqualTo(mutableListOf("have", "two", "three", "four", "five", "six"))
     }
     @Theory
-    fun testChildList(@TestedOn(ints = intArrayOf(0, 1, 2, 3, 4)) int: Int) {
+    fun testChildList(@TestedOn(ints = [0, 1, 2, 3, 4]) int: Int) {
         val headAndChildCSV = sampleData[int]
         val list = headAndChildCSV.split(",")
         val result = list.drop(1)

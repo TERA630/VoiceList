@@ -61,5 +61,5 @@ class ChildListAdaptor(
     override fun getItemCount(): Int = mList.size + 1
 
     class ChildRowHolder
-        (private val mView: View) : RecyclerView.ViewHolder(mView)
+        (mView: View) : RecyclerView.ViewHolder(mView)
 }

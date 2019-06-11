@@ -40,12 +40,11 @@ class MainViewModel : ViewModel() {
     }
 
     fun getLiveList(): List<String> {
-        if (liveList.value == null) {
+        return if (liveList.value == null) {
             Log.w("test", "Failed to access liveList.")
-            return errorList
-        }
-        else {
-            return liveList.value as MutableList<String>
+            errorList
+        } else {
+            liveList.value as MutableList<String>
         }
     }
 

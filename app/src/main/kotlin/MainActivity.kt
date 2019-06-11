@@ -67,6 +67,7 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .addToBackStack(null)
             .replace(R.id.activityFrame, OriginFragment.newInstance())
+            .commit()
     }
     // Private function
     private fun makeOriginFragment(savedInstanceState: Bundle?, model: MainViewModel) {
