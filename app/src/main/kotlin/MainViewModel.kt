@@ -25,7 +25,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun findIndexOfOrigin(_string: String): Int {
-        val result = getOriginList().indexOfFirst { it.matches("^$_string,".toRegex()) }
+        val result = getOriginList().indexOfFirst { it.matches("^$_string.*".toRegex()) }
         if (result != -1) {
             Log.i("test", "$_string was found at $result")
         } else {

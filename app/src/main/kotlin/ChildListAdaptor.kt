@@ -16,6 +16,7 @@ class ChildListAdaptor(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val childHeader = 0
     private val childContents = 1
+    private lateinit var mUIHandler: ChildFragment.DeliverEvent
 
     override fun getItemViewType(position: Int): Int {
         return if (position == 0) childHeader else childContents
@@ -36,12 +37,14 @@ class ChildListAdaptor(
 //                    .setAction("Action", null).show()
             }
         } else {
-            (holder as ChildRowHolder).itemView.childRowText.text = mList[position - 1]
-            val originIndex = model.findIndexOfOrigin(parentString)
+            val childHeader = mList[position - 1]
+            (holder as ChildRowHolder).itemView.childRowText.text = childHeader
+            val originIndex = model.findIndexOfOrigin(childHeader)
             if (originIndex > 0 && model.getChildListAt(originIndex).isNotEmpty()) {
                 holder.itemView.goChild.visibility = View.VISIBLE
                 holder.itemView.goChild.setOnClickListener { v ->
                     Log.i("test", "child with child was clicked")
+                    mUIHandler.onUserInterAction(childHeader, model.getChildListAt(originIndex))
                 }
 
             } else {
@@ -50,7 +53,12 @@ class ChildListAdaptor(
         }
     }
 
-    override fun getItemCount(): Int = mList.size
+    // public method
+    fun setUIHandler(_handler: ChildFragment.DeliverEvent) {
+        this.mUIHandler = _handler
+    }
+
+    override fun getItemCount(): Int = mList.size + 1
 
     class ChildRowHolder
         (private val mView: View) : RecyclerView.ViewHolder(mView)

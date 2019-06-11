@@ -39,10 +39,26 @@ class ChildFragment : Fragment() {
         // Set the adapter
         model = ViewModelProviders.of(this.activity!!).get(MainViewModel::class.java)
         mAdaptor = ChildListAdaptor(model, mParentString, mList)
+        mAdaptor.setUIHandler(object : DeliverEvent {
+            override fun onUserInterAction(parentString: String, _list: List<String>) {
+                transitChildToChild(parentString, _list)
+            }
+        })
         return view
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         childList.adapter = mAdaptor
     }
+
+    interface DeliverEvent {
+        fun onUserInterAction(parentString: String, _list: List<String>)
+    }
+
+    fun transitChildToChild(parentString: String, _list: List<String>) {
+        mAdaptor = ChildListAdaptor(model, parentString, _list)
+        childList.adapter = mAdaptor
+    }
+
+
 }
