@@ -39,13 +39,13 @@ class MainViewModel : ViewModel() {
     }
 
     fun getChildOf(_parent: String): List<String> {
-        val indexofOrigin = findIndexOfOrigin(_parent)
-        if (indexofOrigin > 0) {
-            val result = getChildListAt(indexofOrigin)
+        val indexOfOrigin = findIndexOfOrigin(_parent)
+        if (indexOfOrigin > 0) {
+            val result = getChildListAt(indexOfOrigin)
             return result
         } else {
             // ParentはChildを持っているはず､理論的には来ない
-            return emptyList()
+            return errorList
         }
     }
 

@@ -21,6 +21,7 @@ class MainActivity : AppCompatActivity() {
         vModel = ViewModelProviders.of(this@MainActivity).get(MainViewModel::class.java)
         setSupportActionBar(toolbar)
         makeOriginFragment(savedInstanceState, vModel)
+        //TODO FABを取り除いてRecyclerViewのFooterにするか
         fab.setOnClickListener { view ->
             vModel.addLiveList("new Item please replace.")
         }

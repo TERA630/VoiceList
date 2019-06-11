@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_item_list.*
 
 class ChildFragment : Fragment() {
+    // TODO parent関連をViewModelから取得するように
     private val mParentStringKey = "parentString"
     private val mItemListKey = "itemList"
     private var mParentString = ""
