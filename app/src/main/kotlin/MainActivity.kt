@@ -62,6 +62,12 @@ class MainActivity : AppCompatActivity() {
             .replace(R.id.activityFrame, ChildFragment.newInstance(parentString, arrayList.toList()))
             .commit()
     }
+
+    fun transitChildToOriginFragment(parentString: String) {
+        supportFragmentManager.beginTransaction()
+            .addToBackStack(null)
+            .replace(R.id.activityFrame, OriginFragment.newInstance())
+    }
     // Private function
     private fun makeOriginFragment(savedInstanceState: Bundle?, model: MainViewModel) {
         val resultOptional = savedInstanceState?.getStringArrayList(CURRENT_ITEMS)

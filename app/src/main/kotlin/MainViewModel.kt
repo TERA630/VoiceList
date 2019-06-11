@@ -25,13 +25,12 @@ class MainViewModel : ViewModel() {
     }
 
     fun findIndexOfOrigin(_string: String): Int {
-        val result = getOriginList().firstOrNull { it.matches("^$_string,".toRegex()) }
-        if (result != null) {
-            Log.i("test", "$_string was found at")
-            return result
+        val result = getOriginList().indexOfFirst { it.matches("^$_string,".toRegex()) }
+        if (result != -1) {
+            Log.i("test", "$_string was found at $result")
         } else {
+            Log.i("test", "origin not found")
         }
-
         return result
     }
     fun getChildListAt(index: Int): List<String> {

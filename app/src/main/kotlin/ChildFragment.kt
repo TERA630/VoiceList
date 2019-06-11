@@ -1,5 +1,6 @@
 package com.example.voicelist
 
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -13,6 +14,7 @@ class ChildFragment : Fragment() {
     private var mParentString = ""
     private var mList: List<String> = emptyList()
     private lateinit var mAdaptor: ChildListAdaptor
+    private lateinit var model: MainViewModel
 
     companion object {
         @JvmStatic
@@ -29,19 +31,18 @@ class ChildFragment : Fragment() {
 
         arguments?.let {
             mList = it.getStringArrayList(mItemListKey)!!.toList()
+            mParentString = it.getString(mParentStringKey)
         }
     }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_item_list, container, false)
         // Set the adapter
-        mAdaptor = ChildListAdaptor(mParentString, mList)
-
+        model = ViewModelProviders.of(this.activity!!).get(MainViewModel::class.java)
+        mAdaptor = ChildListAdaptor(model, mParentString, mList)
         return view
     }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        childFragmentList.adapter = mAdaptor
+        childList.adapter = mAdaptor
     }
 }

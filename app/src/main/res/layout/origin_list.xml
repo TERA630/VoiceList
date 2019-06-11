@@ -9,7 +9,7 @@
         android:theme="@style/ThemeOverlay.AppCompat.Light"
         app:cardCornerRadius="4dp"
         app:cardElevation="1dp"
-        android:fitsSystemWindows="true">
+        app:cardUseCompatPadding="true">
 
     <android.support.constraint.ConstraintLayout
             android:id="@+id/linear"
@@ -48,7 +48,7 @@
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:layout_gravity="end"
-                    android:src="@drawable/ic_folder"
+                    android:src="@drawable/ic_779_arrow_to_right"
                     android:contentDescription="@string/button"/>
             <ImageView
                     android:id="@+id/editEndButton"

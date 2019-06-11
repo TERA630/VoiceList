@@ -50,6 +50,7 @@ class OriginListAdaptor(
         }
         lV.rowEditText.setText(head, TextView.BufferType.NORMAL)
         lV.folderIcon.setOnClickListener { v ->
+            mHandler.onUserInterAction(head, vH.childList)
             Snackbar.make(v, "${vH.childList}", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
         }
