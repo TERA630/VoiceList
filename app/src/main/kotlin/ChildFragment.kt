@@ -3,6 +3,7 @@ package com.example.voicelist
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,7 +32,7 @@ class ChildFragment : Fragment() {
 
         arguments?.let {
             mList = it.getStringArrayList(mItemListKey)!!.toList()
-            mParentString = it.getString(mParentStringKey)
+            mParentString = it.getString(mParentStringKey)!!
         }
     }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -40,8 +41,19 @@ class ChildFragment : Fragment() {
         model = ViewModelProviders.of(this.activity!!).get(MainViewModel::class.java)
         mAdaptor = ChildListAdaptor(model, mParentString, mList)
         mAdaptor.setUIHandler(object : DeliverEvent {
-            override fun onUserInterAction(parentString: String, _list: List<String>) {
-                transitChildToChild(parentString, _list)
+            override fun advanceChildToChild(itemToGo: String, _list: List<String>) {
+                model.pushNextNavigation(itemToGo)
+                transitChildToChild(itemToGo, _list)
+            }
+
+            override fun backChildToChild(itemToBack: String, _list: List<String>) {
+                val trace = model.popNavigation()
+                Log.i("navigaiton", "$trace was pop, going to $itemToBack")
+                transitChildToChild(itemToBack, _list)
+            }
+
+            override fun onGotoOrigin() {
+                transitChildToOrigin()
             }
         })
         return view
@@ -52,13 +64,21 @@ class ChildFragment : Fragment() {
     }
 
     interface DeliverEvent {
-        fun onUserInterAction(parentString: String, _list: List<String>)
+        fun advanceChildToChild(itemToGo: String, _list: List<String>)
+        fun backChildToChild(itemToBack: String, _list: List<String>)
+        fun onGotoOrigin()
     }
 
-    fun transitChildToChild(parentString: String, _list: List<String>) {
-        mAdaptor = ChildListAdaptor(model, parentString, _list)
-        childList.adapter = mAdaptor
+    fun transitChildToChild(parentString: String, listToShowNext: List<String>) {
+        mAdaptor.updateList(listToShowNext)
+        mAdaptor.setCurrentParent(parentString)
+        mAdaptor.notifyDataSetChanged()
     }
 
-
+    fun transitChildToOrigin() {
+        activity!!.supportFragmentManager.beginTransaction()
+            .addToBackStack(null)
+            .replace(R.id.activityFrame, OriginFragment.newInstance())
+            .commit()
+    }
 }

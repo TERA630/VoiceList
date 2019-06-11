@@ -10,6 +10,9 @@ import android.view.inputmethod.InputMethodManager
 class MainViewModel : ViewModel() {
     private val errorList = listOf("OriginList", "was", "null", "or", "empty", "Check", "the", "code.")
     var liveList: MutableLiveData<MutableList<String>> = MutableLiveData()
+
+    val navigationHistory = mutableListOf("origin")
+
     // Initialization of liveList   Must to be called at First.. before calling other methods
     fun initLiveList(_list: MutableList<String>) {
         liveList.postValue(_list)
@@ -26,17 +29,24 @@ class MainViewModel : ViewModel() {
 
     fun findIndexOfOrigin(_string: String): Int {
         val result = getOriginList().indexOfFirst { it.matches("^$_string.*".toRegex()) }
-        if (result != -1) {
-            Log.i("test", "$_string was found at $result")
-        } else {
-            Log.i("test", "origin not found")
-        }
+        if (result != -1) Log.i("test", "$_string was found at $result")
         return result
     }
     fun getChildListAt(index: Int): List<String> {
         val headAndChildCSV = getLiveList()[index]
             val list = headAndChildCSV.split(",")
             return list.drop(1)
+    }
+
+    fun getChildOf(_parent: String): List<String> {
+        val indexofOrigin = findIndexOfOrigin(_parent)
+        if (indexofOrigin > 0) {
+            val result = getChildListAt(indexofOrigin)
+            return result
+        } else {
+            // ParentはChildを持っているはず､理論的には来ない
+            return emptyList()
+        }
     }
 
     fun getLiveList(): List<String> {
@@ -65,6 +75,17 @@ class MainViewModel : ViewModel() {
             return safeLiveListHeaders
     }
 
+    fun pushNextNavigation(_traceOfParent: String) {
+        navigationHistory.add(_traceOfParent)
+    }
+
+    fun popNavigation(): String {
+        val result = navigationHistory.last()
+        if (navigationHistory.size > 1) {
+            navigationHistory.removeAt(navigationHistory.lastIndex)
+        }
+        return result
+    }
     fun setLiveListAt(rowIndex: Int, columnIndex: Int, _value: String) { // CSV 形式のリストに　値を設定します。
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         else {

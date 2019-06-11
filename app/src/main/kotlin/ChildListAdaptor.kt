@@ -7,12 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.childlist_contents.view.*
 import kotlinx.android.synthetic.main.childlist_header.view.*
-import kotlinx.android.synthetic.main.fragment_item.view.childRowText
 
 class ChildListAdaptor(
     private val model: MainViewModel,
-    private val parentString: String,
-    private val mList: List<String>
+    private var mParentOfCurrentList: String,
+    private var mList: List<String>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val childHeader = 0
     private val childContents = 1
@@ -29,24 +28,31 @@ class ChildListAdaptor(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val vH = holder as ChildRowHolder
         if (position == 0) {
-            (holder as ChildRowHolder).itemView.childRowText.text = parentString
-            holder.itemView.backToParent.setOnClickListener { v ->
+            holder.mView.childHeaderText.text = mParentOfCurrentList
+            vH.itemView.backToParent.setOnClickListener { v ->
+                if (model.navigationHistory.size < 3) { // Origin -> child 1 の時
+                    mUIHandler.onGotoOrigin()
+                    val trace = model.popNavigation()
+                    Log.i("transit", "from $trace to back to Origin")
+                } else {// Origin -> child 1 -> child 2 以上の時
+                    val lastParent = model.navigationHistory[model.navigationHistory.lastIndex - 1]
+                    mUIHandler.backChildToChild(lastParent, model.getChildOf(lastParent))
+                    Log.i("transit", "back to $lastParent")
 
-                //                Snackbar.make(v, "$parentString", Snackbar.LENGTH_LONG)
-//                    .setAction("Action", null).show()
+                }
             }
-        } else {
+        } else { // Contents
             val childHeader = mList[position - 1]
-            (holder as ChildRowHolder).itemView.childRowText.text = childHeader
+            vH.mView.childContents.text = childHeader
             val originIndex = model.findIndexOfOrigin(childHeader)
             if (originIndex > 0 && model.getChildListAt(originIndex).isNotEmpty()) {
-                holder.itemView.goChild.visibility = View.VISIBLE
-                holder.itemView.goChild.setOnClickListener { v ->
-                    Log.i("test", "child with child was clicked")
-                    mUIHandler.onUserInterAction(childHeader, model.getChildListAt(originIndex))
+                vH.itemView.goChild.visibility = View.VISIBLE
+                vH.itemView.goChild.setOnClickListener {
+                    mUIHandler.advanceChildToChild(childHeader, model.getChildListAt(originIndex))
+                    Log.i("transit", "from ${model.navigationHistory.last()} to $childHeader")
                 }
-
             } else {
                 holder.itemView.goChild.visibility = View.GONE
             }
@@ -54,12 +60,19 @@ class ChildListAdaptor(
     }
 
     // public method
+    fun updateList(_list: List<String>) {
+        mList = _list
+    }
+
+    fun setCurrentParent(_String: String) {
+        mParentOfCurrentList = _String
+    }
     fun setUIHandler(_handler: ChildFragment.DeliverEvent) {
-        this.mUIHandler = _handler
+        this.mUIHandler = _handler // Fragmentのインスタンスやメンバを操作するため､インターフェイスを経由
     }
 
     override fun getItemCount(): Int = mList.size + 1
 
     class ChildRowHolder
-        (mView: View) : RecyclerView.ViewHolder(mView)
+        (val mView: View) : RecyclerView.ViewHolder(mView)
 }

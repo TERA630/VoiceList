@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_main.*
@@ -56,18 +57,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun transitOriginToChildFragment(parentString: String, arrayList: ArrayList<String>) {
+    fun transitOriginToChildFragment(parentToGo: String, arrayList: ArrayList<String>) {
         supportFragmentManager.beginTransaction()
             .addToBackStack(null)
-            .replace(R.id.activityFrame, ChildFragment.newInstance(parentString, arrayList.toList()))
+            .replace(R.id.activityFrame, ChildFragment.newInstance(parentToGo, arrayList.toList()))
             .commit()
-    }
-
-    fun transitChildToOriginFragment(parentString: String) {
-        supportFragmentManager.beginTransaction()
-            .addToBackStack(null)
-            .replace(R.id.activityFrame, OriginFragment.newInstance())
-            .commit()
+        Log.i("transit", "origin to $parentToGo")
+        vModel.pushNextNavigation(parentToGo)
+        // Itemの移動時にはNavigationにPushする｡　移動先でViewModelから次のアイテム(親となる)を読む
     }
     // Private function
     private fun makeOriginFragment(savedInstanceState: Bundle?, model: MainViewModel) {
@@ -80,7 +77,7 @@ class MainActivity : AppCompatActivity() {
                 "four,Cecil,Kain,Rydia,Rosa,Edge",
                 "five,Bartz,Faris,Galuf,Lenna,Krile",
                 "six,Terra,Locke,Celes,Shadow,seven",
-                "seven,Cloud,Tifa,Aeris",
+                "seven,Cloud,Tifa,Aeris,eight",
                 "eight,Squall,Rinoa,Quistis",
                 "nine,Zidane,Vivi,Garnet,Freya",
                 "ten,Yuna"

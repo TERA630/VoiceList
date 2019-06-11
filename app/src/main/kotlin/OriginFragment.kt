@@ -19,28 +19,25 @@ class OriginFragment : Fragment() {
         fun newInstance() =
             OriginFragment()
     }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val model = ViewModelProviders.of(this.activity!!).get(MainViewModel::class.java)
 
         mAdaptor = OriginListAdaptor(model)
             mAdaptor.setUIHandler(object : DeliverEventToActivity {
-                override fun onUserInterAction(parentString: String, _list: List<String>) {
+                override fun onUserInterAction(parentToGo: String, _list: List<String>) {
+                    //TODO  Activityにイベントをおかなくてもいいかも｡
                     val activity = this@OriginFragment.activity
-                    if (activity is MainActivity) activity.transitOriginToChildFragment(parentString, ArrayList(_list))
+                    if (activity is MainActivity) activity.transitOriginToChildFragment(parentToGo, ArrayList(_list))
                     else Log.w("test", "fail to handle adaptor event")
                 }
             })
         }
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_origin, container, false)
     }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         originList.adapter = mAdaptor
@@ -55,6 +52,6 @@ class OriginFragment : Fragment() {
         })
     }
     interface DeliverEventToActivity {
-        fun onUserInterAction(parentString: String, _list: List<String>)
+        fun onUserInterAction(parentToGo: String, _list: List<String>)
     }
 }
