@@ -2,8 +2,9 @@
     <string name="app_name">VoiceList</string>
     <string name="action_settings">Settings</string>
 
+    // Message
+    <string name="enterNewItem">Enter new Item..</string>
     // Content
-
     <string name="button">push to action</string>
 
     <!-- TODO: Remove or change this placeholder text -->

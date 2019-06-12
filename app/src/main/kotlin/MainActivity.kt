@@ -22,9 +22,6 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         makeOriginFragment(savedInstanceState, vModel)
         //TODO FABを取り除いてRecyclerViewのFooterにするか
-        fab.setOnClickListener { view ->
-            vModel.addLiveList("new Item please replace.")
-        }
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {

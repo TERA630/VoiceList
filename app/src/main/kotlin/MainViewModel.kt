@@ -22,7 +22,7 @@ class MainViewModel : ViewModel() {
     fun addLiveList(_value: String) {
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         val safeLiveList = liveList.value as MutableList<String>
-        safeLiveList.add(0, _value)
+        safeLiveList.add(_value)
         liveList.postValue(safeLiveList)
     }
 

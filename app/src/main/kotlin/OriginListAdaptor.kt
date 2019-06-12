@@ -1,10 +1,12 @@
 package com.example.voicelist
 
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import kotlinx.android.synthetic.main.origin_footer.view.*
 import kotlinx.android.synthetic.main.origin_list.view.*
 
 class OriginListAdaptor(
@@ -25,21 +27,30 @@ class OriginListAdaptor(
     override fun getItemViewType(position: Int): Int = indicateViewType(position)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val viewHolder =
-            ViewHolderOfCell(LayoutInflater.from(parent.context).inflate(R.layout.origin_list, parent, false))
-        viewHolder.hasChild = when (viewType) {
-            1 -> true
-            else -> false
+        val inflater = LayoutInflater.from(parent.context)
+        when (viewType) {
+            cItemWithChild, cItemWithoutChild -> {
+                val view = inflater.inflate(R.layout.origin_list, parent, false)
+                val viewHolder = ViewHolderOfCell(view)
+                viewHolder.hasChild = viewType == 1
+                return viewHolder
+            }
+            else -> {
+                val view = inflater.inflate(R.layout.origin_footer, parent, false)
+                return ViewHolderOfCell(view)
+            }
         }
-        return viewHolder
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (position > mModel.getLiveList().lastIndex) {
+            bindAdditionWindow(holder as ViewHolderOfCell)
+            return
+        }
         val list = mModel.getOriginList()
         val head = if (list.isNotEmpty()) list[position] else "empty!!!"
 
         val vH = holder as ViewHolderOfCell
-        vH.headString = head
         val lV = vH.rowView // list View
 
         if (vH.hasChild) {
@@ -59,7 +70,6 @@ class OriginListAdaptor(
         }
         lV.editEndButton.setOnClickListener { v ->
             val newText = lV.rowEditText.text.toString()
-            vH.headString = newText
             mModel.setLiveListAt(position, 0, newText)
             lV.rowText.text = newText
             this@OriginListAdaptor.notifyItemChanged(position)
@@ -86,8 +96,26 @@ class OriginListAdaptor(
         return if (childList.isEmpty()) cItemWithoutChild else cItemWithChild // ChildItemがなければ　ViewType:0　Itemをかえす。　そうでなければFolderをかえす。
     }
     class ViewHolderOfCell(val rowView: View) : RecyclerView.ViewHolder(rowView) {
-        var headString = ""
         var hasChild = false
         var childList = mutableListOf<String>()
+    }
+
+    // private method
+    private fun bindAdditionWindow(holder: OriginListAdaptor.ViewHolderOfCell) {
+        val iV = holder.itemView
+        /*  iV.originNewText.setOnFocusChangeListener { v, hasFocus ->
+              when (hasFocus) {
+                  true -> v.showSoftKeyBoard()
+                  false -> v.hideSoftKeyBoard()
+              }
+          }*/
+        iV.originAddButton.setOnClickListener {
+            val newText = iV.originNewText.text.toString()
+            Log.i("text", " $newText will add")
+            mModel.addLiveList(newText)
+            iV.originNewText.setText("")
+            iV.originNewText.clearFocus()
+        }
+
     }
 }
