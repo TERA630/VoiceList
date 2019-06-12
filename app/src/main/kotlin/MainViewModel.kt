@@ -10,7 +10,6 @@ import android.view.inputmethod.InputMethodManager
 class MainViewModel : ViewModel() {
     private val errorList = listOf("OriginList", "was", "null", "or", "empty", "Check", "the", "code.")
     var liveList: MutableLiveData<MutableList<String>> = MutableLiveData()
-
     val navigationHistory = mutableListOf("origin")
 
     // Initialization of liveList   Must to be called at First.. before calling other methods
@@ -40,12 +39,12 @@ class MainViewModel : ViewModel() {
 
     fun getChildOf(_parent: String): List<String> {
         val indexOfOrigin = findIndexOfOrigin(_parent)
-        if (indexOfOrigin > 0) {
+        return if (indexOfOrigin > 0) {
             val result = getChildListAt(indexOfOrigin)
-            return result
+            result
         } else {
             // ParentはChildを持っているはず､理論的には来ない
-            return errorList
+            errorList
         }
     }
 

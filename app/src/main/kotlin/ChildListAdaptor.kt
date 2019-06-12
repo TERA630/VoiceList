@@ -10,7 +10,6 @@ import kotlinx.android.synthetic.main.childlist_header.view.*
 
 class ChildListAdaptor(
     private val model: MainViewModel,
-    private var mParentOfCurrentList: String,
     private var mList: List<String>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val childHeader = 0
@@ -30,7 +29,7 @@ class ChildListAdaptor(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val vH = holder as ChildRowHolder
         if (position == 0) {
-            holder.mView.childHeaderText.text = mParentOfCurrentList
+            holder.mView.childHeaderText.text = model.navigationHistory.last()
             vH.itemView.backToParent.setOnClickListener { v ->
                 if (model.navigationHistory.size < 3) { // Origin -> child 1 の時
                     mUIHandler.onGotoOrigin()
@@ -62,10 +61,6 @@ class ChildListAdaptor(
     // public method
     fun updateList(_list: List<String>) {
         mList = _list
-    }
-
-    fun setCurrentParent(_String: String) {
-        mParentOfCurrentList = _String
     }
     fun setUIHandler(_handler: ChildFragment.DeliverEvent) {
         this.mUIHandler = _handler // Fragmentのインスタンスやメンバを操作するため､インターフェイスを経由

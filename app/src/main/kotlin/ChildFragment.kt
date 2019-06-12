@@ -11,19 +11,16 @@ import kotlinx.android.synthetic.main.fragment_item_list.*
 
 class ChildFragment : Fragment() {
     // TODO parent関連をViewModelから取得するように
-    private val mParentStringKey = "parentString"
     private val mItemListKey = "itemList"
-    private var mParentString = ""
     private var mList: List<String> = emptyList()
     private lateinit var mAdaptor: ChildListAdaptor
     private lateinit var model: MainViewModel
 
     companion object {
         @JvmStatic
-        fun newInstance(parent: String, _list: List<String>) =
+        fun newInstance(_list: List<String>) =
             ChildFragment().apply {
                 arguments = Bundle().apply {
-                    putString(mParentStringKey, parent)
                     putStringArrayList(mItemListKey, ArrayList(_list))
                 }
             }
@@ -33,24 +30,23 @@ class ChildFragment : Fragment() {
 
         arguments?.let {
             mList = it.getStringArrayList(mItemListKey)!!.toList()
-            mParentString = it.getString(mParentStringKey)!!
         }
     }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_item_list, container, false)
         // Set the adapter
         model = ViewModelProviders.of(this.activity!!).get(MainViewModel::class.java)
-        mAdaptor = ChildListAdaptor(model, mParentString, mList)
+        mAdaptor = ChildListAdaptor(model, mList)
         mAdaptor.setUIHandler(object : DeliverEvent {
             override fun advanceChildToChild(itemToGo: String, _list: List<String>) {
                 model.pushNextNavigation(itemToGo)
-                transitChildToChild(itemToGo, _list)
+                transitChildToChild(_list)
             }
 
             override fun backChildToChild(itemToBack: String, _list: List<String>) {
                 val trace = model.popNavigation()
                 Log.i("navigaiton", "$trace was pop, going to $itemToBack")
-                transitChildToChild(itemToBack, _list)
+                transitChildToChild(_list)
             }
 
             override fun onGotoOrigin() {
@@ -70,9 +66,8 @@ class ChildFragment : Fragment() {
         fun onGotoOrigin()
     }
 
-    fun transitChildToChild(parentString: String, listToShowNext: List<String>) {
+    fun transitChildToChild(listToShowNext: List<String>) {
         mAdaptor.updateList(listToShowNext)
-        mAdaptor.setCurrentParent(parentString)
         mAdaptor.notifyDataSetChanged()
     }
 

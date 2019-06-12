@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
     fun transitOriginToChildFragment(parentToGo: String, arrayList: ArrayList<String>) {
         supportFragmentManager.beginTransaction()
             .addToBackStack(null)
-            .replace(R.id.activityFrame, ChildFragment.newInstance(parentToGo, arrayList.toList()))
+            .replace(R.id.activityFrame, ChildFragment.newInstance(arrayList.toList()))
             .commit()
         Log.i("transit", "origin to $parentToGo")
         vModel.pushNextNavigation(parentToGo)

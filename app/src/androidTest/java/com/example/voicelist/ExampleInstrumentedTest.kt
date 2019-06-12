@@ -55,9 +55,8 @@ class ActivityTest {
         val rowEditText = onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.rowEditText))
         rowEditText.perform(ViewActions.replaceText("Test One"))
         val endButton = onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.editEndButton))
-        endButton.check(matches(isDisplayed()))
-        //   endButton.perform(ViewActions.click())
-        //   endButton.check(matches(withEffectiveVisibility(Visibility.GONE)))
+//        val goLeftButton = onView(withRecyclerView(R.id.folderIcon).atPosition(1)).check(matches(isDisplayed()))
+
         // テキスト編集終了
         //    onView(withRecyclerView(R.id.originList).atPositionOnView(1,R.id.rowText)).check(matches(hasText(1,"Test One")))
 //        onView(withRecyclerView(R.id.liveList).atPositionOnView(1, R.id.editEndButton)).check(matches(withEffectiveVisibility(Visibility.GONE))
