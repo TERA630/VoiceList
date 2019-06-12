@@ -22,7 +22,7 @@ class OriginListAdaptor(
     private lateinit var mHandler: OriginFragment.DeliverEventToActivity
 
     // Lifecycle of Recycler View
-    override fun getItemCount(): Int = mModel.getLiveList().size + 1 // データ＋入力用フッタ
+    override fun getItemCount(): Int = mModel.getOriginList().size + 1 // データ＋入力用フッタ
 
     override fun getItemViewType(position: Int): Int = indicateViewType(position)
 
@@ -44,7 +44,7 @@ class OriginListAdaptor(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (position > mModel.getLiveList().lastIndex) {
-            bindAdditionWindow(holder as ViewHolderOfCell)
+            bindAdditionWindow(holder as ViewHolderOfCell, position)
             return
         }
         val list = mModel.getOriginList()
@@ -101,8 +101,9 @@ class OriginListAdaptor(
     }
 
     // private method
-    private fun bindAdditionWindow(holder: OriginListAdaptor.ViewHolderOfCell) {
+    private fun bindAdditionWindow(holder: OriginListAdaptor.ViewHolderOfCell, position: Int) {
         val iV = holder.itemView
+        Log.i("recyclerview", "$position is footer..")
         /*  iV.originNewText.setOnFocusChangeListener { v, hasFocus ->
               when (hasFocus) {
                   true -> v.showSoftKeyBoard()

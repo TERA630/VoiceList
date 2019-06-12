@@ -49,6 +49,7 @@ class OriginFragment : Fragment() {
         val model = ViewModelProviders.of(this.activity!!).get(MainViewModel::class.java)
         model.liveList.observe(this, Observer {
             mAdaptor.notifyDataSetChanged()
+            
         })
     }
     interface DeliverEventToActivity {
