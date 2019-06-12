@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_item_list.*
 
 class ChildFragment : Fragment() {
-    // TODO parent関連をViewModelから取得するように
     private val mItemListKey = "itemList"
     private var mList: List<String> = emptyList()
     private lateinit var mAdaptor: ChildListAdaptor
@@ -45,7 +44,7 @@ class ChildFragment : Fragment() {
 
             override fun backChildToChild(itemToBack: String, _list: List<String>) {
                 val trace = model.popNavigation()
-                Log.i("navigaiton", "$trace was pop, going to $itemToBack")
+                Log.i("transit", "$trace was pop, going to $itemToBack")
                 transitChildToChild(_list)
             }
 

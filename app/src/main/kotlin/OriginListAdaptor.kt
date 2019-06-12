@@ -10,17 +10,23 @@ import kotlinx.android.synthetic.main.origin_list.view.*
 class OriginListAdaptor(
     private val mModel: MainViewModel
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    // ViewType 0 or except 1: item, 1: folder
+
+    // View Type Const
+    private val cItemWithoutChild = 0
+    private val cItemWithChild = 1
+    private val cFooter = 2
+
     // String   "title(contents):root, descending1 , descending2 , ..."
     private lateinit var mHandler: OriginFragment.DeliverEventToActivity
 
     // Lifecycle of Recycler View
-    override fun getItemCount(): Int = mModel.getLiveList().size
+    override fun getItemCount(): Int = mModel.getLiveList().size + 1 // データ＋入力用フッタ
 
     override fun getItemViewType(position: Int): Int = indicateViewType(position)
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        val viewHolder = ViewHolderOfCell(inflater.inflate(R.layout.origin_list, parent, false))
+        val viewHolder =
+            ViewHolderOfCell(LayoutInflater.from(parent.context).inflate(R.layout.origin_list, parent, false))
         viewHolder.hasChild = when (viewType) {
             1 -> true
             else -> false
@@ -64,12 +70,8 @@ class OriginListAdaptor(
         }
         lV.rowEditText.setOnFocusChangeListener { v, hasFocus ->
             when (hasFocus) {
-                true -> {
-                    v.showSoftKeyBoard()
-                }
-                false -> {
-                    v.hideSoftKeyBoard()
-                }
+                true -> v.showSoftKeyBoard()
+                false -> v.hideSoftKeyBoard()
             }
         }
     }
@@ -79,8 +81,9 @@ class OriginListAdaptor(
         this.mHandler = _handler
     }
     private fun indicateViewType(position: Int): Int {
+        if (position > mModel.getOriginList().lastIndex) return cFooter
         val childList = mModel.getChildListAt(position)
-        return if (childList.isNotEmpty()) 1 else 0 // ChildItemがなければ　ViewType:0　Itemをかえす。　そうでなければFolderをかえす。
+        return if (childList.isEmpty()) cItemWithoutChild else cItemWithChild // ChildItemがなければ　ViewType:0　Itemをかえす。　そうでなければFolderをかえす。
     }
     class ViewHolderOfCell(val rowView: View) : RecyclerView.ViewHolder(rowView) {
         var headString = ""

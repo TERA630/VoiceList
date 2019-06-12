@@ -12,10 +12,12 @@ class ChildListAdaptor(
     private val model: MainViewModel,
     private var mList: List<String>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
     private val childHeader = 0
     private val childContents = 1
     private lateinit var mUIHandler: ChildFragment.DeliverEvent
 
+    override fun getItemCount(): Int = mList.size + 1 // list と　Header
     override fun getItemViewType(position: Int): Int {
         return if (position == 0) childHeader else childContents
     }
@@ -36,10 +38,9 @@ class ChildListAdaptor(
                     val trace = model.popNavigation()
                     Log.i("transit", "from $trace to back to Origin")
                 } else {// Origin -> child 1 -> child 2 以上の時
-                    val lastParent = model.navigationHistory[model.navigationHistory.lastIndex - 1]
+                    val lastParent = model.navigationHistory[model.navigationHistory.lastIndex - 1] // 一つ前のアイテムへ
                     mUIHandler.backChildToChild(lastParent, model.getChildOf(lastParent))
                     Log.i("transit", "back to $lastParent")
-
                 }
             }
         } else { // Contents
@@ -66,7 +67,6 @@ class ChildListAdaptor(
         this.mUIHandler = _handler // Fragmentのインスタンスやメンバを操作するため､インターフェイスを経由
     }
 
-    override fun getItemCount(): Int = mList.size + 1
 
     class ChildRowHolder
         (val mView: View) : RecyclerView.ViewHolder(mView)
