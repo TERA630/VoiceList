@@ -3,8 +3,11 @@ package com.example.voicelist
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.content.Context
+import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
+import android.view.ViewParent
 import android.view.inputmethod.InputMethodManager
 
 class MainViewModel : ViewModel() {
@@ -108,4 +111,27 @@ fun View.showSoftKeyBoard() {
     imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
 }
 
+fun ViewParent.findAscendingRecyclerView(): RecyclerView? {
+    if (this is RecyclerView) return this
+    var thisGroup: ViewGroup? = this as ViewGroup
+    while (thisGroup != null) {
+        val view = findRecyclerView(thisGroup)
+        if (view != null) return view
+        // 同じ階層にRecyclerViewがなければ上の階層を探す
+        val parentOfThisGroup = thisGroup.parent
+        if (parentOfThisGroup != null) {
+            thisGroup = parentOfThisGroup as ViewGroup
+        } else return null // もう上の階層が無い場合はNULLをかえす
+    }
+    return null
+}
 
+fun findRecyclerView(viewGroup: ViewGroup): RecyclerView? {
+    if (viewGroup is RecyclerView) return viewGroup
+    val groupCount = viewGroup.childCount
+    for (i in 0..groupCount) {
+        val view = viewGroup.getChildAt(i)
+        if (view is RecyclerView) return view
+    }
+    return null
+}

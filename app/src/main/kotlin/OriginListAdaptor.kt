@@ -24,7 +24,7 @@ class OriginListAdaptor(
     // Lifecycle of Recycler View
     override fun getItemCount(): Int = mModel.getOriginList().size + 1 // データ＋入力用フッタ
 
-    override fun getItemViewType(position: Int): Int = indicateViewType(position)
+    override fun getItemViewType(position: Int): Int = indicateViewType(position) // position 0..getItemCount
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -65,7 +65,7 @@ class OriginListAdaptor(
             lV.imageWrapper.showNext()
         }
         lV.rowEditText.setText(head, TextView.BufferType.NORMAL)
-        lV.folderIcon.setOnClickListener { v ->
+        lV.folderIcon.setOnClickListener {
             mHandler.onUserInterAction(head, vH.childList)
         }
         lV.editEndButton.setOnClickListener { v ->
@@ -104,17 +104,22 @@ class OriginListAdaptor(
     private fun bindAdditionWindow(holder: OriginListAdaptor.ViewHolderOfCell, position: Int) {
         val iV = holder.itemView
         Log.i("recyclerView", "$position is footer..")
-        /*  iV.originNewText.setOnFocusChangeListener { v, hasFocus ->
+        iV.originNewText.setOnFocusChangeListener { v, hasFocus ->
               when (hasFocus) {
                   true -> v.showSoftKeyBoard()
                   false -> v.hideSoftKeyBoard()
               }
-          }*/
-        iV.originAddButton.setOnClickListener {
+        }
+
+        iV.originAddButton.setOnClickListener { v ->
             val newText = iV.originNewText.text.toString()
             Log.i("text", " $newText will add")
             mModel.addLiveList(newText)
-        }
+            val originList = v.parent
+            val view = originList?.findAscendingRecyclerView()
+            val newpos = this.itemCount
+            view?.scrollToPosition(newpos)
 
+        }
     }
 }
