@@ -7,7 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.android.synthetic.main.ChildList.*
+import kotlinx.android.synthetic.main.child_list.*
 
 class ChildFragment : Fragment() {
     private val mItemListKey = "itemList"
@@ -32,7 +32,7 @@ class ChildFragment : Fragment() {
         }
     }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.ChildList, container, false)
+        val view = inflater.inflate(R.layout.child_list, container, false)
         // Set the adapter
         model = ViewModelProviders.of(this.activity!!).get(MainViewModel::class.java)
         mAdaptor = ChildListAdaptor(model, mList)

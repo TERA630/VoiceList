@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import kotlinx.android.synthetic.main.origin_footer.view.*
-import kotlinx.android.synthetic.main.origin_list.view.*
+import kotlinx.android.synthetic.main.originlist_item.view.*
 
 class OriginListAdaptor(
     private val mModel: MainViewModel
@@ -30,7 +30,7 @@ class OriginListAdaptor(
         val inflater = LayoutInflater.from(parent.context)
         when (viewType) {
             cItemWithChild, cItemWithoutChild -> {
-                val view = inflater.inflate(R.layout.origin_list, parent, false)
+                val view = inflater.inflate(R.layout.originlist_item, parent, false)
                 val viewHolder = ViewHolderOfCell(view)
                 viewHolder.hasChild = viewType == 1
                 return viewHolder
@@ -117,8 +117,11 @@ class OriginListAdaptor(
             mModel.addLiveList(newText)
             val originList = v.parent
             val view = originList?.findAscendingRecyclerView()
-            val newpos = this.itemCount
-            view?.scrollToPosition(newpos)
+            val editer = findDescendingEditorText(view as ViewGroup)
+            editer?.clearComposingText()
+            editer?.hideSoftKeyBoard()
+            val newPos = this.itemCount - 1
+            view.scrollToPosition(newPos)
 
         }
     }

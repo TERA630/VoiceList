@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewParent
 import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 
 class MainViewModel : ViewModel() {
     private val errorList = listOf("OriginList", "was", "null", "or", "empty", "Check", "the", "code.")
@@ -122,6 +123,19 @@ fun ViewParent.findAscendingRecyclerView(): RecyclerView? {
         if (parentOfThisGroup != null) {
             thisGroup = parentOfThisGroup as ViewGroup
         } else return null // もう上の階層が無い場合はNULLをかえす
+    }
+    return null
+}
+
+fun findDescendingEditorText(viewGroup: ViewGroup): EditText? {
+    val groupCount = viewGroup.childCount
+    for (i in 0..groupCount) {
+        val view = viewGroup.getChildAt(i)
+        if (view is EditText) return view
+        else if (view is ViewGroup) {
+            val childView = findDescendingEditorText(view)
+            if (childView != null) return childView
+        }
     }
     return null
 }
