@@ -103,7 +103,7 @@ class OriginListAdaptor(
     // private method
     private fun bindAdditionWindow(holder: OriginListAdaptor.ViewHolderOfCell, position: Int) {
         val iV = holder.itemView
-        Log.i("recyclerview", "$position is footer..")
+        Log.i("recyclerView", "$position is footer..")
         /*  iV.originNewText.setOnFocusChangeListener { v, hasFocus ->
               when (hasFocus) {
                   true -> v.showSoftKeyBoard()
@@ -114,8 +114,6 @@ class OriginListAdaptor(
             val newText = iV.originNewText.text.toString()
             Log.i("text", " $newText will add")
             mModel.addLiveList(newText)
-            iV.originNewText.setText("")
-            iV.originNewText.clearFocus()
         }
 
     }
