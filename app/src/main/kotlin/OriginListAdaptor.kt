@@ -6,6 +6,7 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import kotlinx.android.synthetic.main.origin_footer.view.*
 import kotlinx.android.synthetic.main.originlist_item.view.*
@@ -113,26 +114,28 @@ class OriginListAdaptor(
         }
         iV.originNewText.setOnKeyListener { view, code, event ->
             if (event.action == KeyEvent.ACTION_DOWN && code == KeyEvent.KEYCODE_ENTER) {
-                editorTextDone(iV, position)
+                editorTextDone(view, position)
+                return@setOnKeyListener true
+            } else if (code == EditorInfo.IME_ACTION_DONE) {
+                editorTextDone(view, position)
                 return@setOnKeyListener true
             } else return@setOnKeyListener false
         }
-
-
+        iV.originAddButton.setOnClickListener {
+            editorTextDone(iV, position)
+        }
     }
 
-    private fun editorTextDone(iV: View, position: Int) {
-        val newText = iV.originNewText.text.toString()
-        Log.i("EditorEvent", " $newText will add")
-        mModel.addLiveList(newText)
-        val originList = iV.parent
-        val view = originList?.findAscendingRecyclerView()
-        val editor = view?.let { findDescendingEditorTextAtPosition(it, position) }
+    private fun editorTextDone(view: View, position: Int) {
+        val parent = view.parent
+        val recyclerView = parent.findAscendingRecyclerView()
+        val editor = recyclerView?.let { findDescendingEditorTextAtPosition(it, position) }
         editor?.let {
-            Log.i("EditorEvent", "Text is ${it.text} ")
+            val newText = it.text.toString()
+            Log.i("EditorEvent", " $newText will add")
+            mModel.addLiveList(newText)
             it.text.clear()
             it.hideSoftKeyBoard()
-
         }
     }
 }
