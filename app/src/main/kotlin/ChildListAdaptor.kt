@@ -15,16 +15,27 @@ class ChildListAdaptor(
 
     private val childHeader = 0
     private val childContents = 1
+    private val childFooter = 2
     private lateinit var mUIHandler: ChildFragment.DeliverEvent
 
-    override fun getItemCount(): Int = mList.size + 1 // list と　Header
+    override fun getItemCount(): Int = mList.size + 2 // list と　Header　と　Footer
     override fun getItemViewType(position: Int): Int {
-        return if (position == 0) childHeader else childContents
+        val contentRange = IntRange(1, mList.lastIndex + 1)
+        return when (position) {
+            0 -> childHeader
+            in contentRange -> childContents
+            else -> childFooter
+        }
     }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val view = if (viewType == 0) inflater.inflate(R.layout.childlist_header, parent, false)
-        else inflater.inflate(R.layout.childlist_contents, parent, false)
+        val view = when (viewType) {
+            0 -> inflater.inflate(R.layout.childlist_header, parent, false)
+            1 -> inflater.inflate(R.layout.childlist_contents, parent, false)
+            2 -> inflater.inflate(R.layout.childlist_footer, parent, false)
+            else -> throw IllegalStateException("ChildListAdaptor#onCreateViewHolder got wrong ViewType $viewType")
+        }
         return ChildRowHolder(view)
     }
 
@@ -43,7 +54,7 @@ class ChildListAdaptor(
                     Log.i("transit", "back to $lastParent")
                 }
             }
-        } else { // Contents
+        } else if (position <= mList.lastIndex + 1) { // Contents
             val childHeader = mList[position - 1]
             vH.mView.childContents.text = childHeader
             val originIndex = model.findIndexOfOrigin(childHeader)
@@ -56,6 +67,8 @@ class ChildListAdaptor(
             } else {
                 holder.itemView.goChild.visibility = View.GONE
             }
+        } else {
+            Log.i("childList", "Footer coming.")
         }
     }
 
