@@ -2,6 +2,7 @@ package com.example.voicelist
 
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -110,18 +111,27 @@ class OriginListAdaptor(
                   false -> v.hideSoftKeyBoard()
               }
         }
+        iV.originNewText.setOnKeyListener { view, code, event ->
+            if (event.action == KeyEvent.ACTION_DOWN && code == KeyEvent.KEYCODE_ENTER) {
+                editorTextDone(iV, position)
+                return@setOnKeyListener true
+            } else return@setOnKeyListener false
+        }
 
-        iV.originAddButton.setOnClickListener { v ->
-            val newText = iV.originNewText.text.toString()
-            Log.i("text", " $newText will add")
-            mModel.addLiveList(newText)
-            val originList = v.parent
-            val view = originList?.findAscendingRecyclerView()
-            val editer = findDescendingEditorText(view as ViewGroup)
-            editer?.clearComposingText()
-            editer?.hideSoftKeyBoard()
-            val newPos = this.itemCount - 1
-            view.scrollToPosition(newPos)
+
+    }
+
+    private fun editorTextDone(iV: View, position: Int) {
+        val newText = iV.originNewText.text.toString()
+        Log.i("EditorEvent", " $newText will add")
+        mModel.addLiveList(newText)
+        val originList = iV.parent
+        val view = originList?.findAscendingRecyclerView()
+        val editor = view?.let { findDescendingEditorTextAtPosition(it, position) }
+        editor?.let {
+            Log.i("EditorEvent", "Text is ${it.text} ")
+            it.text.clear()
+            it.hideSoftKeyBoard()
 
         }
     }

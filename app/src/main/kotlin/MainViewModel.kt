@@ -149,3 +149,11 @@ fun findRecyclerView(viewGroup: ViewGroup): RecyclerView? {
     }
     return null
 }
+
+fun findDescendingEditorTextAtPosition(recyclerView: RecyclerView, position: Int): EditText? {
+    val childView = recyclerView.getChildAt(position)
+    if (childView is EditText) return childView
+    if (childView is ViewGroup) {
+        return findDescendingEditorText(childView)
+    } else return null
+}

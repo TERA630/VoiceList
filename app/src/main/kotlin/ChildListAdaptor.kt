@@ -32,7 +32,7 @@ class ChildListAdaptor(
         val vH = holder as ChildRowHolder
         if (position == 0) {
             holder.mView.childHeaderText.text = model.navigationHistory.last()
-            vH.itemView.backToParent.setOnClickListener { v ->
+            vH.itemView.backToParent.setOnClickListener {
                 if (model.navigationHistory.size < 3) { // Origin -> child 1 の時
                     mUIHandler.onGotoOrigin()
                     val trace = model.popNavigation()
