@@ -112,15 +112,19 @@ class OriginListAdaptor(
                   false -> v.hideSoftKeyBoard()
               }
         }
-        iV.originNewText.setOnKeyListener { view, code, event ->
-            if (event.action == KeyEvent.ACTION_DOWN && code == KeyEvent.KEYCODE_ENTER) {
-                editorTextDone(view, position)
-                return@setOnKeyListener true
-            } else if (code == EditorInfo.IME_ACTION_DONE) {
-                editorTextDone(view, position)
-                return@setOnKeyListener true
-            } else return@setOnKeyListener false
+        iV.originNewText.setOnEditorActionListener { textView, actionId, event: KeyEvent? ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                editorTextDone(textView, position)
+                return@setOnEditorActionListener true
+            }
+            if (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
+                editorTextDone(textView, position)
+                return@setOnEditorActionListener true
+            }
+            return@setOnEditorActionListener false
         }
+
+
         iV.originAddButton.setOnClickListener {
             editorTextDone(iV, position)
         }
