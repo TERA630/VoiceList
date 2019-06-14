@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Light"
+        app:cardCornerRadius="4dp"
+        app:cardElevation="1dp"
+        app:cardUseCompatPadding="true"
+>
+    <EditText
+            android:id="@+id/childNewText"
+            android:layout_height="wrap_content" android:layout_width="wrap_content"
+            android:layout_gravity="start|bottom"
+            android:layout_marginStart="8dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:imeOptions="actionDone"
+            android:hint="@string/enterNewItem"
+            android:inputType="text"/>
+    <ImageView
+            android:id="@+id/childAddButton"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="8dp"
+            app:srcCompat="@android:drawable/ic_input_add"
+            android:contentDescription="@string/button"
+    />
+
+</android.support.v7.widget.CardView>

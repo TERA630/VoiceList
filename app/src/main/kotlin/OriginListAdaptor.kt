@@ -30,16 +30,16 @@ class OriginListAdaptor(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        when (viewType) {
+        return when (viewType) {
             cItemWithChild, cItemWithoutChild -> {
                 val view = inflater.inflate(R.layout.originlist_item, parent, false)
                 val viewHolder = ViewHolderOfCell(view)
                 viewHolder.hasChild = viewType == 1
-                return viewHolder
+                viewHolder
             }
             else -> {
                 val view = inflater.inflate(R.layout.origin_footer, parent, false)
-                return ViewHolderOfCell(view)
+                ViewHolderOfCell(view)
             }
         }
     }
@@ -103,7 +103,7 @@ class OriginListAdaptor(
     }
 
     // private method
-    private fun bindAdditionWindow(holder: OriginListAdaptor.ViewHolderOfCell, position: Int) {
+    private fun bindAdditionWindow(holder: ViewHolderOfCell, position: Int) {
         val iV = holder.itemView
         Log.i("recyclerView", "$position is footer..")
         iV.originNewText.setOnFocusChangeListener { v, hasFocus ->
@@ -136,6 +136,7 @@ class OriginListAdaptor(
         val editor = recyclerView?.let { findDescendingEditorTextAtPosition(it, position) }
         editor?.let {
             val newText = it.text.toString()
+            if (newText.isBlank()) return
             Log.i("EditorEvent", " $newText will add")
             mModel.addLiveList(newText)
             it.text.clear()

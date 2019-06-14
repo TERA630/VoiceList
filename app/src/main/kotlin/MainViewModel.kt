@@ -30,6 +30,19 @@ class MainViewModel : ViewModel() {
         liveList.postValue(safeLiveList)
     }
 
+    fun addChildAt(_indexOfOrigin: Int, _value: String) {
+        if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
+        else if (_value.isBlank()) return
+        else {
+            val safeLiveList = liveList.value as MutableList<String>
+            val safeLiveListDestructed = safeLiveList[_indexOfOrigin].split(",").toMutableList()
+            safeLiveListDestructed.add(_value)
+            val newListElement = safeLiveListDestructed.joinToString()
+            safeLiveList[_indexOfOrigin] = newListElement
+            liveList.postValue(safeLiveList)
+        }
+    }
+
     fun findIndexOfOrigin(_string: String): Int {
         val result = getOriginList().indexOfFirst { it.matches("^$_string.*".toRegex()) }
         if (result != -1) Log.i("test", "$_string was found at $result")
@@ -89,10 +102,12 @@ class MainViewModel : ViewModel() {
         }
         return result
     }
+
     fun setLiveListAt(rowIndex: Int, columnIndex: Int, _value: String) { // CSV 形式のリストに　値を設定します。
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         else {
             val safeLiveList = liveList.value as MutableList<String>
+
             val safeLiveListDestructed = safeLiveList[rowIndex].split(",").toMutableList()
             safeLiveListDestructed[columnIndex] = _value
             val newListElement = safeLiveListDestructed.joinToString()
@@ -154,7 +169,7 @@ fun findRecyclerView(viewGroup: ViewGroup): RecyclerView? {
 fun findDescendingEditorTextAtPosition(recyclerView: RecyclerView, position: Int): EditText? {
     val childView = recyclerView.getChildAt(position)
     if (childView is EditText) return childView
-    if (childView is ViewGroup) {
-        return findDescendingEditorText(childView)
-    } else return null
+    return if (childView is ViewGroup) {
+        findDescendingEditorText(childView)
+    } else null
 }
