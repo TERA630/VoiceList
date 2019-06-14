@@ -4,7 +4,6 @@ import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_main.*
@@ -53,16 +52,6 @@ class MainActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
 
         }
-    }
-
-    fun transitOriginToChildFragment(parentToGo: String, arrayList: ArrayList<String>) {
-        supportFragmentManager.beginTransaction()
-            .addToBackStack(null)
-            .replace(R.id.activityFrame, ChildFragment.newInstance(arrayList.toList()))
-            .commit()
-        Log.i("transit", "origin to $parentToGo")
-        vModel.pushNextNavigation(parentToGo)
-        // Itemの移動時にはNavigationにPushする｡　移動先でViewModelから次のアイテム(親となる)を読む
     }
     // Private function
     private fun makeOriginFragment(savedInstanceState: Bundle?, model: MainViewModel) {

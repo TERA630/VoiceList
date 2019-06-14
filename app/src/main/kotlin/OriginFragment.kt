@@ -14,6 +14,7 @@ private const val ARG_PARAM1 = "param1"
 
 class OriginFragment : Fragment() {
     private lateinit var mAdaptor: OriginListAdaptor
+    private lateinit var vModel: MainViewModel
     companion object {
         @JvmStatic
         fun newInstance() =
@@ -21,15 +22,20 @@ class OriginFragment : Fragment() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val model = ViewModelProviders.of(this.activity!!).get(MainViewModel::class.java)
+        vModel = ViewModelProviders.of(this.activity!!).get(MainViewModel::class.java)
 
-        mAdaptor = OriginListAdaptor(model)
+        mAdaptor = OriginListAdaptor(vModel)
             mAdaptor.setUIHandler(object : DeliverEventToActivity {
                 override fun onUserInterAction(parentToGo: String, _list: List<String>) {
-                    //TODO  Activityにイベントをおかなくてもいいかも｡
                     val activity = this@OriginFragment.activity
-                    if (activity is MainActivity) activity.transitOriginToChildFragment(parentToGo, ArrayList(_list))
-                    else Log.w("test", "fail to handle adaptor event")
+                    activity?.let {
+                        it.supportFragmentManager.beginTransaction()
+                            .addToBackStack(null)
+                            .replace(R.id.activityFrame, ChildFragment.newInstance(_list))
+                            .commit()
+                        Log.i("transit", "origin to $parentToGo")
+                        vModel.pushNextNavigation(parentToGo)
+                    }
                 }
             })
         }

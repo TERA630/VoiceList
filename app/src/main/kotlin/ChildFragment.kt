@@ -1,5 +1,6 @@
 package com.example.voicelist
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -26,7 +27,6 @@ class ChildFragment : Fragment() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         arguments?.let {
             mList = it.getStringArrayList(mItemListKey)!!.toList()
         }
@@ -36,6 +36,7 @@ class ChildFragment : Fragment() {
         // Set the adapter
         model = ViewModelProviders.of(this.activity!!).get(MainViewModel::class.java)
         mAdaptor = ChildListAdaptor(model, mList)
+        mAdaptor.updateList(mList)
         mAdaptor.setUIHandler(object : DeliverEvent {
             override fun advanceChildToChild(itemToGo: String, _list: List<String>) {
                 model.pushNextNavigation(itemToGo)
@@ -59,6 +60,13 @@ class ChildFragment : Fragment() {
         childList.adapter = mAdaptor
     }
 
+    override fun onStart() {
+        super.onStart()
+        model.liveList.observe(this, Observer {
+            mAdaptor.updateList(model.getChildOf(model.navigationHistory.last()))
+            mAdaptor.notifyDataSetChanged()
+        })
+    }
     interface DeliverEvent {
         fun advanceChildToChild(itemToGo: String, _list: List<String>)
         fun backChildToChild(itemToBack: String, _list: List<String>)

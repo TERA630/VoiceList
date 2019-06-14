@@ -34,7 +34,7 @@ class OriginListAdaptor(
             cItemWithChild, cItemWithoutChild -> {
                 val view = inflater.inflate(R.layout.originlist_item, parent, false)
                 val viewHolder = ViewHolderOfCell(view)
-                viewHolder.hasChild = viewType == 1
+                viewHolder.hasChild = (viewType == cItemWithChild)
                 viewHolder
             }
             else -> {
@@ -56,7 +56,6 @@ class OriginListAdaptor(
         val lV = vH.rowView // list View
 
         if (vH.hasChild) {
-            vH.childList = mModel.getChildListAt(position).toMutableList()
             lV.folderIcon.visibility = View.VISIBLE
         } else {
             lV.folderIcon.visibility = View.GONE
@@ -68,7 +67,7 @@ class OriginListAdaptor(
         }
         lV.rowEditText.setText(head, TextView.BufferType.NORMAL)
         lV.folderIcon.setOnClickListener {
-            mHandler.onUserInterAction(head, vH.childList)
+            mHandler.onUserInterAction(head, mModel.getChildListAt(position))
         }
         lV.editEndButton.setOnClickListener { v ->
             val newText = lV.rowEditText.text.toString()
@@ -99,7 +98,6 @@ class OriginListAdaptor(
     }
     class ViewHolderOfCell(val rowView: View) : RecyclerView.ViewHolder(rowView) {
         var hasChild = false
-        var childList = mutableListOf<String>()
     }
 
     // private method

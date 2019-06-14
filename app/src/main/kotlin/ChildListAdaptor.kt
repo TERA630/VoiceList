@@ -70,31 +70,15 @@ class ChildListAdaptor(
                 holder.itemView.goChild.visibility = View.GONE
             }
         } else {
-            Log.i("childList", "Footer coming.")
             vH.mView.childAddButton.setOnClickListener { view ->
-                val recyclerView = view.parent?.findAscendingRecyclerView()
-                val editor = recyclerView?.let { findDescendingEditorTextAtPosition(it, position) }
-                editor?.let {
-                    val newText = it.text.toString()
-                    Log.i("EditorEvent", " $newText will add")
-                    val parentString =
-                        vModel.navigationHistory[vModel.navigationHistory.lastIndex] // 現在表示されているアイテム達の親アイテム
-                    val originIndex = vModel.findIndexOfOrigin(parentString)
-                    // origin - six - seven　のばあい、
-                    // parentString = seven  sevenに追加すると
-
-
-                    if (originIndex < 0) {
-                        //originにアイテムが無い場合は追加・・
+                val parentString = vModel.navigationHistory[vModel.navigationHistory.lastIndex] // 現在表示されているアイテム達の親
+                val originIndex = vModel.findIndexOfOrigin(parentString)
+                if (originIndex < 0) { //originにアイテムが無い場合は追加・・
                         Log.i("Item", "$parentString origin　was Not Found")
-                    } else {
-                        Log.i("Item", "$parentString origin　was at $originIndex")
-                        vModel.addChildAt(originIndex, newText)
-                    }
-                    it.text.clear()
-                    it.hideSoftKeyBoard()
+                } else {
+                    Log.i("Item", "$parentString origin　was at $originIndex")
+                    editorTextDone(view, originIndex)
                 }
-
             }
         }
     }
@@ -108,4 +92,18 @@ class ChildListAdaptor(
     }
     class ChildRowHolder
         (val mView: View) : RecyclerView.ViewHolder(mView)
+
+    private fun editorTextDone(view: View, originIndex: Int) {
+        val parent = view.parent
+        val recyclerView = parent?.findAscendingRecyclerView()
+        val editor = recyclerView?.let { findDescendingEditorTextAtPosition(it, originIndex) }
+        editor?.let {
+            val newText = it.text.toString()
+            if (newText.isBlank()) return
+            Log.i("EditorEvent", " $newText will add")
+            vModel.addChildAt(originIndex, newText)
+            it.text.clear()
+            it.hideSoftKeyBoard()
+        }
+    }
 }
