@@ -13,9 +13,12 @@ import kotlinx.android.synthetic.main.fragment_origin.*
 class OriginFragment : Fragment() {
     private lateinit var mAdaptor: OriginListAdaptor
     private lateinit var vModel: MainViewModel
+
     companion object {
         @JvmStatic
-        fun newInstance() = OriginFragment()
+        fun newInstance(): OriginFragment {
+            return OriginFragment()
+        }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +30,7 @@ class OriginFragment : Fragment() {
                 activity?.let {
                     it.supportFragmentManager.beginTransaction()
                         .addToBackStack(null)
-                        .replace(R.id.activityFrame, ChildFragment.newInstance(_list))
+                        .replace(R.id.activityFrame, ChildFragment.newInstance())
                         .commit()
                         Log.i("transit", "origin to $parentToGo")
                         vModel.pushNextNavigation(parentToGo)

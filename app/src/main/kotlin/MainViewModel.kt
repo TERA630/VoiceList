@@ -45,7 +45,8 @@ class MainViewModel : ViewModel() {
 
     fun findIndexOfOrigin(_string: String): Int {
         val result = getOriginList().indexOfFirst { it.matches("^$_string.*".toRegex()) }
-        if (result != -1) Log.i("test", "$_string was found at $result")
+        if (result != -1) Log.i("Origin", "$_string was found at $result")
+        else Log.i("origin", "$_string was not found in origi.")
         return result
     }
     fun getChildListAt(index: Int): List<String> {
@@ -56,7 +57,7 @@ class MainViewModel : ViewModel() {
 
     fun getChildOf(_parent: String): List<String> {
         val indexOfOrigin = findIndexOfOrigin(_parent)
-        return if (indexOfOrigin > 0) {
+        return if (indexOfOrigin >= 0) {
             val result = getChildListAt(indexOfOrigin)
             result
         } else {

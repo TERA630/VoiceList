@@ -11,44 +11,32 @@ import android.view.ViewGroup
 import kotlinx.android.synthetic.main.child_list.*
 
 class ChildFragment : Fragment() {
-    private val mItemListKey = "itemList"
-    private var mList: List<String> = emptyList()
     private lateinit var mAdaptor: ChildListAdaptor
-    private lateinit var model: MainViewModel
+    private lateinit var vModel: MainViewModel
 
     companion object {
         @JvmStatic
-        fun newInstance(_list: List<String>) =
-            ChildFragment().apply {
-                arguments = Bundle().apply {
-                    putStringArrayList(mItemListKey, ArrayList(_list))
-                }
-            }
+        fun newInstance() = ChildFragment()
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            mList = it.getStringArrayList(mItemListKey)!!.toList()
-        }
+        vModel = ViewModelProviders.of(this.activity!!).get(MainViewModel::class.java)
     }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.child_list, container, false)
         // Set the adapter
-        model = ViewModelProviders.of(this.activity!!).get(MainViewModel::class.java)
-        mAdaptor = ChildListAdaptor(model, mList)
-        mAdaptor.updateList(mList)
+        mAdaptor = ChildListAdaptor(vModel)
         mAdaptor.setUIHandler(object : DeliverEvent {
             override fun advanceChildToChild(itemToGo: String, _list: List<String>) {
-                model.pushNextNavigation(itemToGo)
-                transitChildToChild(_list)
+                vModel.pushNextNavigation(itemToGo)
+                transitChildToChild()
             }
-
             override fun backChildToChild(itemToBack: String, _list: List<String>) {
-                val trace = model.popNavigation()
+                val trace = vModel.popNavigation()
                 Log.i("transit", "$trace was pop, going to $itemToBack")
-                transitChildToChild(_list)
+                transitChildToChild()
             }
-
             override fun onGotoOrigin() {
                 transitChildToOrigin()
             }
@@ -58,13 +46,11 @@ class ChildFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         childList.adapter = mAdaptor
-        mAdaptor.updateList(mList)
     }
 
     override fun onStart() {
         super.onStart()
-        model.liveList.observe(this, Observer {
-            mAdaptor.updateList(model.getChildOf(model.navigationHistory.last()))
+        vModel.liveList.observe(this, Observer {
             mAdaptor.notifyDataSetChanged()
         })
     }
@@ -74,11 +60,9 @@ class ChildFragment : Fragment() {
         fun onGotoOrigin()
     }
 
-    fun transitChildToChild(listToShowNext: List<String>) {
-        mAdaptor.updateList(listToShowNext)
+    fun transitChildToChild() {
         mAdaptor.notifyDataSetChanged()
     }
-
     fun transitChildToOrigin() {
         activity!!.supportFragmentManager.beginTransaction()
             .addToBackStack(null)
