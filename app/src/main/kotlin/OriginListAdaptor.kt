@@ -50,17 +50,17 @@ class OriginListAdaptor(
         iV.rowText.text = list[0]   //リストの先頭要素が親
         iV.rowEditText.setText(list[0])
 
-        if (list.size >= 2) iV.folderIcon.visibility = View.VISIBLE
+        if (list.size >= 2) iV.originGoChild.visibility = View.VISIBLE
         else {
-            iV.folderIcon.visibility = View.GONE
+            iV.originGoChild.visibility = View.GONE
         }
 
         iV.rowText.setOnClickListener {
             iV.textWrapper.showNext()
             iV.imageWrapper.showNext()
         }
-        iV.folderIcon.setOnClickListener {
-            mHandler.onUserInterAction(list[0], vModel.getChildListAt(position))
+        iV.originGoChild.setOnClickListener {
+            mHandler.transitOriginToChild(list[0])
         }
         iV.editEndButton.setOnClickListener { v ->
             val newText = iV.rowEditText.text.toString()

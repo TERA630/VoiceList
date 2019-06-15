@@ -25,7 +25,7 @@ class OriginFragment : Fragment() {
         vModel = ViewModelProviders.of(this.activity!!).get(MainViewModel::class.java)
         mAdaptor = OriginListAdaptor(vModel)
         mAdaptor.setUIHandler(object : DeliverEventToActivity {
-            override fun onUserInterAction(parentToGo: String, _list: List<String>) {
+            override fun transitOriginToChild(parentToGo: String) {
                 val activity = this@OriginFragment.activity
                 activity?.let {
                     it.supportFragmentManager.beginTransaction()
@@ -56,6 +56,6 @@ class OriginFragment : Fragment() {
         })
     }
     interface DeliverEventToActivity {
-        fun onUserInterAction(parentToGo: String, _list: List<String>)
+        fun transitOriginToChild(parentToGo: String)
     }
 }
