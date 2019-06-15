@@ -11,7 +11,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 const val CURRENT_ITEMS ="currentItems"
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var mAdaptor: OriginListAdaptor
     private lateinit var vModel: MainViewModel
     // Activity life cycles
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,7 +19,13 @@ class MainActivity : AppCompatActivity() {
         vModel = ViewModelProviders.of(this@MainActivity).get(MainViewModel::class.java)
         setSupportActionBar(toolbar)
         makeOriginFragment(savedInstanceState, vModel)
-        //TODO FABを取り除いてRecyclerViewのFooterにするか
+    }
+    override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
+        // on Pauseや回転後 on Stop前
+        super.onSaveInstanceState(outState, outPersistentState)
+        outState?.apply {
+            putStringArrayList(CURRENT_ITEMS, ArrayList(vModel.getLiveListAsArrayList()))
+        }
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
@@ -30,13 +35,7 @@ class MainActivity : AppCompatActivity() {
             vModel.initLiveList(it.toMutableList())
         }
     }
-    override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
-        // on Pauseや回転後 on Stop前
-        super.onSaveInstanceState(outState, outPersistentState)
-        outState?.apply {
-            putStringArrayList(CURRENT_ITEMS, ArrayList(vModel.getLiveListAsArrayList()))
-        }
-    }
+
     // Activity Event
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -58,7 +57,7 @@ class MainActivity : AppCompatActivity() {
         val resultOptional = savedInstanceState?.getStringArrayList(CURRENT_ITEMS)
         val result =
             if (resultOptional.isNullOrEmpty()) arrayListOf(
-                "one,knight",
+                "one,knight,mage",
                 "two,Firion,Maria,Ricard,Minwu",
                 "three,Monk,White Mage,Thief,Dragoon,Summoner",
                 "four,Cecil,Kain,Rydia,Rosa,Edge",

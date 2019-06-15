@@ -1,5 +1,4 @@
 package com.example.voicelist
-
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.KeyEvent
@@ -7,79 +6,73 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.TextView
 import kotlinx.android.synthetic.main.origin_footer.view.*
 import kotlinx.android.synthetic.main.originlist_item.view.*
 
 class OriginListAdaptor(
-    private val mModel: MainViewModel
+    private val vModel: MainViewModel
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     // View Type Const
-    private val cItemWithoutChild = 0
-    private val cItemWithChild = 1
+    private val cItem = 1
     private val cFooter = 2
 
     // String   "title(contents):root, descending1 , descending2 , ..."
     private lateinit var mHandler: OriginFragment.DeliverEventToActivity
 
     // Lifecycle of Recycler View
-    override fun getItemCount(): Int = mModel.getOriginList().size + 1 // データ＋入力用フッタ
+    override fun getItemCount(): Int = vModel.getOriginList().size + 1 // データ＋入力用フッタ
 
-    override fun getItemViewType(position: Int): Int = indicateViewType(position) // position 0..getItemCount
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        return when (viewType) {
-            cItemWithChild, cItemWithoutChild -> {
-                val view = inflater.inflate(R.layout.originlist_item, parent, false)
-                val viewHolder = ViewHolderOfCell(view)
-                viewHolder.hasChild = (viewType == cItemWithChild)
-                viewHolder
-            }
-            else -> {
-                val view = inflater.inflate(R.layout.origin_footer, parent, false)
-                ViewHolderOfCell(view)
-            }
+    override fun getItemViewType(position: Int): Int {
+        val itemRange = IntRange(0, vModel.getOriginList().lastIndex)
+        return when (position) {
+            in itemRange -> cItem
+            else -> cFooter
         }
     }
 
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val resID = when (viewType) {
+            cItem -> R.layout.originlist_item // アイテム表示　(0～アイテムの個数)　編集可能TextView
+            else -> R.layout.origin_footer    // Footer アイテム追加
+        }
+        return ViewHolderOfCell(LayoutInflater.from(parent.context).inflate(resID, parent, false))
+    }
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (position > mModel.getLiveList().lastIndex) {
+        if (position > vModel.getLiveList().lastIndex) {
             bindAdditionWindow(holder as ViewHolderOfCell, position)
             return
         }
-        val list = mModel.getOriginList()
-        val head = if (list.isNotEmpty()) list[position] else "empty!!!"
-
         val vH = holder as ViewHolderOfCell
-        val lV = vH.rowView // list View
+        val iV = vH.rowView // Holder item View
+        val list = vModel.getLiveList()[position].split(",") // 表示アイテムを先頭要素、子要素に分割する
+        iV.rowText.text = list[0]   //リストの先頭要素が親
+        iV.rowEditText.setText(list[0])
 
-        if (vH.hasChild) {
-            lV.folderIcon.visibility = View.VISIBLE
-        } else {
-            lV.folderIcon.visibility = View.GONE
+        if (list.size >= 2) iV.folderIcon.visibility = View.VISIBLE
+        else {
+            iV.folderIcon.visibility = View.GONE
         }
-        lV.rowText.text = head
-        lV.rowText.setOnClickListener {
-            lV.textWrapper.showNext()
-            lV.imageWrapper.showNext()
+
+        iV.rowText.setOnClickListener {
+            iV.textWrapper.showNext()
+            iV.imageWrapper.showNext()
         }
-        lV.rowEditText.setText(head, TextView.BufferType.NORMAL)
-        lV.folderIcon.setOnClickListener {
-            mHandler.onUserInterAction(head, mModel.getChildListAt(position))
+        iV.folderIcon.setOnClickListener {
+            mHandler.onUserInterAction(list[0], vModel.getChildListAt(position))
         }
-        lV.editEndButton.setOnClickListener { v ->
-            val newText = lV.rowEditText.text.toString()
-            mModel.setLiveListAt(position, 0, newText)
-            lV.rowText.text = newText
+        iV.editEndButton.setOnClickListener { v ->
+            val newText = iV.rowEditText.text.toString()
+            vModel.setLiveListAt(position, 0, newText)
+            iV.rowText.text = newText
             this@OriginListAdaptor.notifyItemChanged(position)
-            lV.textWrapper.showPrevious()
-            if (vH.hasChild) lV.imageWrapper.showPrevious()
+            iV.textWrapper.showPrevious()
+            if (vModel.getChildListAt(position).isNotEmpty()) iV.imageWrapper.showPrevious()
             else v.visibility = View.GONE
             v.hideSoftKeyBoard()
         }
-        lV.rowEditText.setOnFocusChangeListener { v, hasFocus ->
+        iV.rowEditText.setOnFocusChangeListener { v, hasFocus ->
             when (hasFocus) {
                 true -> v.showSoftKeyBoard()
                 false -> v.hideSoftKeyBoard()
@@ -91,14 +84,8 @@ class OriginListAdaptor(
     fun setUIHandler(_handler: OriginFragment.DeliverEventToActivity) {
         this.mHandler = _handler
     }
-    private fun indicateViewType(position: Int): Int {
-        if (position > mModel.getOriginList().lastIndex) return cFooter
-        val childList = mModel.getChildListAt(position)
-        return if (childList.isEmpty()) cItemWithoutChild else cItemWithChild // ChildItemがなければ　ViewType:0　Itemをかえす。　そうでなければFolderをかえす。
-    }
-    class ViewHolderOfCell(val rowView: View) : RecyclerView.ViewHolder(rowView) {
-        var hasChild = false
-    }
+
+    class ViewHolderOfCell(val rowView: View) : RecyclerView.ViewHolder(rowView)
 
     // private method
     private fun bindAdditionWindow(holder: ViewHolderOfCell, position: Int) {
@@ -136,7 +123,7 @@ class OriginListAdaptor(
             val newText = it.text.toString()
             if (newText.isBlank()) return
             Log.i("EditorEvent", " $newText will add")
-            mModel.addLiveList(newText)
+            vModel.addLiveList(newText)
             it.text.clear()
             it.hideSoftKeyBoard()
         }

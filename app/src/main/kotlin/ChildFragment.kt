@@ -58,6 +58,7 @@ class ChildFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         childList.adapter = mAdaptor
+        mAdaptor.updateList(mList)
     }
 
     override fun onStart() {
