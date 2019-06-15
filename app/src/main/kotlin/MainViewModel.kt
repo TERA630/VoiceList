@@ -46,7 +46,7 @@ class MainViewModel : ViewModel() {
     fun findIndexOfOrigin(_string: String): Int {
         val result = getOriginList().indexOfFirst { it.matches("^$_string.*".toRegex()) }
         if (result != -1) Log.i("Origin", "$_string was found at $result")
-        else Log.i("origin", "$_string was not found in origi.")
+        else Log.i("origin", "$_string was not found in origin.")
         return result
     }
     fun getChildListAt(index: Int): List<String> {
@@ -68,7 +68,6 @@ class MainViewModel : ViewModel() {
 
     fun getLiveList(): List<String> {
         return if (liveList.value == null) {
-            Log.w("test", "Failed to access liveList.")
             errorList
         } else {
             liveList.value as MutableList<String>
@@ -167,7 +166,7 @@ fun findRecyclerView(viewGroup: ViewGroup): RecyclerView? {
     return null
 }
 
-fun findDescendingEditorTextAtPosition(recyclerView: RecyclerView, position: Int): EditText? {
+fun findDescendingEditorAtPosition(recyclerView: RecyclerView, position: Int): EditText? {
     val childView = recyclerView.getChildAt(position)
     if (childView is EditText) return childView
     return if (childView is ViewGroup) {

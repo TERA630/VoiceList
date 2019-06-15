@@ -53,7 +53,7 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
             holder.mView.childHeaderText.text = mCurrentParent
             vH.itemView.backToParent.setOnClickListener {
                 // 戻るボタンを押したときの挙動
-                if (vModel.navigationHistory.size < 3) { // Origin -> child 1 の時
+                if (vModel.navigationHistory.size <= 2) { // Origin -> child 1 の時
                     mUIHandler.onGotoOrigin()
                     val trace = vModel.popNavigation()
                     Log.i("transit", "from $trace to back to Origin")
@@ -78,16 +78,7 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
                 holder.itemView.goChild.visibility = View.GONE
             }
         } else {
-            vH.mView.childAddButton.setOnClickListener { view ->
-
-                val originIndex = vModel.findIndexOfOrigin(mCurrentParent)           //   現在表示されているアイテム達の親
-                if (originIndex < 0) { //originにアイテムが無い場合は追加・・
-                    Log.i("Item", "$mCurrentParent origin　was Not Found")
-                } else {
-                    Log.i("Item", "$mCurrentParent origin　was at $originIndex")
-                    editorTextDone(view, originIndex)
-                }
-            }
+            vH.mView.childAddButton.setOnClickListener { view -> editorTextDone(view, position) }
         }
     }
 
@@ -96,20 +87,27 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
     fun setUIHandler(_handler: ChildFragment.DeliverEvent) {
         this.mUIHandler = _handler // Fragmentのインスタンスやメンバを操作するため､インターフェイスを経由
     }
+
+    fun changeListItem(_currentParent: String, _currentChild: List<String>) {
+        mCurrentParent = _currentParent
+        mList = _currentChild
+    }
     class ChildRowHolder
         (val mView: View) : RecyclerView.ViewHolder(mView)
 
-    private fun editorTextDone(view: View, originIndex: Int) {
+    private fun editorTextDone(view: View, position: Int) {
+        val originIndex = vModel.findIndexOfOrigin(mCurrentParent)           //   現在表示されているアイテム達の親
         val parent = view.parent
         val recyclerView = parent?.findAscendingRecyclerView()
-        val editor = recyclerView?.let { findDescendingEditorTextAtPosition(it, originIndex) }
+        val editor = recyclerView?.let { findDescendingEditorAtPosition(it, position) }
         editor?.let {
             val newText = it.text.toString()
             if (newText.isBlank()) return
-            Log.i("EditorEvent", " $newText will add")
+            Log.i("EditorEvent", " $newText will add at origin $originIndex")
             vModel.addChildAt(originIndex, newText)
             it.text.clear()
             it.hideSoftKeyBoard()
+            this.notifyItemInserted(position + 1)
         }
     }
 }

@@ -118,7 +118,7 @@ class OriginListAdaptor(
     private fun editorTextDone(view: View, position: Int) {
         val parent = view.parent
         val recyclerView = parent.findAscendingRecyclerView()
-        val editor = recyclerView?.let { findDescendingEditorTextAtPosition(it, position) }
+        val editor = recyclerView?.let { findDescendingEditorAtPosition(it, position) }
         editor?.let {
             val newText = it.text.toString()
             if (newText.isBlank()) return

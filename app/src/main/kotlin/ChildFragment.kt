@@ -29,13 +29,15 @@ class ChildFragment : Fragment() {
         mAdaptor = ChildListAdaptor(vModel)
         mAdaptor.setUIHandler(object : DeliverEvent {
             override fun advanceChildToChild(itemToGo: String, _list: List<String>) {
-                vModel.pushNextNavigation(itemToGo)
-                transitChildToChild()
+                val trace = vModel.pushNextNavigation(itemToGo)
+                Log.i("transit", "$trace is pushed from $itemToGo")
+                mAdaptor.changeListItem(itemToGo, _list)
+                mAdaptor.notifyDataSetChanged()
             }
             override fun backChildToChild(itemToBack: String, _list: List<String>) {
                 val trace = vModel.popNavigation()
                 Log.i("transit", "$trace was pop, going to $itemToBack")
-                transitChildToChild()
+                mAdaptor.notifyDataSetChanged()
             }
             override fun onGotoOrigin() {
                 transitChildToOrigin()
@@ -58,10 +60,6 @@ class ChildFragment : Fragment() {
         fun advanceChildToChild(itemToGo: String, _list: List<String>)
         fun backChildToChild(itemToBack: String, _list: List<String>)
         fun onGotoOrigin()
-    }
-
-    fun transitChildToChild() {
-        mAdaptor.notifyDataSetChanged()
     }
     fun transitChildToOrigin() {
         activity!!.supportFragmentManager.beginTransaction()
