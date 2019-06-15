@@ -16,14 +16,13 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
     private val childContents = 1
     private val childFooter = 2
     private var mCurrentParent = ""
-    private lateinit var mList: List<String>
+    private lateinit var mList: MutableList<String>
     private lateinit var mUIHandler: ChildFragment.DeliverEvent
-
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
         mCurrentParent = vModel.navigationHistory.last()
-        mList = vModel.getChildOf(mCurrentParent)
+        mList = vModel.getChildOf(mCurrentParent).toMutableList()
         if (mList.isEmpty()) throw java.lang.IllegalStateException("$mCurrentParent has no child, illegal call childFragment")
     }
     override fun getItemCount(): Int = mList.size + 2 // list と　Header　と　Footer
@@ -65,7 +64,24 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
             }
         } else if (position <= mList.lastIndex + 1) { // Contents ヘッダが先頭、1個後ろにずれる
             val childHeader = mList[position - 1]
-            vH.mView.childContents.text = childHeader
+            val parentIndexOfOrigin = vModel.findIndexOfOrigin(mCurrentParent)
+            val iV = vH.mView // 一行のビュー
+            iV.childContents.text = childHeader
+            iV.childEditor.setText(childHeader)
+            iV.childContents.setOnClickListener {
+                iV.childTextWrapper.showNext()
+                iV.childImageWrapper.showNext()
+            }
+            iV.childEditEnd.setOnClickListener { v ->
+                val newText = iV.childEditor.text.toString()
+                vModel.setLiveListAt(parentIndexOfOrigin, position, newText)
+                iV.childContents.text = newText
+                this@ChildListAdaptor.notifyItemChanged(position)
+                iV.childTextWrapper.showPrevious()
+                if (vModel.getChildOf(newText).isNotEmpty()) iV.childImageWrapper.showPrevious()
+                else v.visibility = View.GONE
+                v.hideSoftKeyBoard()
+            }
             val originIndex = vModel.findIndexOfOrigin(childHeader)
             if (originIndex > 0 && vModel.getChildListAt(originIndex).isNotEmpty()) {
                 //　表示する行にさらに子アイテムがあれば､移動ボタンを表示
@@ -77,8 +93,10 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
             } else {
                 holder.itemView.goChild.visibility = View.GONE
             }
-        } else {
-            vH.mView.childAddButton.setOnClickListener { view -> editorTextDone(view, position) }
+        } else { // Footer
+            vH.mView.childAddButton.setOnClickListener { view ->
+                editorTextDone(view, position)
+            }
         }
     }
 
@@ -90,7 +108,7 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
 
     fun changeListItem(_currentParent: String, _currentChild: List<String>) {
         mCurrentParent = _currentParent
-        mList = _currentChild
+        mList = _currentChild.toMutableList()
     }
     class ChildRowHolder
         (val mView: View) : RecyclerView.ViewHolder(mView)
@@ -107,7 +125,9 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
             vModel.addChildAt(originIndex, newText)
             it.text.clear()
             it.hideSoftKeyBoard()
-            this.notifyItemInserted(position + 1)
+            mList.add(newText)
+            notifyItemChanged(position)
+            notifyItemInserted(position)
         }
     }
 }

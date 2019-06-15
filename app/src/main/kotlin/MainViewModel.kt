@@ -121,13 +121,11 @@ fun View.hideSoftKeyBoard() {
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.hideSoftInputFromWindow(windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
 }
-
 fun View.showSoftKeyBoard() {
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
     imm.hideSoftInputFromWindow(windowToken, InputMethodManager.SHOW_IMPLICIT)
 }
-
 fun ViewParent.findAscendingRecyclerView(): RecyclerView? {
     if (this is RecyclerView) return this
     var thisGroup: ViewGroup? = this as ViewGroup
@@ -142,7 +140,6 @@ fun ViewParent.findAscendingRecyclerView(): RecyclerView? {
     }
     return null
 }
-
 fun findDescendingEditorText(viewGroup: ViewGroup): EditText? {
     val groupCount = viewGroup.childCount
     for (i in 0..groupCount) {
@@ -155,7 +152,6 @@ fun findDescendingEditorText(viewGroup: ViewGroup): EditText? {
     }
     return null
 }
-
 fun findRecyclerView(viewGroup: ViewGroup): RecyclerView? {
     if (viewGroup is RecyclerView) return viewGroup
     val groupCount = viewGroup.childCount
@@ -165,7 +161,6 @@ fun findRecyclerView(viewGroup: ViewGroup): RecyclerView? {
     }
     return null
 }
-
 fun findDescendingEditorAtPosition(recyclerView: RecyclerView, position: Int): EditText? {
     val childView = recyclerView.getChildAt(position)
     if (childView is EditText) return childView

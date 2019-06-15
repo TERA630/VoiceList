@@ -1,6 +1,5 @@
 package com.example.voicelist
 
-import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -48,13 +47,6 @@ class ChildFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         childList.adapter = mAdaptor
-    }
-
-    override fun onStart() {
-        super.onStart()
-        vModel.liveList.observe(this, Observer {
-            mAdaptor.notifyDataSetChanged()
-        })
     }
     interface DeliverEvent {
         fun advanceChildToChild(itemToGo: String, _list: List<String>)
