@@ -15,6 +15,8 @@ import kotlinx.android.synthetic.main.originlist_item.view.*
 class OriginListAdaptor(
     private val vModel: MainViewModel
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    //TODO 行の編集のリスナ､改行やIME DONEの実装
+
 
     // View Type Const
     private val cItem = 1
@@ -97,7 +99,6 @@ class OriginListAdaptor(
             }
         }
     }
-
     private fun bindFooter(holder: ViewHolderOfCell, position: Int) {
         val iV = holder.itemView
         iV.originNewText.setOnFocusChangeListener { v, hasFocus ->

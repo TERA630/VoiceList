@@ -12,6 +12,8 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 
 class MainViewModel : ViewModel() {
+    //TODO 削除のUNDOの実装
+    //TODO 削除時のヒストリーのコーディングの実装
     private val errorList = listOf("OriginList", "was", "null", "or", "empty", "Check", "the", "code.")
     var liveList: MutableLiveData<MutableList<String>> = MutableLiveData()
     val navigationHistory = mutableListOf("origin")
