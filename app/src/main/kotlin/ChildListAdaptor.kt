@@ -48,64 +48,20 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val vH = holder as ChildRowHolder
-        if (position == 0) {
-            holder.mView.childHeaderText.text = mCurrentParent
-            vH.itemView.backToParent.setOnClickListener {
-                // 戻るボタンを押したときの挙動
-                if (vModel.navigationHistory.size <= 2) { // Origin -> child 1 の時
-                    mUIHandler.onGotoOrigin()
-                    val trace = vModel.popNavigation()
-                    Log.i("transit", "from $trace to back to Origin")
-                } else {// Origin -> child 1 -> child 2 以上の時
-                    val lastParent = vModel.navigationHistory[vModel.navigationHistory.lastIndex - 1] // 一つ前のアイテムへ
-                    mUIHandler.backChildToChild(lastParent, vModel.getChildOf(lastParent))
-                    Log.i("transit", "back to $lastParent")
-                }
-            }
-        } else if (position <= mList.lastIndex + 1) { // Contents ヘッダが先頭、1個後ろにずれる
-            val childHeader = mList[position - 1]
-            val parentIndexOfOrigin = vModel.findIndexOfOrigin(mCurrentParent)
-            val iV = vH.mView // 一行のビュー
-            iV.childContents.text = childHeader
-            iV.childEditor.setText(childHeader)
-            iV.childContents.setOnClickListener {
-                iV.childTextWrapper.showNext()
-                iV.childImageWrapper.showNext()
-            }
-            iV.childEditEnd.setOnClickListener { v ->
-                val newText = iV.childEditor.text.toString()
-                vModel.setLiveListAt(parentIndexOfOrigin, position, newText)
-                iV.childContents.text = newText
-                this@ChildListAdaptor.notifyItemChanged(position)
-                iV.childTextWrapper.showPrevious()
-                if (vModel.getChildOf(newText).isNotEmpty()) iV.childImageWrapper.showPrevious()
-                else v.visibility = View.GONE
-                v.hideSoftKeyBoard()
-            }
-            val originIndex = vModel.findIndexOfOrigin(childHeader)
-            if (originIndex > 0 && vModel.getChildListAt(originIndex).isNotEmpty()) {
-                //　表示する行にさらに子アイテムがあれば､移動ボタンを表示
-                vH.itemView.goChild.visibility = View.VISIBLE
-                vH.itemView.goChild.setOnClickListener {
-                    mUIHandler.advanceChildToChild(childHeader, vModel.getChildListAt(originIndex))
-                    Log.i("transit", "from $mCurrentParent to $childHeader")
-                }
-            } else {
-                holder.itemView.goChild.visibility = View.GONE
-            }
-        } else { // Footer
-            vH.mView.childAddButton.setOnClickListener { view ->
-                editorTextDone(view, position)
-            }
+        val headerRange = 0
+        val contentRange = IntRange(1, mList.lastIndex + 1)
+        val footerRange = mList.lastIndex + 2
+        when (position) {
+            headerRange -> bindHeader(holder.itemView)
+            in contentRange -> bindContents(holder.itemView, position)
+            footerRange -> bindFooter(holder.itemView, position)
+            else -> throw  IllegalStateException("$position is out of range")
         }
     }
-
     // public method
-
     fun setUIHandler(_handler: ChildFragment.DeliverEvent) {
         this.mUIHandler = _handler // Fragmentのインスタンスやメンバを操作するため､インターフェイスを経由
     }
-
     fun changeListItem(_currentParent: String, _currentChild: List<String>) {
         mCurrentParent = _currentParent
         mList = _currentChild.toMutableList()
@@ -113,6 +69,60 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
     class ChildRowHolder
         (val mView: View) : RecyclerView.ViewHolder(mView)
 
+    // private method
+    private fun bindHeader(rowView: View) {
+        rowView.childHeaderText.text = mCurrentParent
+        rowView.backToParent.setOnClickListener {
+            // 戻るボタンを押したときの挙動
+            if (vModel.navigationHistory.size <= 2) { // Origin -> child 1 の時
+                mUIHandler.onGotoOrigin()
+                val trace = vModel.popNavigation()
+                Log.i("transit", "from $trace to back to Origin")
+            } else {// Origin -> child 1 -> child 2 以上の時
+                val lastParent = vModel.navigationHistory[vModel.navigationHistory.lastIndex - 1] // 一つ前のアイテムへ
+                mUIHandler.backChildToChild(lastParent, vModel.getChildOf(lastParent))
+                Log.i("transit", "back to $lastParent")
+            }
+        }
+    }
+
+    private fun bindContents(rowView: View, position: Int) {
+        val childHeader = mList[position - 1]
+        val parentIndexOfOrigin = vModel.findIndexOfOrigin(mCurrentParent)
+        rowView.childContents.text = childHeader
+        rowView.childEditor.setText(childHeader)
+        rowView.childContents.setOnClickListener {
+            rowView.childTextWrapper.showNext()
+            rowView.childImageWrapper.showNext()
+        }
+        rowView.childEditEnd.setOnClickListener { v ->
+            val newText = rowView.childEditor.text.toString()
+            vModel.setLiveListAt(parentIndexOfOrigin, position, newText)
+            rowView.childContents.text = newText
+            this@ChildListAdaptor.notifyItemChanged(position)
+            rowView.childTextWrapper.showPrevious()
+            if (vModel.getChildOf(newText).isNotEmpty()) rowView.childImageWrapper.showPrevious()
+            else v.visibility = View.GONE
+            v.hideSoftKeyBoard()
+        }
+        val originIndex = vModel.findIndexOfOrigin(childHeader)
+        if (originIndex > 0 && vModel.getChildListAt(originIndex).isNotEmpty()) {
+            //　表示する行にさらに子アイテムがあれば､移動ボタンを表示
+            rowView.goChild.visibility = View.VISIBLE
+            rowView.goChild.setOnClickListener {
+                mUIHandler.advanceChildToChild(childHeader, vModel.getChildListAt(originIndex))
+                Log.i("transit", "from $mCurrentParent to $childHeader")
+            }
+        } else {
+            rowView.goChild.visibility = View.GONE
+        }
+    }
+
+    private fun bindFooter(rowView: View, position: Int) {
+        rowView.childAddButton.setOnClickListener { view ->
+            editorTextDone(view, position)
+        }
+    }
     private fun editorTextDone(view: View, position: Int) {
         val originIndex = vModel.findIndexOfOrigin(mCurrentParent)           //   現在表示されているアイテム達の親
         val parent = view.parent
