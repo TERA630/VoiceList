@@ -51,8 +51,6 @@ class MainViewModel : ViewModel() {
             deleteHistory.add(safeLiveList[index])
             safeLiveList.removeAt(index)
         }
-
-
     }
 
     fun findIndexOfOrigin(_string: String): Int {
@@ -61,8 +59,9 @@ class MainViewModel : ViewModel() {
         else Log.i("origin", "$_string was not found in origin.")
         return result
     }
-    fun getChildListAt(index: Int): List<String> {
-        val headAndChildCSV = getLiveList()[index]
+
+    fun getChildListAt(indexOfLiveList: Int): List<String> {
+        val headAndChildCSV = getLiveList()[indexOfLiveList]
             val list = headAndChildCSV.split(",")
             return list.drop(1)
     }
@@ -115,15 +114,20 @@ class MainViewModel : ViewModel() {
         return result
     }
 
-    fun setLiveListAt(rowIndex: Int, columnIndex: Int, _value: String) { // CSV 形式のリストに　値を設定します。
+    fun popDeleted() {
+        if (deleteHistory.size == 0) return
+        Log.i("Origin", "${deleteHistory.last()} will pop")
+    }
+
+    fun setLiveListAt(indexOfOrigin: Int, columnIndex: Int, _value: String) { // CSV 形式のリストに　値を設定します。
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         else {
             val safeLiveList = liveList.value as MutableList<String>
 
-            val safeLiveListDestructed = safeLiveList[rowIndex].split(",").toMutableList()
+            val safeLiveListDestructed = safeLiveList[indexOfOrigin].split(",").toMutableList()
             safeLiveListDestructed[columnIndex] = _value
             val newListElement = safeLiveListDestructed.joinToString()
-            safeLiveList[rowIndex] = newListElement
+            safeLiveList[indexOfOrigin] = newListElement
             liveList.postValue(safeLiveList)
         }
     }

@@ -1,4 +1,7 @@
 package com.example.voicelist
+
+import android.content.DialogInterface
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.KeyEvent
@@ -51,7 +54,6 @@ class OriginListAdaptor(
     fun setUIHandler(_handler: OriginFragment.DeliverEventToActivity) {
         this.mHandler = _handler
     }
-
     class ViewHolderOfCell(val rowView: View) : RecyclerView.ViewHolder(rowView)
 
     // private method
@@ -60,7 +62,8 @@ class OriginListAdaptor(
         val list = vModel.getLiveList()[position].split(",") // 表示アイテムを先頭要素、子要素に分割する
         iV.rowText.text = list[0]   //リストの先頭要素が親
         iV.rowEditText.setText(list[0])
-        if (list.size >= 2) iV.folderIcon.visibility = View.VISIBLE
+        if (list.size >= 2) iV.originGoChild.visibility = View.VISIBLE
+
         else {
             iV.originGoChild.visibility = View.GONE
         }
@@ -71,15 +74,21 @@ class OriginListAdaptor(
         iV.originGoChild.setOnClickListener {
             mHandler.transitOriginToChild(list[0])
         }
-        iV.editEndButton.setOnClickListener { v ->
+        iV.editEndButton.setOnClickListener { view ->
             val newText = iV.rowEditText.text.toString()
-            vModel.setLiveListAt(position, 0, newText)
-            iV.rowText.text = newText
-            this@OriginListAdaptor.notifyItemChanged(position)
+            if (newText.isBlank()) {
+                confirmDelete(view, position)
+                val origin = vModel.getOriginList()[position]
+                Log.i("Editor", "$origin at $position will be deleted.")
+            } else {
+                vModel.setLiveListAt(position, 0, newText)
+                iV.rowText.text = newText
+                this@OriginListAdaptor.notifyItemChanged(position)
+            }
             iV.textWrapper.showPrevious()
             if (vModel.getChildListAt(position).isNotEmpty()) iV.imageWrapper.showPrevious()
-            else v.visibility = View.GONE
-            v.hideSoftKeyBoard()
+            else view.visibility = View.GONE
+            view.hideSoftKeyBoard()
         }
         iV.rowEditText.setOnFocusChangeListener { v, hasFocus ->
             when (hasFocus) {
@@ -91,7 +100,6 @@ class OriginListAdaptor(
 
     private fun bindFooter(holder: ViewHolderOfCell, position: Int) {
         val iV = holder.itemView
-        Log.i("recyclerView", "$position is footer..")
         iV.originNewText.setOnFocusChangeListener { v, hasFocus ->
               when (hasFocus) {
                   true -> v.showSoftKeyBoard()
@@ -100,31 +108,48 @@ class OriginListAdaptor(
         }
         iV.originNewText.setOnEditorActionListener { textView, actionId, event: KeyEvent? ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                editorTextDone(textView, position)
+                onNewTextRowEditorEnd(textView, position)
                 return@setOnEditorActionListener true
             }
             if (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
-                editorTextDone(textView, position)
+                onNewTextRowEditorEnd(textView, position)
                 return@setOnEditorActionListener true
             }
             return@setOnEditorActionListener false
         }
         iV.originAddButton.setOnClickListener {
-            editorTextDone(iV, position)
+            onNewTextRowEditorEnd(iV, position)
         }
     }
 
-    private fun editorTextDone(view: View, position: Int) {
+    private fun onNewTextRowEditorEnd(view: View, position: Int) {
         val parent = view.parent
         val recyclerView = parent.findAscendingRecyclerView()
         val editor = recyclerView?.let { findDescendingEditorAtPosition(it, position) }
         editor?.let {
             val newText = it.text.toString()
             if (newText.isBlank()) return
-            Log.i("EditorEvent", " $newText will add")
+            Log.i("Editor", " $newText will add")
             vModel.addLiveList(newText)
             it.text.clear()
             it.hideSoftKeyBoard()
         }
+    }
+
+    private fun confirmDelete(view: View, position: Int) {
+        AlertDialog.Builder(view.context)
+            .setTitle(R.string.itemDeleteTitle)
+            .setMessage(R.string.itemDeleteMessage)
+            .setPositiveButton(R.string.yes) { _, which ->
+                when (which) {
+                    DialogInterface.BUTTON_NEGATIVE -> return@setPositiveButton
+                    DialogInterface.BUTTON_POSITIVE -> {
+                        this@OriginListAdaptor.notifyItemRemoved(position)
+                        vModel.deleteLiveListAt(position) // IndexOfOrigin = position
+                    }
+                }
+            }
+            .setNegativeButton(R.string.no, null)
+            .show()
     }
 }
