@@ -6,7 +6,7 @@
     <string name="enterNewItem">Enter new Item..</string>
     // Content
     <string name="button">push to action</string>
+    // Menu
+    <string name="undo">元に戻す</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -15,6 +15,7 @@ class MainViewModel : ViewModel() {
     private val errorList = listOf("OriginList", "was", "null", "or", "empty", "Check", "the", "code.")
     var liveList: MutableLiveData<MutableList<String>> = MutableLiveData()
     val navigationHistory = mutableListOf("origin")
+    var deleteHistory = mutableListOf<String>()
 
     // Initialization of liveList   Must to be called at First.. before calling other methods
     fun initLiveList(_list: MutableList<String>) {
@@ -41,6 +42,17 @@ class MainViewModel : ViewModel() {
             safeLiveList[_indexOfOrigin] = newListElement
             liveList.postValue(safeLiveList)
         }
+    }
+
+    fun deleteLiveListAt(index: Int) {
+        if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
+        else {
+            val safeLiveList = liveList.value as MutableList<String>
+            deleteHistory.add(safeLiveList[index])
+            safeLiveList.removeAt(index)
+        }
+
+
     }
 
     fun findIndexOfOrigin(_string: String): Int {
