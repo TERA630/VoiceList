@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
         // on Pauseや回転後 on Stop前
         super.onSaveInstanceState(outState, outPersistentState)
         outState?.apply {
-            putStringArrayList(CURRENT_ITEMS, ArrayList(vModel.getLiveListAsArrayList()))
+            putStringArrayList(CURRENT_ITEMS, ArrayList(vModel.getLiveList()))
         }
     }
 

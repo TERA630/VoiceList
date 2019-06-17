@@ -13,7 +13,6 @@ import android.widget.EditText
 
 class MainViewModel : ViewModel() {
     //TODO 削除のUNDOの実装
-    //TODO 削除時のヒストリーのコーディングの実装
     private val errorList = listOf("OriginList", "was", "null", "or", "empty", "Check", "the", "code.")
     var liveList: MutableLiveData<MutableList<String>> = MutableLiveData()
     val navigationHistory = mutableListOf("origin")
@@ -23,7 +22,6 @@ class MainViewModel : ViewModel() {
     fun initLiveList(_list: MutableList<String>) {
         liveList.postValue(_list)
     }
-
     // Public methods which deals liveList
 
     fun addLiveList(_value: String) {
@@ -50,7 +48,10 @@ class MainViewModel : ViewModel() {
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         else {
             val safeLiveList = liveList.value as MutableList<String>
-            deleteHistory.add(safeLiveList[index])
+            val itemToDelete = StringBuilder("$index:")
+                .append(safeLiveList[index])
+                .toString()
+            deleteHistory.add(itemToDelete)
             safeLiveList.removeAt(index)
         }
     }
@@ -80,19 +81,9 @@ class MainViewModel : ViewModel() {
     }
 
     fun getLiveList(): List<String> {
-        return if (liveList.value == null) {
-            errorList
-        } else {
-            liveList.value as MutableList<String>
-        }
+        return if (liveList.value == null) errorList
+        else liveList.value as MutableList<String>
     }
-
-    fun getLiveListAsArrayList(): ArrayList<String> {
-        if (liveList.value == null) return ArrayList(errorList)
-        val safeOriginList = liveList.value as MutableList<String>
-        return ArrayList(safeOriginList)
-    }
-
     fun getOriginList(): MutableList<String> {
         // Liveリストの先頭要素のみを並べたもの
         val safeLiveList = getLiveList()
@@ -107,7 +98,6 @@ class MainViewModel : ViewModel() {
     fun pushNextNavigation(_traceOfParent: String) {
         navigationHistory.add(_traceOfParent)
     }
-
     fun popNavigation(): String {
         val result = navigationHistory.last()
         if (navigationHistory.size > 1) {
@@ -118,7 +108,14 @@ class MainViewModel : ViewModel() {
 
     fun popDeleted() {
         if (deleteHistory.size == 0) return
-        Log.i("Origin", "${deleteHistory.last()} will pop")
+        val itemToRecover = deleteHistory.last()
+        val recoverMatch = Regex("(\n+):(.+[,.+|$])").find(itemToRecover)
+        recoverMatch?.destructured?.let { (index, value) ->
+            getLiveList().toMutableList().add(index.toInt(), value)
+        }
+
+
+        Log.i("Origin", "$itemToRecover will pop")
     }
 
     fun setLiveListAt(indexOfOrigin: Int, columnIndex: Int, _value: String) { // CSV 形式のリストに　値を設定します。
