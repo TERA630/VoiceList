@@ -67,13 +67,9 @@ class OriginListAdaptor(
         }
         iV.rowText.setOnClickListener {
             iV.textWrapper.showNext()
-            iV.imageWrapper.showNext()
         }
         iV.originGoChild.setOnClickListener {
             mHandler.transitOriginToChild(list[0])
-        }
-        iV.editEndButton.setOnClickListener { view ->
-            onRowEditorEnd(view, position)
         }
         iV.rowEditText.setOnEditorActionListener { textView, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -122,8 +118,6 @@ class OriginListAdaptor(
         val parent = view.parent
         val recyclerView = parent.findAscendingRecyclerView()
         val editor = recyclerView?.let {
-            if (vModel.getChildListAt(position).isNotEmpty()) it.imageWrapper.showPrevious()
-            else view.visibility = View.GONE
             findDescendingEditorAtPosition(it, position)
         }
         editor?.let {
@@ -146,7 +140,9 @@ class OriginListAdaptor(
     private fun onNewRowEditorEnd(view: View, position: Int) {
         val parent = view.parent
         val recyclerView = parent.findAscendingRecyclerView()
-        val editor = recyclerView?.let { findDescendingEditorAtPosition(it, position) }
+        val editor = recyclerView?.let {
+            findDescendingEditorAtPosition(it, position)
+        }
         editor?.let {
             val newText = it.text.toString()
             if (newText.isBlank()) return
@@ -155,6 +151,7 @@ class OriginListAdaptor(
             it.text.clear()
             it.hideSoftKeyBoard()
         }
+
     }
 
     private fun confirmDelete(view: View, position: Int) {

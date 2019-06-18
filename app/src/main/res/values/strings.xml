@@ -4,7 +4,7 @@
 
     // Message
     <string name="enterNewItem">Enter new Item..</string>
-    <string name="itemDeleteTitle">アイテムの削除</string>
+    <string name="itemDeleteTitle">行の削除</string>
     <string name="itemDeleteMessage">行を削除しますか</string>
     <string name="yes">はい</string>
     <string name="no">いいえ</string>

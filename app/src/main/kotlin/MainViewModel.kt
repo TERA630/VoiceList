@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.view.ViewParent
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.ViewAnimator
 
 class MainViewModel : ViewModel() {
     private val errorList = listOf("OriginList", "was", "null", "or", "empty", "Check", "the", "code.")
@@ -63,7 +64,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun indexOfOriginOf(_string: String): Int {
-        val result = getOriginList().indexOfFirst { it.matches("^$_string.*".toRegex()) }
+        val result = getOriginList().indexOfFirst { it.matches("^$_string".toRegex()) }
         if (result != -1) Log.i("Origin", "$_string was found at $result")
         else Log.i("origin", "$_string was not found in origin.")
         return result
@@ -185,4 +186,25 @@ fun findDescendingEditorAtPosition(recyclerView: RecyclerView, position: Int): E
     return if (childView is ViewGroup) {
         findDescendingEditorText(childView)
     } else null
+}
+
+fun findViewAnimatorAt(recyclerView: RecyclerView, position: Int): ViewAnimator? {
+    val childView = recyclerView.getChildAt(position)
+    if (childView is ViewAnimator) return childView
+    return if (childView is ViewGroup) {
+        findDescendingViewAnimator(childView)
+    } else null
+}
+
+fun findDescendingViewAnimator(viewGroup: ViewGroup): ViewAnimator? {
+    val groupCount = viewGroup.childCount
+    for (i in 0..groupCount) {
+        val view = viewGroup.getChildAt(i)
+        if (view is ViewAnimator) return view
+        else if (view is ViewGroup) {
+            val childView = findDescendingViewAnimator(view)
+            if (childView != null) return childView
+        }
+    }
+    return null
 }
