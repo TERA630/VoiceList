@@ -15,9 +15,6 @@ import kotlinx.android.synthetic.main.originlist_item.view.*
 class OriginListAdaptor(
     private val vModel: MainViewModel
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    //TODO 行の編集のリスナ､改行やIME DONEの実装
-
-
     // View Type Const
     private val cItem = 1
     private val cFooter = 2
@@ -51,7 +48,6 @@ class OriginListAdaptor(
             else -> throw IllegalStateException("$position is out of range")
         }
     }
-
     // public method
     fun setUIHandler(_handler: OriginFragment.DeliverEventToActivity) {
         this.mHandler = _handler
@@ -77,20 +73,19 @@ class OriginListAdaptor(
             mHandler.transitOriginToChild(list[0])
         }
         iV.editEndButton.setOnClickListener { view ->
-            val newText = iV.rowEditText.text.toString()
-            if (newText.isBlank()) {
-                confirmDelete(view, position)
-                val origin = vModel.getOriginList()[position]
-                Log.i("Editor", "$origin at $position will be deleted.")
-            } else {
-                vModel.setLiveListAt(position, 0, newText)
-                iV.rowText.text = newText
-                this@OriginListAdaptor.notifyItemChanged(position)
+            onRowEditorEnd(view, position)
+        }
+        iV.rowEditText.setOnEditorActionListener { textView, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                onRowEditorEnd(textView, position)
+                return@setOnEditorActionListener true
             }
-            iV.textWrapper.showPrevious()
-            if (vModel.getChildListAt(position).isNotEmpty()) iV.imageWrapper.showPrevious()
-            else view.visibility = View.GONE
-            view.hideSoftKeyBoard()
+            if (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
+                onRowEditorEnd(textView, position)
+                return@setOnEditorActionListener true
+            }
+            return@setOnEditorActionListener false
+
         }
         iV.rowEditText.setOnFocusChangeListener { v, hasFocus ->
             when (hasFocus) {
@@ -109,21 +104,46 @@ class OriginListAdaptor(
         }
         iV.originNewText.setOnEditorActionListener { textView, actionId, event: KeyEvent? ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                onNewTextRowEditorEnd(textView, position)
+                onNewRowEditorEnd(textView, position)
                 return@setOnEditorActionListener true
             }
             if (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
-                onNewTextRowEditorEnd(textView, position)
+                onNewRowEditorEnd(textView, position)
                 return@setOnEditorActionListener true
             }
             return@setOnEditorActionListener false
         }
         iV.originAddButton.setOnClickListener {
-            onNewTextRowEditorEnd(iV, position)
+            onNewRowEditorEnd(iV, position)
         }
     }
 
-    private fun onNewTextRowEditorEnd(view: View, position: Int) {
+    private fun onRowEditorEnd(view: View, position: Int) {
+        val parent = view.parent
+        val recyclerView = parent.findAscendingRecyclerView()
+        val editor = recyclerView?.let {
+            if (vModel.getChildListAt(position).isNotEmpty()) it.imageWrapper.showPrevious()
+            else view.visibility = View.GONE
+            findDescendingEditorAtPosition(it, position)
+        }
+        editor?.let {
+            val newText = it.text.toString()
+            if (newText.isBlank()) {
+                confirmDelete(view, position)
+                val origin = vModel.getOriginList()[position]
+                Log.i("Editor", "$origin at $position will be deleted.")
+            } else {
+                vModel.setLiveListAt(position, 0, newText)
+                recyclerView.rowText.text = newText
+                Log.i("Editor", "$position will be $newText")
+                this@OriginListAdaptor.notifyItemChanged(position)
+            }
+            recyclerView.textWrapper.showPrevious()
+            view.hideSoftKeyBoard()
+        }
+    }
+
+    private fun onNewRowEditorEnd(view: View, position: Int) {
         val parent = view.parent
         val recyclerView = parent.findAscendingRecyclerView()
         val editor = recyclerView?.let { findDescendingEditorAtPosition(it, position) }

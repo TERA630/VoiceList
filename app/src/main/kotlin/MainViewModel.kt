@@ -31,6 +31,12 @@ class MainViewModel : ViewModel() {
         liveList.postValue(safeLiveList)
     }
 
+    fun addLiveListAt(_index: Int, _value: String) {
+        if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
+        val safeLiveList = liveList.value as MutableList<String>
+        safeLiveList.add(_index, _value)
+        liveList.postValue(safeLiveList)
+    }
     fun addChildAt(_indexOfOrigin: Int, _value: String) {
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         else if (_value.isBlank()) return
@@ -53,6 +59,7 @@ class MainViewModel : ViewModel() {
                 .toString()
             deleteHistory.add(itemToDelete)
             safeLiveList.removeAt(index)
+
         }
     }
 
@@ -79,7 +86,6 @@ class MainViewModel : ViewModel() {
             errorList
         }
     }
-
     fun getLiveList(): List<String> {
         return if (liveList.value == null) errorList
         else liveList.value as MutableList<String>
@@ -106,25 +112,23 @@ class MainViewModel : ViewModel() {
         return result
     }
 
-    fun popDeleted() {
-        if (deleteHistory.size == 0) return
-        val itemToRecover = deleteHistory.last()
-        val recoverMatch = Regex("(\n+):(.+[,.+|$])").find(itemToRecover)
-        recoverMatch?.destructured?.let { (index, value) ->
-            getLiveList().toMutableList().add(index.toInt(), value)
+    fun restoreDeleted() {
+        if (deleteHistory.size == 0)
+        val itemToRestore = deleteHistory.last()
+        Regex("(.+):(.+)").find(itemToRestore)?.destructured?.let { (index, originValue) ->
+            Log.i("Origin", "$originValue will be restored at $index")
+            addLiveListAt(index.toInt(), originValue)
         }
-
-
-        Log.i("Origin", "$itemToRecover will pop")
+        deleteHistory.removeAt(deleteHistory.lastIndex)
     }
 
     fun setLiveListAt(indexOfOrigin: Int, columnIndex: Int, _value: String) { // CSV 形式のリストに　値を設定します。
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         else {
             val safeLiveList = liveList.value as MutableList<String>
-
             val safeLiveListDestructed = safeLiveList[indexOfOrigin].split(",").toMutableList()
             safeLiveListDestructed[columnIndex] = _value
+
             val newListElement = safeLiveListDestructed.joinToString()
             safeLiveList[indexOfOrigin] = newListElement
             liveList.postValue(safeLiveList)
