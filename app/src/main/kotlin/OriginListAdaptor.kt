@@ -98,6 +98,15 @@ class OriginListAdaptor(
                   false -> v.hideSoftKeyBoard()
               }
         }
+        iV.originNewText.setOnKeyListener { textView, keyCode, event ->
+            when (keyCode) {
+                KeyEvent.KEYCODE_DPAD_UP -> JumpUpperRowIfCan()
+                KeyEvent.KEYCODE_DPAD_DOWN -> SinkLowerRowIfCan()
+                else -> return@setOnKeyListener false
+            }
+            Log.i("keyevent", "$keyCode no  ${event.action} coming")
+            return@setOnKeyListener false
+        }
         iV.originNewText.setOnEditorActionListener { textView, actionId, event: KeyEvent? ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 onNewRowEditorEnd(textView, position)
