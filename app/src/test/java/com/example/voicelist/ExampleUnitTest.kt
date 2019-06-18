@@ -71,11 +71,5 @@ class RegexTest {
         assertThat(result).isEqualTo(expectedResult)
     }
 
-    @Test
-    fun poplist() {
-
-
-    }
-
 
 }

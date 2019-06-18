@@ -35,7 +35,6 @@ class MainActivity : AppCompatActivity() {
             vModel.initLiveList(it.toMutableList())
         }
     }
-
     // Activity Event
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.

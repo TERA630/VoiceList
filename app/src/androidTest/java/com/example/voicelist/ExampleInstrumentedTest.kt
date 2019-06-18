@@ -13,6 +13,7 @@ import android.support.test.runner.AndroidJUnit4
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import kotlinx.android.synthetic.main.originlist_item.view.*
 import org.hamcrest.Description
 import org.hamcrest.Matcher
@@ -107,11 +108,37 @@ private fun childAtPosition(
         }
     }
 }
+
+
 fun withRecyclerView(recyclerViewId: Int): RecyclerViewMatcher {
     return RecyclerViewMatcher(recyclerViewId)
 }
 
 class RecyclerViewMatcher(val mRecyclerViewId: Int) {
+
+    fun findDescendingTextAtPosition(recyclerView: RecyclerView, position: Int): TextView? {
+        val childView = recyclerView.getChildAt(position)
+        if (childView is TextView) return childView
+        return if (childView is ViewGroup) {
+            findDescendingText(childView)
+        } else null
+    }
+
+    fun findDescendingText(viewGroup: ViewGroup): TextView? {
+        val groupCount = viewGroup.childCount
+        for (i in 0..groupCount) {
+            val view = viewGroup.getChildAt(i)
+            if (view is TextView) return view
+            else if (view is ViewGroup) {
+                val childView = findDescendingEditorText(view)
+                if (childView != null) return childView
+            }
+        }
+        return null
+    }
+
+
+
     fun atPosition(position: Int): Matcher<View> {
         return atPositionOnView(position, -1)
     }
@@ -157,3 +184,5 @@ class RecyclerViewMatcher(val mRecyclerViewId: Int) {
         }
     }
 }
+
+

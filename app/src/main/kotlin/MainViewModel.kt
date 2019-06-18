@@ -12,7 +12,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 
 class MainViewModel : ViewModel() {
-    //TODO 削除のUNDOの実装
     private val errorList = listOf("OriginList", "was", "null", "or", "empty", "Check", "the", "code.")
     var liveList: MutableLiveData<MutableList<String>> = MutableLiveData()
     val navigationHistory = mutableListOf("origin")
@@ -31,10 +30,10 @@ class MainViewModel : ViewModel() {
         liveList.postValue(safeLiveList)
     }
 
-    fun addLiveListAt(_index: Int, _value: String) {
+    private fun addLiveListAt(indexOfOrigin: Int, _value: String) {
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         val safeLiveList = liveList.value as MutableList<String>
-        safeLiveList.add(_index, _value)
+        safeLiveList.add(indexOfOrigin, _value)
         liveList.postValue(safeLiveList)
     }
     fun addChildAt(_indexOfOrigin: Int, _value: String) {
@@ -50,20 +49,20 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun deleteLiveListAt(index: Int) {
+    fun deleteLiveListAt(indexOfLiveList: Int) {
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         else {
             val safeLiveList = liveList.value as MutableList<String>
-            val itemToDelete = StringBuilder("$index:")
-                .append(safeLiveList[index])
+            val itemToDelete = StringBuilder("$indexOfLiveList:")
+                .append(safeLiveList[indexOfLiveList])
                 .toString()
             deleteHistory.add(itemToDelete)
-            safeLiveList.removeAt(index)
+            safeLiveList.removeAt(indexOfLiveList)
 
         }
     }
 
-    fun findIndexOfOrigin(_string: String): Int {
+    fun indexOfOriginOf(_string: String): Int {
         val result = getOriginList().indexOfFirst { it.matches("^$_string.*".toRegex()) }
         if (result != -1) Log.i("Origin", "$_string was found at $result")
         else Log.i("origin", "$_string was not found in origin.")
@@ -77,7 +76,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun getChildOf(_parent: String): List<String> {
-        val indexOfOrigin = findIndexOfOrigin(_parent)
+        val indexOfOrigin = indexOfOriginOf(_parent)
         return if (indexOfOrigin >= 0) {
             val result = getChildListAt(indexOfOrigin)
             result
@@ -113,7 +112,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun restoreDeleted() {
-        if (deleteHistory.size == 0)
+        if (deleteHistory.size == 0) return
         val itemToRestore = deleteHistory.last()
         Regex("(.+):(.+)").find(itemToRestore)?.destructured?.let { (index, originValue) ->
             Log.i("Origin", "$originValue will be restored at $index")

@@ -88,7 +88,7 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
 
     private fun bindContents(rowView: View, position: Int) {
         val childHeader = mList[position - 1]
-        val parentIndexOfOrigin = vModel.findIndexOfOrigin(mCurrentParent)
+        val parentIndexOfOrigin = vModel.indexOfOriginOf(mCurrentParent)
         rowView.childContents.text = childHeader
         rowView.childEditor.setText(childHeader)
         rowView.childContents.setOnClickListener {
@@ -105,7 +105,7 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
             else v.visibility = View.GONE
             v.hideSoftKeyBoard()
         }
-        val originIndex = vModel.findIndexOfOrigin(childHeader)
+        val originIndex = vModel.indexOfOriginOf(childHeader)
         if (originIndex > 0 && vModel.getChildListAt(originIndex).isNotEmpty()) {
             //　表示する行にさらに子アイテムがあれば､移動ボタンを表示
             rowView.goChild.visibility = View.VISIBLE
@@ -124,7 +124,7 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
         }
     }
     private fun editorTextDone(view: View, position: Int) {
-        val originIndex = vModel.findIndexOfOrigin(mCurrentParent)           //   現在表示されているアイテム達の親
+        val originIndex = vModel.indexOfOriginOf(mCurrentParent)           //   現在表示されているアイテム達の親
         val parent = view.parent
         val recyclerView = parent?.findAscendingRecyclerView()
         val editor = recyclerView?.let { findDescendingEditorAtPosition(it, position) }
