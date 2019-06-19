@@ -1,6 +1,5 @@
 package com.example.voicelist
 
-import android.content.res.Resources
 import android.support.test.InstrumentationRegistry
 import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.assertion.ViewAssertions.matches
@@ -11,7 +10,6 @@ import android.support.test.runner.AndroidJUnit4
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
@@ -38,6 +36,7 @@ class ActivityTest {
     fun viewCheck() {
         onView(withId(R.id.activityFrame)).check(matches(isDisplayed()))
         onView(withId(R.id.originList)).check(matches(isDisplayed()))
+        onView(withRecyclerView(R.id.originList).findViewAt(R.id.rowText, position = 1)).check(matches(isDisplayed()))
     }
 
 //    @Test
@@ -61,96 +60,33 @@ class ActivityTest {
 //    }
 //}
 
-    fun childAtPosition(
-        parentMatcher: Matcher<View>, position: Int
-): Matcher<View> {
-
-    return object : TypeSafeMatcher<View>() {
-        override fun describeTo(description: Description) {
-            description.appendText("Child at position $position in parent ")
-            parentMatcher.describeTo(description)
-        }
-
-        public override fun matchesSafely(view: View): Boolean {
-            val parent = view.parent
-            return (parent is ViewGroup && parentMatcher.matches(parent)
-                    && view == parent.getChildAt(position))
-        }
+    private fun withRecyclerView(recyclerViewId: Int): RecyclerViewMatcher {
+        return RecyclerViewMatcher(recyclerViewId)
     }
-}
-
 
     class RecyclerViewMatcher(val mRecyclerViewId: Int) {
-        fun withRecyclerView(recyclerViewId: Int): RecyclerViewMatcher {
-            return RecyclerViewMatcher(recyclerViewId)
-        }
-
-    fun findDescendingTextAtPosition(recyclerView: RecyclerView, position: Int): TextView? {
-        val childView = recyclerView.getChildAt(position)
-        if (childView is TextView) return childView
-        return if (childView is ViewGroup) {
-            findDescendingText(childView)
-        } else null
-    }
-
-    fun findDescendingText(viewGroup: ViewGroup): TextView? {
-        val groupCount = viewGroup.childCount
-        for (i in 0..groupCount) {
-            val view = viewGroup.getChildAt(i)
-            if (view is TextView) return view
-            else if (view is ViewGroup) {
-                val childView = findDescendingEditorText(view)
-                if (childView != null) return childView
-            }
-        }
-        return null
-    }
-    fun atPosition(position: Int): Matcher<View> {
-        return atPositionOnView(position, -1)
-    }
-
-    fun atPositionOnView(position: Int, targetViewId: Int): Matcher<View> {
-
-        return object : TypeSafeMatcher<View>() {
-            var resources: Resources? = null
-            var childView: View? = null
+        fun findViewAt(targetViewid: Int, position: Int): Matcher<View> {
+            return object : TypeSafeMatcher<View>() {
             override fun describeTo(description: Description?) {
-                val id = if (targetViewId == -1) {
-                    mRecyclerViewId
-                } else {
-                    targetViewId
-                }
-                var idDescription = id.toString()
-                this.resources?.let {
-                    try {
-                        idDescription = it.getResourceName(id)
-                    } catch (var4: Resources.NotFoundException) {
-                        idDescription += "$id not found"
-                    }
-                }
-                description?.appendText("with id:$idDescription")
+                //  val recyclerViewName = Resources.getSystem().getResourceName(mRecyclerViewId)
+                description?.appendText("$targetViewid with $position of recycelerview")
             }
 
-            override fun matchesSafely(tarGetView: View): Boolean {
-                val recyclerView = tarGetView.findViewById<RecyclerView>(mRecyclerViewId)
-                if (recyclerView == null) return false
-                else {
-                    childView = findViewAt(recyclerView, tarGetView, position)
-                    return childView != null
+                override fun matchesSafely(item: View): Boolean {
+                    val targetView = item.findViewById<View>(targetViewid)
+                    val recyclerView = findRecyclerView(item)
+                    val childView = recyclerView?.getChildAt(position) ?: return false
+                    // childView Recycler　viewのItemView  大抵はViewGroupであろう｡
+                    if (childView.equals(targetView)) return true
+                    val grandchildView = if (childView is ViewGroup) findDescendingView(childView, targetView)
+                    else null
+                    grandchildView?.let { if (it.equals(item)) return true }
+                    return false
                 }
             }
-        }
     }
 
-    fun findViewAt(recyclerView: RecyclerView, targetView: View, position: Int): View? {
-        val childView = recyclerView.getChildAt(position)
-        if (childView::class.java == targetView::class.java) return childView
-        return if (childView is ViewGroup) {
-            findDescendingView(childView, targetView)
-        } else null
-    }
-
-    fun findDescendingView(viewGroup: ViewGroup, targetView: View): View? {
+        private fun findDescendingView(viewGroup: ViewGroup, targetView: View): View? {
         val groupCount = viewGroup.childCount
         for (i in 0..groupCount) {
             val view = viewGroup.getChildAt(i)
@@ -162,6 +98,16 @@ class ActivityTest {
         }
         return null
     }
+
+        fun findRecyclerView(view: View): RecyclerView? {
+
+            val groupCount = viewGroup.childCount
+            for (i in 0..groupCount) {
+                val view = viewGroup.getChildAt(i)
+                if (view is RecyclerView) return view
+            }
+            return null
+        }
 }
 }
 

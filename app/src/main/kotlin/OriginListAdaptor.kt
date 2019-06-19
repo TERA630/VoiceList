@@ -103,19 +103,10 @@ class OriginListAdaptor(
     private fun bindFooter(holder: ViewHolderOfCell, position: Int) {
         val iV = holder.itemView
         iV.originNewText.setOnFocusChangeListener { v, hasFocus ->
-              when (hasFocus) {
-                  true -> v.showSoftKeyBoard()
-                  false -> v.hideSoftKeyBoard()
-              }
-        }
-        iV.originNewText.setOnKeyListener { textView, keyCode, event ->
-            when (keyCode) {
-                KeyEvent.KEYCODE_DPAD_UP -> JumpUpperRowIfCan()
-                KeyEvent.KEYCODE_DPAD_DOWN -> SinkLowerRowIfCan()
-                else -> return@setOnKeyListener false
+            when (hasFocus) {
+                true -> v.showSoftKeyBoard()
+                false -> v.hideSoftKeyBoard()
             }
-            Log.i("keyevent", "$keyCode no  ${event.action} coming")
-            return@setOnKeyListener false
         }
         iV.originNewText.setOnEditorActionListener { textView, actionId, event: KeyEvent? ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -134,7 +125,7 @@ class OriginListAdaptor(
     }
 
     private fun moveToUpperRow(view: View, position: Int) {
-        if (position <= 1) {
+        if (position < 1) {
             Log.w("editor", "$position is at upper limit.")
             return
         }
@@ -150,7 +141,7 @@ class OriginListAdaptor(
     }
 
     private fun moveToLowerRow(view: View, position: Int) {
-        if (position > vModel.getOriginList().size) {
+        if (position > vModel.getOriginList().lastIndex - 1) {
             Log.w("editor", "$position is at lower limit.")
             return
         }
