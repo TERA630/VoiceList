@@ -60,16 +60,26 @@ class OriginListAdaptor(
         val list = vModel.getLiveList()[position].split(",") // 表示アイテムを先頭要素、子要素に分割する
         iV.rowText.text = list[0]   //リストの先頭要素が親
         iV.rowEditText.setText(list[0])
-        if (list.size >= 2) iV.originGoChild.visibility = View.VISIBLE
-
-        else {
-            iV.originGoChild.visibility = View.GONE
-        }
+        iV.originGoChild.visibility = if (list.size >= 2) View.VISIBLE
+        else View.GONE
         iV.rowText.setOnClickListener {
             iV.textWrapper.showNext()
         }
         iV.originGoChild.setOnClickListener {
             mHandler.transitOriginToChild(list[0])
+        }
+        iV.rowEditText.setOnKeyListener { v, keyCode, event ->
+            when (keyCode) {
+                KeyEvent.KEYCODE_DPAD_UP -> {
+                    moveToUpperRow(v, position)
+                    return@setOnKeyListener true
+                }
+                KeyEvent.KEYCODE_DPAD_DOWN -> {
+                    moveToLowerRow(v, position)
+                    return@setOnKeyListener true
+                }
+                else -> return@setOnKeyListener false
+            }
         }
         iV.rowEditText.setOnEditorActionListener { textView, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -114,6 +124,39 @@ class OriginListAdaptor(
         }
     }
 
+    private fun moveToUpperRow(view: View, position: Int) {
+        if (position <= 1) {
+            Log.w("editor", "$position is at upper limit.")
+            return
+        }
+        val recyclerView = view.parent.findAscendingRecyclerView()
+        recyclerView?.let {
+            val animatorCurrent = findViewAnimatorAt(it, position)
+            animatorCurrent?.showPrevious()
+            val animatorUpper = findViewAnimatorAt(it, position - 1)
+            animatorUpper?.showNext()
+            val editorUpper = findDescendingEditorAtPosition(it, position - 1)
+            editorUpper?.requestFocus()
+        }
+    }
+
+    private fun moveToLowerRow(view: View, position: Int) {
+        if (position > vModel.getOriginList().size) {
+            Log.w("editor", "$position is at lower limit.")
+            return
+        }
+        val recyclerView = view.parent.findAscendingRecyclerView()
+        recyclerView?.let {
+            val animatorCurrent = findViewAnimatorAt(it, position)
+            animatorCurrent?.showPrevious()
+            val animatorUpper = findViewAnimatorAt(it, position + 1)
+            animatorUpper?.showNext()
+            val editorUpper = findDescendingEditorAtPosition(it, position + 1)
+            editorUpper?.requestFocus()
+        }
+    }
+
+    //　Contentsのテキスト編集終了
     private fun onRowEditorEnd(view: View, position: Int) {
         val parent = view.parent
         val recyclerView = parent.findAscendingRecyclerView()
@@ -137,6 +180,7 @@ class OriginListAdaptor(
         }
     }
 
+    // Footerのテキスト編集終了
     private fun onNewRowEditorEnd(view: View, position: Int) {
         val parent = view.parent
         val recyclerView = parent.findAscendingRecyclerView()
@@ -153,7 +197,6 @@ class OriginListAdaptor(
         }
 
     }
-
     private fun confirmDelete(view: View, position: Int) {
         AlertDialog.Builder(view.context)
             .setTitle(R.string.itemDeleteTitle)

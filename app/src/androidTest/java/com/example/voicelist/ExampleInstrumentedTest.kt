@@ -80,11 +80,10 @@ class ActivityTest {
 }
 
 
-fun withRecyclerView(recyclerViewId: Int): RecyclerViewMatcher {
-    return RecyclerViewMatcher(recyclerViewId)
-}
-
-class RecyclerViewMatcher(val mRecyclerViewId: Int) {
+    class RecyclerViewMatcher(val mRecyclerViewId: Int) {
+        fun withRecyclerView(recyclerViewId: Int): RecyclerViewMatcher {
+            return RecyclerViewMatcher(recyclerViewId)
+        }
 
     fun findDescendingTextAtPosition(recyclerView: RecyclerView, position: Int): TextView? {
         val childView = recyclerView.getChildAt(position)
