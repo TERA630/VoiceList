@@ -4,9 +4,11 @@ import android.content.DialogInterface
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import kotlinx.android.synthetic.main.childlist_contents.view.*
 import kotlinx.android.synthetic.main.childlist_footer.view.*
 import kotlinx.android.synthetic.main.childlist_header.view.*
@@ -88,22 +90,27 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
     }
     private fun bindContents(rowView: View, position: Int) {
         val childHeader = mList[position - 1]
-        val parentIndexOfOrigin = vModel.indexOfOriginOf(mCurrentParent)
         rowView.childContents.text = childHeader
         rowView.childEditor.setText(childHeader)
         rowView.childContents.setOnClickListener {
             rowView.childTextWrapper.showNext()
             rowView.childImageWrapper.showNext()
         }
+        rowView.childContents.setOnEditorActionListener { textView, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                onRowEditorEnd(textView, position)
+                return@setOnEditorActionListener true
+            }
+            if (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
+                onRowEditorEnd(textView, position)
+                return@setOnEditorActionListener true
+            }
+            return@setOnEditorActionListener false
+        }
 
         rowView.childEditEnd.setOnClickListener { v ->
-            val newText = rowView.childEditor.text.toString()
-            vModel.setLiveListAt(parentIndexOfOrigin, position, newText)
-            rowView.childContents.text = newText
-            this@ChildListAdaptor.notifyItemChanged(position)
+            onRowEditorEnd(v, position)
             rowView.childTextWrapper.showPrevious()
-            if (vModel.getChildOf(newText).isNotEmpty()) rowView.childImageWrapper.showPrevious()
-            else v.visibility = View.GONE
             v.hideSoftKeyBoard()
         }
         val originIndex = vModel.indexOfOriginOf(childHeader)
@@ -121,10 +128,20 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
 
     private fun bindFooter(rowView: View, position: Int) {
         rowView.childAddButton.setOnClickListener { view ->
-            editorTextDone(view, position)
+            editorAddDone(view, position)
+        }
+        rowView.childNewText.setOnEditorActionListener { textView, actionId, event: KeyEvent? ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                editorAddDone(textView, position)
+                return@setOnEditorActionListener true
+            }
+            if (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
+                editorAddDone(textView, position)
+                return@setOnEditorActionListener true
+            }
+            return@setOnEditorActionListener false
         }
     }
-
     private fun onRowEditorEnd(view: View, position: Int) {
         val recyclerView = view.parent?.findAscendingRecyclerView()
         val editor = recyclerView?.let {
@@ -132,24 +149,24 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
         }
         editor?.let {
             val newText = it.text.toString()
+            val originIndex = vModel.indexOfOriginOf(mCurrentParent)
+            val origin = vModel.getOriginList()[originIndex]
             if (newText.isBlank()) {
                 confirmDelete(view, position)
-
-                val origin = vModel.getOriginList()[position]
-                Log.i("Editor", "$origin at $position will be deleted.")
+                Log.i("EditorEvent", "$origin at $originIndex as child $position will be deleted.")
             } else {
                 vModel.setLiveListAt(position, 0, newText)
                 recyclerView.rowText.text = newText
-                Log.i("Editor", "$position will be $newText")
+                Log.i("EditorEvent", "$origin at $originIndex as child $position will be $newText.")
                 this@ChildListAdaptor.notifyItemChanged(position)
             }
-            recyclerView.textWrapper.showPrevious()
+            recyclerView.childTextWrapper.showPrevious()
             view.hideSoftKeyBoard()
         }
     }
 
-    private fun editorTextDone(view: View, position: Int) {
-        val originIndex = vModel.indexOfOriginOf(mCurrentParent)           //   現在表示されているアイテム達の親
+    private fun editorAddDone(view: View, position: Int) {
+        val originIndex = vModel.indexOfOriginOf(mCurrentParent)  //   現在表示されているアイテム達の親
         val parent = view.parent
         val recyclerView = parent?.findAscendingRecyclerView()
         val editor = recyclerView?.let { findDescendingEditorAtPosition(it, position) }
@@ -170,7 +187,6 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
         // ↑　mParentString:　現在の親アイテム　IndexOriginOf(mParentString) 親アイテムのLiveList上の位置
         // Position : 子アイテムのポジション　1　ならば　　[$mParentString],item 0,item 1,....
 
-
         AlertDialog.Builder(view.context)
             .setTitle(R.string.itemDeleteTitle)
             .setMessage(R.string.itemDeleteMessage)
@@ -178,10 +194,11 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
                 when (which) {
                     DialogInterface.BUTTON_NEGATIVE -> return@setPositiveButton
                     DialogInterface.BUTTON_POSITIVE -> {
-
-
+                        vModel.deleteChildOfOriginAt(
+                            vModel.indexOfOriginOf(mCurrentParent),
+                            position
+                        ) // indexOf child ヘッダ分一個前､トップ分一個後
                         this@ChildListAdaptor.notifyItemRemoved(position)
-                        vModel.deleteLiveListAt(position) // IndexOfOrigin = position
                     }
                 }
             }

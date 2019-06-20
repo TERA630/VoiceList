@@ -13,7 +13,7 @@ import android.widget.EditText
 import android.widget.ViewAnimator
 
 class MainViewModel : ViewModel() {
-    private val errorList = listOf("OriginList", "was", "null", "or", "empty", "Check", "the", "code.")
+    private val errorList = listOf("OriginList", "was", "null", "or", "empty", "Check", "code.")
     var liveList: MutableLiveData<MutableList<String>> = MutableLiveData()
     val navigationHistory = mutableListOf("origin")
     var deleteHistory = mutableListOf<String>()
@@ -73,16 +73,13 @@ class MainViewModel : ViewModel() {
         }
     }
     fun indexOfOriginOf(_string: String): Int {
-        val result = getOriginList().indexOfFirst { it.matches("^$_string".toRegex()) }
-        if (result != -1) Log.i("Origin", "$_string was found at $result")
-        else Log.i("origin", "$_string was not found in origin.")
-        return result
+        return getOriginList().indexOfFirst { it.matches("^$_string".toRegex()) }
     }
 
     fun getChildListAt(indexOfLiveList: Int): List<String> {
         val headAndChildCSV = getLiveList()[indexOfLiveList]
-            val list = headAndChildCSV.split(",")
-            return list.drop(1)
+        val list = headAndChildCSV.split(",")
+        return list.drop(1)
     }
 
     fun getChildOf(_parent: String): List<String> {
@@ -102,12 +99,12 @@ class MainViewModel : ViewModel() {
     fun getOriginList(): MutableList<String> {
         // Liveリストの先頭要素のみを並べたもの
         val safeLiveList = getLiveList()
-            val safeLiveListHeaders = mutableListOf<String>()
-            for (i in safeLiveList.indices) {
-                val list = safeLiveList[i].split(",")
-                safeLiveListHeaders.add(list[0])
-            }
-            return safeLiveListHeaders
+        val safeLiveListHeaders = mutableListOf<String>()
+        for (i in safeLiveList.indices) {
+            val list = safeLiveList[i].split(",")
+            safeLiveListHeaders.add(list[0])
+        }
+        return safeLiveListHeaders
     }
 
     fun pushNextNavigation(_traceOfParent: String) {

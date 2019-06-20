@@ -24,7 +24,7 @@
                 tools:text="this is child List."/>
         <EditText
                 android:id="@+id/childEditor"
-                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_width="240dp" android:layout_height="wrap_content"
                 android:layout_gravity="start|center_vertical"
                 android:layout_marginStart="8dp"
                 android:imeOptions="actionDone"
