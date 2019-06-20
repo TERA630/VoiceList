@@ -10,7 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import kotlinx.android.synthetic.main.origin_footer.view.*
-import kotlinx.android.synthetic.main.originlist_item.view.*
+import kotlinx.android.synthetic.main.originlist_contents.view.*
 
 class OriginListAdaptor(
     private val vModel: MainViewModel
@@ -33,7 +33,7 @@ class OriginListAdaptor(
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val resID = when (viewType) {
-            cItem -> R.layout.originlist_item // アイテム表示　(0～アイテムの個数)　編集可能TextView
+            cItem -> R.layout.originlist_contents // アイテム表示　(0～アイテムの個数)　編集可能TextView
             else -> R.layout.origin_footer    // Footer アイテム追加
         }
         return ViewHolderOfCell(LayoutInflater.from(parent.context).inflate(resID, parent, false))
@@ -54,7 +54,7 @@ class OriginListAdaptor(
     }
     class ViewHolderOfCell(val rowView: View) : RecyclerView.ViewHolder(rowView)
 
-    // private method
+    // View Binder
     private fun bindContentRow(vH: ViewHolderOfCell, position: Int) {
         val iV = vH.rowView // Holder item View
         val list = vModel.getLiveList()[position].split(",") // 表示アイテムを先頭要素、子要素に分割する
@@ -83,11 +83,11 @@ class OriginListAdaptor(
         }
         iV.rowEditText.setOnEditorActionListener { textView, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                onRowEditorEnd(textView, position)
+                onContentsEditorEnd(textView, position)
                 return@setOnEditorActionListener true
             }
-            if (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
-                onRowEditorEnd(textView, position)
+            if (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) { // Enterキー押したとき
+                onContentsEditorEnd(textView, position)
                 return@setOnEditorActionListener true
             }
             return@setOnEditorActionListener false
@@ -110,20 +110,21 @@ class OriginListAdaptor(
         }
         iV.originNewText.setOnEditorActionListener { textView, actionId, event: KeyEvent? ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                onNewRowEditorEnd(textView, position)
+                onFooterEditorEnd(textView, position)
                 return@setOnEditorActionListener true
             }
             if (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
-                onNewRowEditorEnd(textView, position)
+                onFooterEditorEnd(textView, position)
                 return@setOnEditorActionListener true
             }
             return@setOnEditorActionListener false
         }
         iV.originAddButton.setOnClickListener {
-            onNewRowEditorEnd(iV, position)
+            onFooterEditorEnd(iV, position)
         }
     }
 
+    // Key event
     private fun moveToUpperRow(view: View, position: Int) {
         if (position < 1) {
             Log.w("editor", "$position is at upper limit.")
@@ -139,7 +140,6 @@ class OriginListAdaptor(
             editorUpper?.requestFocus()
         }
     }
-
     private fun moveToLowerRow(view: View, position: Int) {
         if (position > vModel.getOriginList().lastIndex - 1) {
             Log.w("editor", "$position is at lower limit.")
@@ -156,8 +156,7 @@ class OriginListAdaptor(
         }
     }
 
-    //　Contentsのテキスト編集終了
-    private fun onRowEditorEnd(view: View, position: Int) {
+    private fun onContentsEditorEnd(view: View, position: Int) {
         val parent = view.parent
         val recyclerView = parent.findAscendingRecyclerView()
         val editor = recyclerView?.let {
@@ -180,8 +179,7 @@ class OriginListAdaptor(
         }
     }
 
-    // Footerのテキスト編集終了
-    private fun onNewRowEditorEnd(view: View, position: Int) {
+    private fun onFooterEditorEnd(view: View, position: Int) {
         val parent = view.parent
         val recyclerView = parent.findAscendingRecyclerView()
         val editor = recyclerView?.let {
@@ -205,8 +203,8 @@ class OriginListAdaptor(
                 when (which) {
                     DialogInterface.BUTTON_NEGATIVE -> return@setPositiveButton
                     DialogInterface.BUTTON_POSITIVE -> {
-                        this@OriginListAdaptor.notifyItemRemoved(position)
                         vModel.deleteLiveListAt(position) // IndexOfOrigin = position
+                        this@OriginListAdaptor.notifyItemRemoved(position)
                     }
                 }
             }

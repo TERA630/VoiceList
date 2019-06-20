@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView
+<FrameLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/childCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Light"
-        app:cardCornerRadius="4dp"
-        app:cardElevation="1dp"
-        app:cardUseCompatPadding="true">
+        android:theme="@style/ThemeOverlay.AppCompat.Light">
     <ViewAnimator
             android:id="@+id/childTextWrapper"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -22,33 +18,21 @@
                 android:layout_gravity="start|center_vertical"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 tools:text="this is child List."/>
-        <EditText
+        <android.support.v7.widget.AppCompatEditText
                 android:id="@+id/childEditor"
                 android:layout_width="240dp" android:layout_height="wrap_content"
                 android:layout_gravity="start|center_vertical"
                 android:layout_marginStart="8dp"
                 android:imeOptions="actionDone"
                 android:inputType="text"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
                 tools:text="It is cloudy today."/>
     </ViewAnimator>
-    <ViewAnimator
-            android:id="@+id/childImageWrapper"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:layout_gravity="end|center_vertical">
         <ImageView
-            android:id="@+id/goChild"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_gravity="end"
-            android:src="@drawable/ic_779_arrow_to_right"
-            android:contentDescription="@string/button"/>
-        <ImageView
-                android:id="@+id/childEditEnd"
+                android:id="@+id/goChild"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:layout_gravity="end"
-                android:src="@drawable/ic_symbol_ok"
+                android:layout_marginEnd="8dp"
+                android:layout_gravity="end|center_vertical"
+                android:src="@drawable/ic_779_arrow_to_right"
                 android:contentDescription="@string/button"/>
-    </ViewAnimator>
-</android.support.v7.widget.CardView>
+</FrameLayout>

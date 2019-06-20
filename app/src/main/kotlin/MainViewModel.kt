@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.view.ViewParent
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.ViewAnimator
 
 class MainViewModel : ViewModel() {
@@ -73,7 +74,7 @@ class MainViewModel : ViewModel() {
         }
     }
     fun indexOfOriginOf(_string: String): Int {
-        return getOriginList().indexOfFirst { it.matches("^$_string".toRegex()) }
+        return getOriginList().indexOfFirst { it.contains(_string) }
     }
 
     fun getChildListAt(indexOfLiveList: Int): List<String> {
@@ -177,6 +178,19 @@ fun findDescendingEditorText(viewGroup: ViewGroup): EditText? {
     }
     return null
 }
+
+fun findDescendingTextView(viewGroup: ViewGroup): TextView? {
+    val groupCount = viewGroup.childCount
+    for (i in 0..groupCount) {
+        val view = viewGroup.getChildAt(i)
+        if (view is TextView) return view
+        else if (view is ViewGroup) {
+            val childView = findDescendingTextView(view)
+            if (childView != null) return childView
+        }
+    }
+    return null
+}
 fun findRecyclerView(viewGroup: ViewGroup): RecyclerView? {
     if (viewGroup is RecyclerView) return viewGroup
     val groupCount = viewGroup.childCount
@@ -186,6 +200,15 @@ fun findRecyclerView(viewGroup: ViewGroup): RecyclerView? {
     }
     return null
 }
+
+fun findDescendingTextViewrAtPosition(recyclerView: RecyclerView, position: Int): TextView? {
+    val childView = recyclerView.getChildAt(position)
+    if (childView is TextView) return childView
+    return if (childView is ViewGroup) {
+        findDescendingTextView(childView)
+    } else null
+}
+
 fun findDescendingEditorAtPosition(recyclerView: RecyclerView, position: Int): EditText? {
     val childView = recyclerView.getChildAt(position)
     if (childView is EditText) return childView

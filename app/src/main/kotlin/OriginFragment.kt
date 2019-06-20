@@ -51,7 +51,6 @@ class OriginFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         vModel.liveList.observe(this, Observer {
-            Log.i("observer", "obseve called")
             mAdaptor.notifyDataSetChanged()
         })
     }

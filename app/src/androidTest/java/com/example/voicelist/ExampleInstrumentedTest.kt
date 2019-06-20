@@ -76,29 +76,25 @@ class ActivityTest {
                     description?.appendText("$targetText with $position of recycler view is..")
                 }
                 override fun matchesSafely(item: View): Boolean {
-                    if (mRecyclerView == null) {
-                        mRecyclerView =
-                            findRecyclerView(item) ?: throw IllegalStateException("$mRecyclerViewId is not valid.")
-                    } else {
-                        val itemView = mRecyclerView?.findViewHolderForAdapterPosition(position)
-                        when (itemView) {
-                            is TextView -> {
-                                return (itemView.text == targetText)
-                            }
-                            is AppCompatTextView -> {
-                                return (itemView.text == targetText)
-                            }
-                            is ViewGroup -> {
-                                val childView = findContainingView(itemView) ?: return false
-                                return (childView.text == targetText)
-                            }
-                            else -> {
-                                return false
-                            }
+                    if (mRecyclerView == null) mRecyclerView = item.findViewById(mRecyclerViewId)
+                        ?: throw IllegalStateException("$mRecyclerViewId is not valid.")
+                    val itemView = mRecyclerView?.findViewHolderForAdapterPosition(position)?.itemView
+                    when (itemView) {
+                        is TextView -> {
+                            return (itemView.text == targetText)
                         }
-
+                        is AppCompatTextView -> {
+                            return (itemView.text == targetText)
+                        }
+                        is ViewGroup -> {
+                            val childView = findContainingView(itemView) ?: return false
+                            return (childView.text == targetText)
+                        }
+                        else -> {
+                            return false
+                        }
                     }
-                    return false
+
                 }
             }
         }

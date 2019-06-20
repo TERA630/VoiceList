@@ -12,7 +12,6 @@ import android.view.inputmethod.EditorInfo
 import kotlinx.android.synthetic.main.childlist_contents.view.*
 import kotlinx.android.synthetic.main.childlist_footer.view.*
 import kotlinx.android.synthetic.main.childlist_header.view.*
-import kotlinx.android.synthetic.main.originlist_item.view.*
 
 class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     // vModel.navigationHistory[lastIndex] = 現在表示されているアイテムの親アイテム
@@ -50,7 +49,6 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
         return ChildRowHolder(view)
     }
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val vH = holder as ChildRowHolder
         val headerRange = 0
         val contentRange = IntRange(1, mList.lastIndex + 1)
         val footerRange = mList.lastIndex + 2
@@ -69,10 +67,14 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
         mCurrentParent = _currentParent
         mList = _currentChild.toMutableList()
     }
+
+    private fun updateListItem() {
+        changeListItem(mCurrentParent, _currentChild = vModel.getChildOf(mCurrentParent))
+    }
     class ChildRowHolder
         (val mView: View) : RecyclerView.ViewHolder(mView)
 
-    // private method
+    // ViewHolder Binder
     private fun bindHeader(rowView: View) {
         rowView.childHeaderText.text = mCurrentParent
         rowView.backToParent.setOnClickListener {
@@ -94,24 +96,17 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
         rowView.childEditor.setText(childHeader)
         rowView.childContents.setOnClickListener {
             rowView.childTextWrapper.showNext()
-            rowView.childImageWrapper.showNext()
         }
-        rowView.childContents.setOnEditorActionListener { textView, actionId, event ->
+        rowView.childEditor.setOnEditorActionListener { editText, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                onRowEditorEnd(textView, position)
+                childContentsEditorEnd(editText, position)
                 return@setOnEditorActionListener true
             }
             if (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
-                onRowEditorEnd(textView, position)
+                childContentsEditorEnd(editText, position)
                 return@setOnEditorActionListener true
             }
             return@setOnEditorActionListener false
-        }
-
-        rowView.childEditEnd.setOnClickListener { v ->
-            onRowEditorEnd(v, position)
-            rowView.childTextWrapper.showPrevious()
-            v.hideSoftKeyBoard()
         }
         val originIndex = vModel.indexOfOriginOf(childHeader)
         if (originIndex > 0 && vModel.getChildListAt(originIndex).isNotEmpty()) {
@@ -128,21 +123,22 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
 
     private fun bindFooter(rowView: View, position: Int) {
         rowView.childAddButton.setOnClickListener { view ->
-            editorAddDone(view, position)
+            childFooterEditorDone(view, position)
         }
         rowView.childNewText.setOnEditorActionListener { textView, actionId, event: KeyEvent? ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                editorAddDone(textView, position)
+                childFooterEditorDone(textView, position)
                 return@setOnEditorActionListener true
             }
             if (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
-                editorAddDone(textView, position)
+                childFooterEditorDone(textView, position)
                 return@setOnEditorActionListener true
             }
             return@setOnEditorActionListener false
         }
     }
-    private fun onRowEditorEnd(view: View, position: Int) {
+
+    private fun childContentsEditorEnd(view: View, position: Int) {
         val recyclerView = view.parent?.findAscendingRecyclerView()
         val editor = recyclerView?.let {
             findDescendingEditorAtPosition(it, position)
@@ -153,11 +149,13 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
             val origin = vModel.getOriginList()[originIndex]
             if (newText.isBlank()) {
                 confirmDelete(view, position)
-                Log.i("EditorEvent", "$origin at $originIndex as child $position will be deleted.")
+                Log.i("Editor", " child ${mList[position - 1]} of $origin will be deleted")
             } else {
                 vModel.setLiveListAt(position, 0, newText)
-                recyclerView.rowText.text = newText
-                Log.i("EditorEvent", "$origin at $originIndex as child $position will be $newText.")
+                val textView = findDescendingTextViewrAtPosition(recyclerView, position)
+                textView?.text = newText
+                Log.i("Editor", "$origin at $originIndex as child $position will be $newText.")
+                this.updateListItem()
                 this@ChildListAdaptor.notifyItemChanged(position)
             }
             recyclerView.childTextWrapper.showPrevious()
@@ -165,7 +163,7 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
         }
     }
 
-    private fun editorAddDone(view: View, position: Int) {
+    private fun childFooterEditorDone(view: View, position: Int) {
         val originIndex = vModel.indexOfOriginOf(mCurrentParent)  //   現在表示されているアイテム達の親
         val parent = view.parent
         val recyclerView = parent?.findAscendingRecyclerView()
@@ -173,11 +171,10 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
         editor?.let {
             val newText = it.text.toString()
             if (newText.isBlank()) return
-            Log.i("EditorEvent", " $newText will add at origin $originIndex")
             vModel.appendChildAt(originIndex, newText)
             it.text.clear()
             it.hideSoftKeyBoard()
-            mList.add(newText)
+            updateListItem()
             notifyItemChanged(position)
             notifyItemInserted(position)
         }
@@ -189,20 +186,20 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
 
         AlertDialog.Builder(view.context)
             .setTitle(R.string.itemDeleteTitle)
-            .setMessage(R.string.itemDeleteMessage)
+            .setMessage("${mList[position - 1]} を削除しますか")
             .setPositiveButton(R.string.yes) { _, which ->
                 when (which) {
                     DialogInterface.BUTTON_NEGATIVE -> return@setPositiveButton
                     DialogInterface.BUTTON_POSITIVE -> {
+                        val item = mList[position - 1]
+                        Log.i("Editor", " ${mList[position - 1]} at $position will be deleted..")
                         vModel.deleteChildOfOriginAt(
                             vModel.indexOfOriginOf(mCurrentParent),
                             position
                         ) // indexOf child ヘッダ分一個前､トップ分一個後
-                        this@ChildListAdaptor.notifyItemRemoved(position)
-                        vModel.deleteChildOfOriginAt(
-                            vModel.indexOfOriginOf(mCurrentParent),
-                            position + 1
-                        ) // IndexOfOrigin = position
+                        changeListItem(mCurrentParent, vModel.getChildOf(mCurrentParent))
+                        updateListItem()
+                        notifyDataSetChanged()
                     }
                 }
             }

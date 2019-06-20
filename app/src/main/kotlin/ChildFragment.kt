@@ -47,7 +47,15 @@ class ChildFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         childList.adapter = mAdaptor
+
     }
+
+    /*   override fun onStart() {
+           super.onStart()
+           vModel.liveList.observe(this, Observer{
+               mAdaptor.changeListItem(vModel.navigationHistory.last(),vModel.getChildOf(vModel.navigationHistory.last()) )
+           })
+       }*/
     interface DeliverEvent {
         fun advanceChildToChild(itemToGo: String, _list: List<String>)
         fun backChildToChild(itemToBack: String, _list: List<String>)
