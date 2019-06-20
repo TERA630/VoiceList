@@ -30,14 +30,14 @@ class MainViewModel : ViewModel() {
         safeLiveList.add(_value)
         liveList.postValue(safeLiveList)
     }
-
     private fun addLiveListAt(indexOfOrigin: Int, _value: String) {
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         val safeLiveList = liveList.value as MutableList<String>
         safeLiveList.add(indexOfOrigin, _value)
         liveList.postValue(safeLiveList)
     }
-    fun addChildAt(_indexOfOrigin: Int, _value: String) {
+
+    fun appendChildAt(_indexOfOrigin: Int, _value: String) {
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         else if (_value.isBlank()) return
         else {
@@ -49,7 +49,6 @@ class MainViewModel : ViewModel() {
             liveList.postValue(safeLiveList)
         }
     }
-
     fun deleteLiveListAt(indexOfLiveList: Int) {
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         else {
@@ -59,10 +58,20 @@ class MainViewModel : ViewModel() {
                 .toString()
             deleteHistory.add(itemToDelete)
             safeLiveList.removeAt(indexOfLiveList)
-
         }
     }
 
+    fun deleteChildOfOriginAt(indexOfOrigin: Int, indexOfChild: Int) {
+        if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
+        else {
+            val safeLiveList = liveList.value as MutableList<String>
+            val safeLiveListDestructed = safeLiveList[indexOfOrigin].split(",").toMutableList()
+            safeLiveListDestructed.removeAt(indexOfChild)
+            val result = safeLiveListDestructed.joinToString()
+            safeLiveList[indexOfOrigin] = result
+            liveList.postValue(safeLiveList)
+        }
+    }
     fun indexOfOriginOf(_string: String): Int {
         val result = getOriginList().indexOfFirst { it.matches("^$_string".toRegex()) }
         if (result != -1) Log.i("Origin", "$_string was found at $result")

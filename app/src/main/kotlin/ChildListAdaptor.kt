@@ -1,5 +1,7 @@
 package com.example.voicelist
 
+import android.content.DialogInterface
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,6 +10,7 @@ import android.view.ViewGroup
 import kotlinx.android.synthetic.main.childlist_contents.view.*
 import kotlinx.android.synthetic.main.childlist_footer.view.*
 import kotlinx.android.synthetic.main.childlist_header.view.*
+import kotlinx.android.synthetic.main.originlist_item.view.*
 
 class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     // vModel.navigationHistory[lastIndex] = 現在表示されているアイテムの親アイテム
@@ -34,7 +37,6 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
             else -> childFooter
         }
     }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val view = when (viewType) {
@@ -45,7 +47,6 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
         }
         return ChildRowHolder(view)
     }
-
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val vH = holder as ChildRowHolder
         val headerRange = 0
@@ -85,7 +86,6 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
             }
         }
     }
-
     private fun bindContents(rowView: View, position: Int) {
         val childHeader = mList[position - 1]
         val parentIndexOfOrigin = vModel.indexOfOriginOf(mCurrentParent)
@@ -95,6 +95,7 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
             rowView.childTextWrapper.showNext()
             rowView.childImageWrapper.showNext()
         }
+
         rowView.childEditEnd.setOnClickListener { v ->
             val newText = rowView.childEditor.text.toString()
             vModel.setLiveListAt(parentIndexOfOrigin, position, newText)
@@ -123,6 +124,30 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
             editorTextDone(view, position)
         }
     }
+
+    private fun onRowEditorEnd(view: View, position: Int) {
+        val recyclerView = view.parent?.findAscendingRecyclerView()
+        val editor = recyclerView?.let {
+            findDescendingEditorAtPosition(it, position)
+        }
+        editor?.let {
+            val newText = it.text.toString()
+            if (newText.isBlank()) {
+                confirmDelete(view, position)
+
+                val origin = vModel.getOriginList()[position]
+                Log.i("Editor", "$origin at $position will be deleted.")
+            } else {
+                vModel.setLiveListAt(position, 0, newText)
+                recyclerView.rowText.text = newText
+                Log.i("Editor", "$position will be $newText")
+                this@ChildListAdaptor.notifyItemChanged(position)
+            }
+            recyclerView.textWrapper.showPrevious()
+            view.hideSoftKeyBoard()
+        }
+    }
+
     private fun editorTextDone(view: View, position: Int) {
         val originIndex = vModel.indexOfOriginOf(mCurrentParent)           //   現在表示されているアイテム達の親
         val parent = view.parent
@@ -132,7 +157,7 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
             val newText = it.text.toString()
             if (newText.isBlank()) return
             Log.i("EditorEvent", " $newText will add at origin $originIndex")
-            vModel.addChildAt(originIndex, newText)
+            vModel.appendChildAt(originIndex, newText)
             it.text.clear()
             it.hideSoftKeyBoard()
             mList.add(newText)
@@ -140,4 +165,29 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
             notifyItemInserted(position)
         }
     }
+
+    private fun confirmDelete(view: View, position: Int) {
+        // ↑　mParentString:　現在の親アイテム　IndexOriginOf(mParentString) 親アイテムのLiveList上の位置
+        // Position : 子アイテムのポジション　1　ならば　　[$mParentString],item 0,item 1,....
+
+
+        AlertDialog.Builder(view.context)
+            .setTitle(R.string.itemDeleteTitle)
+            .setMessage(R.string.itemDeleteMessage)
+            .setPositiveButton(R.string.yes) { _, which ->
+                when (which) {
+                    DialogInterface.BUTTON_NEGATIVE -> return@setPositiveButton
+                    DialogInterface.BUTTON_POSITIVE -> {
+
+
+                        this@ChildListAdaptor.notifyItemRemoved(position)
+                        vModel.deleteLiveListAt(position) // IndexOfOrigin = position
+                    }
+                }
+            }
+            .setNegativeButton(R.string.no, null)
+            .show()
+    }
+
+
 }

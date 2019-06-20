@@ -8,6 +8,7 @@ import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import org.hamcrest.Description
@@ -32,6 +33,7 @@ class ActivityTest {
     @Rule
     @JvmField
     val mActivityTestRule = ActivityTestRule(MainActivity::class.java)
+
     @Test
     fun viewCheck() {
         onView(withId(R.id.activityFrame)).check(matches(isDisplayed()))
@@ -39,7 +41,7 @@ class ActivityTest {
         onView(withRecyclerView(R.id.originList).findViewAt(R.id.rowText, position = 1)).check(matches(isDisplayed()))
     }
 
-//    @Test
+    //    @Test
 //    fun viewClick() {
 //        //　テキストクリック→編集
 //        val rowEdit = onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.rowText))
@@ -59,56 +61,66 @@ class ActivityTest {
 //
 //    }
 //}
-
     private fun withRecyclerView(recyclerViewId: Int): RecyclerViewMatcher {
         return RecyclerViewMatcher(recyclerViewId)
     }
 
     class RecyclerViewMatcher(val mRecyclerViewId: Int) {
-        fun findViewAt(targetViewid: Int, position: Int): Matcher<View> {
+        fun findViewAt(targetViewId: Int, position: Int): Matcher<View> {
             return object : TypeSafeMatcher<View>() {
-            override fun describeTo(description: Description?) {
-                //  val recyclerViewName = Resources.getSystem().getResourceName(mRecyclerViewId)
-                description?.appendText("$targetViewid with $position of recycelerview")
-            }
-
+                override fun describeTo(description: Description?) {
+                    //  val recyclerViewName = Resources.getSystem().getResourceName(mRecyclerViewId)
+                    description?.appendText("$targetViewId with $position of recycler view")
+                }
                 override fun matchesSafely(item: View): Boolean {
-                    val targetView = item.findViewById<View>(targetViewid)
-                    val recyclerView = findRecyclerView(item)
-                    val childView = recyclerView?.getChildAt(position) ?: return false
-                    // childView Recycler　viewのItemView  大抵はViewGroupであろう｡
-                    if (childView.equals(targetView)) return true
-                    val grandchildView = if (childView is ViewGroup) findDescendingView(childView, targetView)
-                    else null
-                    grandchildView?.let { if (it.equals(item)) return true }
+                    val targetView = item.findViewById<View>(targetViewId) ?: return false
+                    val targetClass = targetView::class.java
+                    val itemView = findViewAtAdapterPosition(position, targetView) ?: return false
+                    if (itemView::class.java == targetClass) return true
+                    else if (itemView is ViewGroup) {
+                        val childView = findContainingView(itemView, targetClass)
+                        if (childView != null) return true
+                    } else return false
                     return false
                 }
             }
-    }
-
-        private fun findDescendingView(viewGroup: ViewGroup, targetView: View): View? {
-        val groupCount = viewGroup.childCount
-        for (i in 0..groupCount) {
-            val view = viewGroup.getChildAt(i)
-            if (view::class.java == targetView::class.java) return view
-            else if (view is ViewGroup) {
-                val childView = findDescendingView(view, targetView)
-                if (childView != null) return childView
-            }
         }
-        return null
-    }
 
-        fun findRecyclerView(view: View): RecyclerView? {
-
+        fun findContainingView(viewGroup: ViewGroup, targetclass: Class<out View>): View? {
             val groupCount = viewGroup.childCount
             for (i in 0..groupCount) {
-                val view = viewGroup.getChildAt(i)
-                if (view is RecyclerView) return view
+                val view = viewGroup.getChildAt(i) ?: continue
+                if (view::class.java == targetclass) {
+                    Log.i("match", "$view in $viewGroup matched $targetclass")
+                    return view
+                } else if (view is ViewGroup) {
+                    val childView = findContainingView(view, targetclass)
+                    if (childView != null) return childView
+                }
             }
             return null
         }
-}
-}
 
+        fun findViewAtAdapterPosition(position: Int, targetView: View): View? {
+            return findRecyclerView(targetView)?.findViewHolderForAdapterPosition(position)?.itemView ?: return null
+            // val targetClass = targetView::class.java
+            // if(itemView::class.java == targetClass) return itemView
+            // else if(itemView is ViewGroup) return findContainingView(itemView,targetClass)
+            // else return null
+    }
 
+        private fun findRecyclerView(view: View): RecyclerView? {
+            if (view is RecyclerView) return view // いきなりマッチした場合
+            if (view is ViewGroup) {
+                val groupCount = view.childCount
+            for (i in 0..groupCount) {
+                val childView = view.getChildAt(i)
+                if (childView is RecyclerView) return childView
+                else if (childView is ViewGroup) findRecyclerView(childView) // さらに子ビューがあればネストして探していく
+            }
+            }
+            return null
+        }
+    }
+}
+// Activity Test
