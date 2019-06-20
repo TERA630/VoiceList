@@ -184,7 +184,7 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
     }
 
     private fun confirmDelete(view: View, position: Int) {
-        // ↑　mParentString:　現在の親アイテム　IndexOriginOf(mParentString) 親アイテムのLiveList上の位置
+        // ↑　mParentString:　現在の親アイテム　IndexOriginOf(mCurrentParent) 親アイテムのLiveList上の位置
         // Position : 子アイテムのポジション　1　ならば　　[$mParentString],item 0,item 1,....
 
         AlertDialog.Builder(view.context)
@@ -199,6 +199,10 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
                             position
                         ) // indexOf child ヘッダ分一個前､トップ分一個後
                         this@ChildListAdaptor.notifyItemRemoved(position)
+                        vModel.deleteChildOfOriginAt(
+                            vModel.indexOfOriginOf(mCurrentParent),
+                            position + 1
+                        ) // IndexOfOrigin = position
                     }
                 }
             }

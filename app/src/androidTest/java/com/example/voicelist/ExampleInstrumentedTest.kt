@@ -1,4 +1,3 @@
-
 package com.example.voicelist
 
 import android.support.test.InstrumentationRegistry
@@ -8,6 +7,7 @@ import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
 import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
+import android.support.v7.widget.AppCompatTextView
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.View
@@ -40,7 +40,7 @@ class ActivityTest {
     fun viewCheck() {
         onView(withId(R.id.activityFrame)).check(matches(isDisplayed()))
         onView(withId(R.id.originList)).check(matches(isDisplayed()))
-        onView(withRecyclerView(R.id.originList).findViewAt(R.id.rowText, position = 1)).check(matches(isDisplayed()))
+        onView(withRecyclerView(R.id.originList).withTextAtPos("one", position = 0)).check(matches(isDisplayed()))
     }
 
     //    @Test
@@ -69,7 +69,6 @@ class ActivityTest {
 
     class RecyclerViewMatcher(val mRecyclerViewId: Int) {
         var mRecyclerView: RecyclerView? = null
-
         fun withTextAtPos(targetText: String, position: Int): Matcher<View> {
             return object : TypeSafeMatcher<View>() {
                 override fun describeTo(description: Description?) {
@@ -81,32 +80,38 @@ class ActivityTest {
                         mRecyclerView =
                             findRecyclerView(item) ?: throw IllegalStateException("$mRecyclerViewId is not valid.")
                     } else {
-                        val itemView = mRecyclerView?.findViewHolderForAdapterPosition(position)?.itemView
-                            ?: throw  IllegalStateException("$mRecyclerViewId does not have valid adaptor..")
-                        if (item is TextView) return true
-                        else if (item is ViewGroup)
-
+                        val itemView = mRecyclerView?.findViewHolderForAdapterPosition(position)
+                        when (itemView) {
+                            is TextView -> {
+                                return (itemView.text == targetText)
+                            }
+                            is AppCompatTextView -> {
+                                return (itemView.text == targetText)
+                            }
+                            is ViewGroup -> {
+                                val childView = findContainingView(itemView) ?: return false
+                                return (childView.text == targetText)
+                            }
+                            else -> {
+                                return false
+                            }
+                        }
 
                     }
-                    else if (itemView is ViewGroup) {
-                        val childView = findContainingView(itemView, targetClass)
-                        if (childView != null) return true
-                    } else return false
                     return false
                 }
             }
         }
 
-        fun findContainingView(viewGroup: ViewGroup, targetclass: Class<out View>): View? {
+        fun findContainingView(viewGroup: ViewGroup): AppCompatTextView? {
             val groupCount = viewGroup.childCount
             for (i in 0..groupCount) {
                 val view = viewGroup.getChildAt(i) ?: continue
-                if (view::class.java == targetclass) {
-                    Log.i("match", "$view in $viewGroup matched $targetclass")
+                if (view is AppCompatTextView) {
+                    Log.i("match", "$view in $viewGroup found")
                     return view
                 } else if (view is ViewGroup) {
-                    val childView = findContainingView(view, targetclass)
-                    if (childView != null) return childView
+                    val childView = findContainingView(view) ?: continue
                 }
             }
             return null

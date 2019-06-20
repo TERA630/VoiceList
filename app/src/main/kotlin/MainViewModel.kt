@@ -36,7 +36,6 @@ class MainViewModel : ViewModel() {
         safeLiveList.add(indexOfOrigin, _value)
         liveList.postValue(safeLiveList)
     }
-
     fun appendChildAt(_indexOfOrigin: Int, _value: String) {
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         else if (_value.isBlank()) return
@@ -66,6 +65,7 @@ class MainViewModel : ViewModel() {
         else {
             val safeLiveList = liveList.value as MutableList<String>
             val safeLiveListDestructed = safeLiveList[indexOfOrigin].split(",").toMutableList()
+            Log.i("Origin", "$safeLiveListDestructed[$indexOfChild] will be deleted..")
             safeLiveListDestructed.removeAt(indexOfChild)
             val result = safeLiveListDestructed.joinToString()
             safeLiveList[indexOfOrigin] = result
