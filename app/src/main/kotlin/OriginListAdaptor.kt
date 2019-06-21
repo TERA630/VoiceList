@@ -58,17 +58,14 @@ class OriginListAdaptor(
     private fun bindContentRow(vH: ViewHolderOfCell, position: Int) {
         val iV = vH.rowView // Holder item View
         val list = vModel.getLiveList()[position].split(",") // 表示アイテムを先頭要素、子要素に分割する
-        iV.rowText.text = list[0]   //リストの先頭要素が親
         iV.rowEditText.setText(list[0])
         iV.originGoChild.visibility = if (list.size >= 2) View.VISIBLE
         else View.GONE
-        iV.rowText.setOnClickListener {
-            iV.textWrapper.showNext()
-        }
         iV.originGoChild.setOnClickListener {
             mHandler.transitOriginToChild(list[0])
         }
         iV.rowEditText.setOnKeyListener { v, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_UP) return@setOnKeyListener false
             when (keyCode) {
                 KeyEvent.KEYCODE_DPAD_UP -> {
                     moveToUpperRow(v, position)
@@ -93,7 +90,7 @@ class OriginListAdaptor(
             return@setOnEditorActionListener false
 
         }
-        iV.rowEditText.setOnFocusChangeListener { v, hasFocus ->
+        iV.rowEditText.onFocusChangeListener = { v, hasFocus ->
             when (hasFocus) {
                 true -> v.showSoftKeyBoard()
                 false -> v.hideSoftKeyBoard()
@@ -102,7 +99,7 @@ class OriginListAdaptor(
     }
     private fun bindFooter(holder: ViewHolderOfCell, position: Int) {
         val iV = holder.itemView
-        iV.originNewText.setOnFocusChangeListener { v, hasFocus ->
+        iV.originNewText.onFocusChangeListener = { v, hasFocus ->
             when (hasFocus) {
                 true -> v.showSoftKeyBoard()
                 false -> v.hideSoftKeyBoard()
@@ -170,11 +167,9 @@ class OriginListAdaptor(
                 Log.i("Editor", "$origin at $position will be deleted.")
             } else {
                 vModel.setLiveListAt(position, 0, newText)
-                recyclerView.rowText.text = newText
                 Log.i("Editor", "$position will be $newText")
                 this@OriginListAdaptor.notifyItemChanged(position)
             }
-            recyclerView.textWrapper.showPrevious()
             view.hideSoftKeyBoard()
         }
     }

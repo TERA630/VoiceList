@@ -97,6 +97,22 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
         rowView.childContents.setOnClickListener {
             rowView.childTextWrapper.showNext()
         }
+        rowView.childEditor.setOnKeyListener { v, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_UP) return@setOnKeyListener false
+            when (keyCode) {
+                KeyEvent.KEYCODE_DPAD_UP -> {
+                    if (event.repeatCount > 1) return@setOnKeyListener false
+                    moveToUpperRow(v, position)
+                    return@setOnKeyListener true
+                }
+                KeyEvent.KEYCODE_DPAD_DOWN -> {
+                    if (event.repeatCount > 1) return@setOnKeyListener false
+                    moveToLowerRow(v, position)
+                    return@setOnKeyListener true
+                }
+                else -> return@setOnKeyListener false
+            }
+        }
         rowView.childEditor.setOnEditorActionListener { editText, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 childContentsEditorEnd(editText, position)
@@ -207,5 +223,37 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
             .show()
     }
 
+    // Key event
+    private fun moveToUpperRow(view: View, position: Int) {
+        if (position < 2) {
+            Log.w("editor", "$position is at upper limit.")
+            return
+        }
+        val recyclerView = view.parent.findAscendingRecyclerView()
+        recyclerView?.let {
+            val animatorCurrent = findViewAnimatorAt(it, position)
+            animatorCurrent?.showPrevious()
+            val animatorUpper = findViewAnimatorAt(it, position - 1)
+            animatorUpper?.showNext()
+            val editorUpper = findDescendingEditorAtPosition(it, position - 1)
+            editorUpper?.requestFocus()
+        }
+    }
+
+    private fun moveToLowerRow(view: View, position: Int) {
+        if (position >= mList.lastIndex + 1) {
+            Log.w("editor", "$position is at lower limit.")
+            return
+        }
+        val recyclerView = view.parent.findAscendingRecyclerView()
+        recyclerView?.let {
+            val animatorCurrent = findViewAnimatorAt(it, position)
+            animatorCurrent?.showPrevious()
+            val animatorUpper = findViewAnimatorAt(it, position + 1)
+            animatorUpper?.showNext()
+            val editorUpper = findDescendingEditorAtPosition(it, position + 1)
+            editorUpper?.requestFocus()
+        }
+    }
 
 }

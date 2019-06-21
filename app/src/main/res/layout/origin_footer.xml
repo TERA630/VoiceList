@@ -14,6 +14,7 @@
             android:layout_width="200dp" android:layout_height="wrap_content"
             android:layout_gravity="start|bottom"
             android:layout_marginStart="8dp"
+            android:background="@android:color/transparent"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:imeOptions="actionDone"
             android:hint="@string/enterNewItem"

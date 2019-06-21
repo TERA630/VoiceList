@@ -11,6 +11,7 @@
             android:layout_gravity="start|bottom"
             android:layout_marginStart="8dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:background="@android:color/transparent"
             android:imeOptions="actionDone"
             android:hint="@string/enterNewItem"
             android:inputType="text"/>

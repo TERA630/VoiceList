@@ -10,6 +10,7 @@
     <string name="no">いいえ</string>
     // Content
     <string name="button">push to action</string>
+    <string name="rowContents">enter row item</string>
     // Menu
     <string name="undo">元に戻す</string>
 

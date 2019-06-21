@@ -9,6 +9,7 @@ import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
 import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
+import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -51,10 +52,11 @@ class ActivityTest {
         val goChildButton = onView(withRecyclerView(R.id.originList).withImageViewAtPos(0, R.id.originGoChild))
         goChildButton.perform(ViewActions.click())
         //
-        val childList = onView(withRecyclerView(R.id.childList).withEditTextAtPos(3))
-        childList.perform(ViewActions.typeText("White mage\n"))
-
-
+        val childListItem1 = onView(withRecyclerView(R.id.childList).withEditTextAtPos(3))
+        childListItem1.perform(ViewActions.replaceText("white mage"))
+        childListItem1.perform(ViewActions.pressKey(KeyEvent.KEYCODE_ENTER))
+        val childListItem2 = onView(withRecyclerView(R.id.childList).withTextAtPos("", 1))
+        childListItem2.check(matches(isDisplayed()))
 
 //        // テキスト編集終了
 //        //    onView(withRecyclerView(R.id.originList).atPositionOnView(1,R.id.rowText)).check(matches(hasText(1,"Test One")))

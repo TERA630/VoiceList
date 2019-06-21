@@ -11,33 +11,19 @@
         app:cardElevation="1dp"
         app:cardUseCompatPadding="true">
 
-        <ViewAnimator
-                android:id="@+id/textWrapper"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_gravity="start|center_vertical"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="2dp" android:layout_marginBottom="2dp"
-        >
-            <TextView
-                    android:id="@+id/rowText"
-                    android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:layout_gravity="start|center_vertical"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="2dp" android:layout_marginBottom="2dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                    tools:text="It is fine today."/>
             <EditText
                     android:id="@+id/rowEditText"
                     android:layout_width="240dp" android:layout_height="wrap_content"
                     android:layout_gravity="start|center_vertical"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="2dp" android:layout_marginBottom="2dp"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/rowContents"
                     android:imeOptions="actionDone"
                     android:inputType="text"
                     android:textAppearance="@style/TextAppearance.AppCompat.Large"
                     tools:text="It is cloudy today."
             />
-        </ViewAnimator>
             <ImageView
                     android:id="@+id/originGoChild"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
