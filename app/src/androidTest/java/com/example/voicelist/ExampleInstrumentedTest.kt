@@ -3,6 +3,7 @@ package com.example.voicelist
 import android.support.test.InstrumentationRegistry
 import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.assertion.ViewAssertions.matches
+import android.support.test.espresso.matcher.BoundedMatcher
 import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
 import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.rule.ActivityTestRule
@@ -15,7 +16,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import org.hamcrest.Description
 import org.hamcrest.Matcher
-import org.hamcrest.TypeSafeMatcher
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -70,57 +70,35 @@ class ActivityTest {
     class RecyclerViewMatcher(val mRecyclerViewId: Int) {
         var mRecyclerView: RecyclerView? = null
         fun withTextAtPos(targetText: String, position: Int): Matcher<View> {
-            return object : TypeSafeMatcher<View>() {
+            return object : BoundedMatcher<View, TextView>(TextView::class.java) {
                 override fun describeTo(description: Description?) {
                     //  val recyclerViewName = Resources.getSystem().getResourceName(mRecyclerViewId)
                     description?.appendText("$targetText with $position of recycler view is..")
                 }
-                override fun matchesSafely(item: View): Boolean {
+
+                override fun matchesSafely(item: TextView): Boolean {
+                    if (item.text != targetText) return false
                     if (mRecyclerView == null) mRecyclerView = item.findViewById(mRecyclerViewId)
                         ?: throw IllegalStateException("$mRecyclerViewId is not valid.")
                     val itemView = mRecyclerView?.findViewHolderForAdapterPosition(position)?.itemView
-                    when (itemView) {
-                        is TextView -> {
-                            return (itemView.text == targetText)
-                        }
-                        is AppCompatTextView -> {
-                            return (itemView.text == targetText)
-                        }
-                        is ViewGroup -> {
-                            val childView = findContainingView(itemView) ?: return false
-                            return (childView.text == targetText)
-                        }
-                        else -> {
-                            return false
-                        }
-                    }
-
                 }
             }
         }
-
         fun findContainingView(viewGroup: ViewGroup): AppCompatTextView? {
             val groupCount = viewGroup.childCount
             for (i in 0..groupCount) {
                 val view = viewGroup.getChildAt(i) ?: continue
                 if (view is AppCompatTextView) {
-                    Log.i("match", "$view in $viewGroup found")
+                    Log.i("match", "${view::class.java} in $viewGroup found")
                     return view
                 } else if (view is ViewGroup) {
-                    val childView = findContainingView(view) ?: continue
+                    val childView = findContainingView(view)
+                    if (childView is AppCompatTextView) return childView
+                    else continue
                 }
             }
             return null
         }
-
-        fun findViewAtAdapterPosition(position: Int, targetView: View): View? {
-            return findRecyclerView(targetView)?.findViewHolderForAdapterPosition(position)?.itemView ?: return null
-            // val targetClass = targetView::class.java
-            // if(itemView::class.java == targetClass) return itemView
-            // else if(itemView is ViewGroup) return findContainingView(itemView,targetClass)
-            // else return null
-        }
-
         private fun findRecyclerView(view: View): RecyclerView? {
             if (view is RecyclerView) return view // いきなりマッチした場合
             if (view is ViewGroup) {
@@ -134,5 +112,4 @@ class ActivityTest {
             return null
         }
     }
-}
-// Activity Test
+} // Activity Test
