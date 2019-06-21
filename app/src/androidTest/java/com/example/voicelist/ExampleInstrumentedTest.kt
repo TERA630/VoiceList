@@ -8,9 +8,6 @@ import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
 import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
-import android.support.v7.widget.AppCompatTextView
-import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -68,48 +65,37 @@ class ActivityTest {
     }
 
     class RecyclerViewMatcher(val mRecyclerViewId: Int) {
-        var mRecyclerView: RecyclerView? = null
         fun withTextAtPos(targetText: String, position: Int): Matcher<View> {
             return object : BoundedMatcher<View, TextView>(TextView::class.java) {
                 override fun describeTo(description: Description?) {
                     //  val recyclerViewName = Resources.getSystem().getResourceName(mRecyclerViewId)
                     description?.appendText("$targetText with $position of recycler view is..")
                 }
-
                 override fun matchesSafely(item: TextView): Boolean {
                     if (item.text != targetText) return false
-                    if (mRecyclerView == null) mRecyclerView = item.findViewById(mRecyclerViewId)
-                        ?: throw IllegalStateException("$mRecyclerViewId is not valid.")
-                    val itemView = mRecyclerView?.findViewHolderForAdapterPosition(position)?.itemView
+                    val recyclerView = item.parent.findAscendingRecyclerView()
+                        ?: throw IllegalStateException("Recycler view was not found.")
+                    if (recyclerView.id != mRecyclerViewId) return false
+                    val itemView = recyclerView.findViewHolderForAdapterPosition(position)?.itemView ?: return false
+                    val list = if (itemView is ViewGroup) enumerateViewWithin(itemView) else null
+                    if (list.isNullOrEmpty()) return false
+                    return list.contains(item)
                 }
             }
         }
-        fun findContainingView(viewGroup: ViewGroup): AppCompatTextView? {
+
+        fun enumerateViewWithin(viewGroup: ViewGroup): List<View>? {
+            val result = mutableListOf<View>()
             val groupCount = viewGroup.childCount
-            for (i in 0..groupCount) {
-                val view = viewGroup.getChildAt(i) ?: continue
-                if (view is AppCompatTextView) {
-                    Log.i("match", "${view::class.java} in $viewGroup found")
-                    return view
-                } else if (view is ViewGroup) {
-                    val childView = findContainingView(view)
-                    if (childView is AppCompatTextView) return childView
-                    else continue
+            for (i in 0 until groupCount) {
+                val view = viewGroup.getChildAt(i)
+                result.add(view)
+                if (view is ViewGroup) {
+                    val childList = enumerateViewWithin(view) ?: continue
+                    if (!childList.isNullOrEmpty()) result.addAll(childList)
                 }
             }
-            return null
-        }
-        private fun findRecyclerView(view: View): RecyclerView? {
-            if (view is RecyclerView) return view // いきなりマッチした場合
-            if (view is ViewGroup) {
-                val groupCount = view.childCount
-                for (i in 0..groupCount) {
-                    val childView = view.getChildAt(i)
-                    if (childView is RecyclerView) return childView
-                    else if (childView is ViewGroup) findRecyclerView(childView) // さらに子ビューがあればネストして探していく
-                }
-            }
-            return null
+            return result
         }
     }
-} // Activity Test
+}

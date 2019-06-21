@@ -192,7 +192,7 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
                     DialogInterface.BUTTON_NEGATIVE -> return@setPositiveButton
                     DialogInterface.BUTTON_POSITIVE -> {
                         val item = mList[position - 1]
-                        Log.i("Editor", " ${mList[position - 1]} at $position will be deleted..")
+                        Log.i("Editor", "$item at $position will be deleted..")
                         vModel.deleteChildOfOriginAt(
                             vModel.indexOfOriginOf(mCurrentParent),
                             position
