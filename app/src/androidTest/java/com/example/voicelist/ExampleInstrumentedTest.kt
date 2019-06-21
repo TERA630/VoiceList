@@ -2,6 +2,7 @@ package com.example.voicelist
 
 import android.support.test.InstrumentationRegistry
 import android.support.test.espresso.Espresso.onView
+import android.support.test.espresso.action.ViewActions
 import android.support.test.espresso.assertion.ViewAssertions.matches
 import android.support.test.espresso.matcher.BoundedMatcher
 import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -10,6 +11,8 @@ import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import org.hamcrest.Description
 import org.hamcrest.Matcher
@@ -40,30 +43,29 @@ class ActivityTest {
         onView(withRecyclerView(R.id.originList).withTextAtPos("one", position = 0)).check(matches(isDisplayed()))
     }
 
-    //    @Test
-//    fun viewClick() {
-//        //　テキストクリック→編集
-//        val rowEdit = onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.rowText))
-//        rowEdit.perform(ViewActions.click())
-//        //　テキスト編集、終了
-//        val rowEditText = onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.rowEditText))
-//        rowEdit.check(matches(isDisplayed()))
-//        rowEditText.perform(ViewActions.replaceText("Test One"))
-//        //    val endButton = onView(withRecyclerView(R.id.originList).atPositionOnView(1, R.id.editEndButton))
-//        //     endButton.check(matches(isDisplayed()))
-////        val goLeftButton = onView(withRecyclerView(R.id.folderIcon).atPosition(1)).check(matches(isDisplayed()))
-//
+    @Test
+    fun viewClick() {
+        //　テキストクリック→編集
+        val rowEdit = onView(withRecyclerView(R.id.originList).withTextAtPos("one", 0))
+        rowEdit.perform(ViewActions.click())
+        val goChildButton = onView(withRecyclerView(R.id.originList).withImageViewAtPos(0, R.id.originGoChild))
+        goChildButton.perform(ViewActions.click())
+        //
+        val childList = onView(withRecyclerView(R.id.childList).withEditTextAtPos(3))
+        childList.perform(ViewActions.typeText("White mage\n"))
+
+
+
 //        // テキスト編集終了
 //        //    onView(withRecyclerView(R.id.originList).atPositionOnView(1,R.id.rowText)).check(matches(hasText(1,"Test One")))
 ////        onView(withRecyclerView(R.id.liveList).atPositionOnView(1, R.id.editEndButton)).check(matches(withEffectiveVisibility(Visibility.GONE))
 ////        )
 //
 //    }
-//}
+    }
     private fun withRecyclerView(recyclerViewId: Int): RecyclerViewMatcher {
         return RecyclerViewMatcher(recyclerViewId)
     }
-
     class RecyclerViewMatcher(val mRecyclerViewId: Int) {
         fun withTextAtPos(targetText: String, position: Int): Matcher<View> {
             return object : BoundedMatcher<View, TextView>(TextView::class.java) {
@@ -71,7 +73,8 @@ class ActivityTest {
                     //  val recyclerViewName = Resources.getSystem().getResourceName(mRecyclerViewId)
                     description?.appendText("$targetText with $position of recycler view is..")
                 }
-                override fun matchesSafely(item: TextView): Boolean {
+
+                override fun matchesSafely(item: TextView): Boolean { //EspressoフレームワークがTextViewを全てリストアップしてこちらに投げてくれる
                     if (item.text != targetText) return false
                     val recyclerView = item.parent.findAscendingRecyclerView()
                         ?: throw IllegalStateException("Recycler view was not found.")
@@ -83,6 +86,49 @@ class ActivityTest {
                 }
             }
         }
+
+        fun withEditTextAtPos(position: Int): Matcher<View> {
+            return object : BoundedMatcher<View, EditText>(EditText::class.java) {
+                override fun describeTo(description: Description?) {
+                    //  val recyclerViewName = Resources.getSystem().getResourceName(mRecyclerViewId)
+                    description?.appendText("$position of $mRecyclerViewId")
+                }
+
+                override fun matchesSafely(item: EditText): Boolean { //EspressoフレームワークがTextViewを全てリストアップしてこちらに投げてくれる
+                    val recyclerView = item.parent.findAscendingRecyclerView() // findViewByIdでは上手くいかない｡
+                        ?: throw IllegalStateException("Recycler view was not found.")
+                    if (recyclerView.id != mRecyclerViewId) return false
+
+                    val itemView = recyclerView.findViewHolderForAdapterPosition(position)?.itemView ?: return false
+                    val list = if (itemView is ViewGroup) enumerateViewWithin(itemView) else null
+                    if (list.isNullOrEmpty()) return false
+                    return list.contains(item)
+                }
+            }
+
+
+        }
+
+        fun withImageViewAtPos(position: Int, id: Int): Matcher<View> {
+            return object : BoundedMatcher<View, ImageView>(ImageView::class.java) {
+                override fun describeTo(description: Description?) {
+                    //  val recyclerViewName = Resources.getSystem().getResourceName(mRecyclerViewId)
+                    description?.appendText("$position of $mRecyclerViewId")
+                }
+
+                override fun matchesSafely(item: ImageView): Boolean { //EspressoフレームワークがImageViewを全てリストアップしてこちらに投げてくれる
+                    if (item.id != id) return false
+                    val recyclerView = item.parent.findAscendingRecyclerView() // findViewByIdでは上手くいかない｡
+                        ?: throw IllegalStateException("Recycler view was not found.")
+                    if (recyclerView.id != mRecyclerViewId) return false
+                    val itemView = recyclerView.findViewHolderForAdapterPosition(position)?.itemView ?: return false
+                    val list = if (itemView is ViewGroup) enumerateViewWithin(itemView) else null
+                    if (list.isNullOrEmpty()) return false
+                    return list.contains(item)
+                }
+            }
+        }
+
 
         fun enumerateViewWithin(viewGroup: ViewGroup): List<View>? {
             val result = mutableListOf<View>()
