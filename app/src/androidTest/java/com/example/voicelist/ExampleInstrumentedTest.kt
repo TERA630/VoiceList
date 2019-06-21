@@ -107,8 +107,6 @@ class ActivityTest {
                     return list.contains(item)
                 }
             }
-
-
         }
 
         fun withImageViewAtPos(position: Int, id: Int): Matcher<View> {

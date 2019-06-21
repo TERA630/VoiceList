@@ -72,7 +72,7 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
         changeListItem(mCurrentParent, _currentChild = vModel.getChildOf(mCurrentParent))
     }
     class ChildRowHolder
-        (val mView: View) : RecyclerView.ViewHolder(mView)
+        (mView: View) : RecyclerView.ViewHolder(mView)
 
     // ViewHolder Binder
     private fun bindHeader(rowView: View) {
@@ -98,7 +98,6 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
             rowView.childTextWrapper.showNext()
         }
         rowView.childEditor.setOnKeyListener { v, keyCode, event ->
-            if (event.action == KeyEvent.ACTION_UP) return@setOnKeyListener false
             when (keyCode) {
                 KeyEvent.KEYCODE_DPAD_UP -> {
                     if (event.repeatCount > 1) return@setOnKeyListener false
@@ -156,9 +155,7 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
 
     private fun childContentsEditorEnd(view: View, position: Int) {
         val recyclerView = view.parent?.findAscendingRecyclerView()
-        val editor = recyclerView?.let {
-            findDescendingEditorAtPosition(it, position)
-        }
+        val editor = recyclerView?.findEditorAtPosition(position)
         editor?.let {
             val newText = it.text.toString()
             val originIndex = vModel.indexOfOriginOf(mCurrentParent)
@@ -168,7 +165,7 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
                 Log.i("Editor", " child ${mList[position - 1]} of $origin will be deleted")
             } else {
                 vModel.setLiveListAt(position, 0, newText)
-                val textView = findDescendingTextViewrAtPosition(recyclerView, position)
+                val textView = findDescendingTextViewAtPosition(recyclerView, position)
                 textView?.text = newText
                 Log.i("Editor", "$origin at $originIndex as child $position will be $newText.")
                 this.updateListItem()
@@ -183,7 +180,7 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
         val originIndex = vModel.indexOfOriginOf(mCurrentParent)  //   現在表示されているアイテム達の親
         val parent = view.parent
         val recyclerView = parent?.findAscendingRecyclerView()
-        val editor = recyclerView?.let { findDescendingEditorAtPosition(it, position) }
+        val editor = recyclerView?.findEditorAtPosition(position)
         editor?.let {
             val newText = it.text.toString()
             if (newText.isBlank()) return
@@ -235,8 +232,7 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
             animatorCurrent?.showPrevious()
             val animatorUpper = findViewAnimatorAt(it, position - 1)
             animatorUpper?.showNext()
-            val editorUpper = findDescendingEditorAtPosition(it, position - 1)
-            editorUpper?.requestFocus()
+            val editorUpper = it.findEditorAtPosition(position - 1)?.requestFocus()
         }
     }
 
@@ -251,8 +247,7 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
             animatorCurrent?.showPrevious()
             val animatorUpper = findViewAnimatorAt(it, position + 1)
             animatorUpper?.showNext()
-            val editorUpper = findDescendingEditorAtPosition(it, position + 1)
-            editorUpper?.requestFocus()
+            it.findEditorAtPosition(position + 1)?.requestFocus()
         }
     }
 

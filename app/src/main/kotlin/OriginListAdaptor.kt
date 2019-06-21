@@ -65,7 +65,6 @@ class OriginListAdaptor(
             mHandler.transitOriginToChild(list[0])
         }
         iV.rowEditText.setOnKeyListener { v, keyCode, event ->
-            if (event.action == KeyEvent.ACTION_UP) return@setOnKeyListener false
             when (keyCode) {
                 KeyEvent.KEYCODE_DPAD_UP -> {
                     moveToUpperRow(v, position)
@@ -78,40 +77,28 @@ class OriginListAdaptor(
                 else -> return@setOnKeyListener false
             }
         }
-        iV.rowEditText.setOnEditorActionListener { textView, actionId, event ->
+        iV.rowEditText.setOnEditorActionListener { editText, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                onContentsEditorEnd(textView, position)
+                onContentsEditorEnd(editText, position)
                 return@setOnEditorActionListener true
             }
             if (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) { // Enterキー押したとき
-                onContentsEditorEnd(textView, position)
+                onContentsEditorEnd(editText, position)
                 return@setOnEditorActionListener true
             }
             return@setOnEditorActionListener false
 
         }
-        iV.rowEditText.onFocusChangeListener = { v, hasFocus ->
-            when (hasFocus) {
-                true -> v.showSoftKeyBoard()
-                false -> v.hideSoftKeyBoard()
-            }
-        }
     }
     private fun bindFooter(holder: ViewHolderOfCell, position: Int) {
         val iV = holder.itemView
-        iV.originNewText.onFocusChangeListener = { v, hasFocus ->
-            when (hasFocus) {
-                true -> v.showSoftKeyBoard()
-                false -> v.hideSoftKeyBoard()
-            }
-        }
-        iV.originNewText.setOnEditorActionListener { textView, actionId, event: KeyEvent? ->
+        iV.originNewText.setOnEditorActionListener { editText, actionId, event: KeyEvent? ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                onFooterEditorEnd(textView, position)
+                onFooterEditorEnd(editText, position)
                 return@setOnEditorActionListener true
             }
             if (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
-                onFooterEditorEnd(textView, position)
+                onFooterEditorEnd(editText, position)
                 return@setOnEditorActionListener true
             }
             return@setOnEditorActionListener false
@@ -133,7 +120,7 @@ class OriginListAdaptor(
             animatorCurrent?.showPrevious()
             val animatorUpper = findViewAnimatorAt(it, position - 1)
             animatorUpper?.showNext()
-            val editorUpper = findDescendingEditorAtPosition(it, position - 1)
+            val editorUpper = it.findEditorAtPosition(position - 1)
             editorUpper?.requestFocus()
         }
     }
@@ -148,17 +135,14 @@ class OriginListAdaptor(
             animatorCurrent?.showPrevious()
             val animatorUpper = findViewAnimatorAt(it, position + 1)
             animatorUpper?.showNext()
-            val editorUpper = findDescendingEditorAtPosition(it, position + 1)
+            val editorUpper = it.findEditorAtPosition(position + 1)
             editorUpper?.requestFocus()
         }
     }
-
     private fun onContentsEditorEnd(view: View, position: Int) {
         val parent = view.parent
         val recyclerView = parent.findAscendingRecyclerView()
-        val editor = recyclerView?.let {
-            findDescendingEditorAtPosition(it, position)
-        }
+        val editor = recyclerView?.findEditorAtPosition(position)
         editor?.let {
             val newText = it.text.toString()
             if (newText.isBlank()) {
@@ -173,21 +157,20 @@ class OriginListAdaptor(
             view.hideSoftKeyBoard()
         }
     }
-
     private fun onFooterEditorEnd(view: View, position: Int) {
         val parent = view.parent
         val recyclerView = parent.findAscendingRecyclerView()
-        val editor = recyclerView?.let {
-            findDescendingEditorAtPosition(it, position)
-        }
+        val editor = recyclerView?.findEditorAtPosition(position)
         editor?.let {
             val newText = it.text.toString()
             if (newText.isBlank()) return
-            Log.i("Editor", " $newText will add")
             vModel.addLiveList(newText)
             it.text.clear()
             it.hideSoftKeyBoard()
+            val nextEditor = recyclerView.findEditorAtPosition(position + 1)
+            nextEditor?.requestFocus()
         }
+
 
     }
     private fun confirmDelete(view: View, position: Int) {
