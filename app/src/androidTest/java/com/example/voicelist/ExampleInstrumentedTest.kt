@@ -96,7 +96,7 @@ class ActivityTest {
                     description?.appendText("$position of $mRecyclerViewId")
                 }
 
-                override fun matchesSafely(item: EditText): Boolean { //EspressoフレームワークがTextViewを全てリストアップしてこちらに投げてくれる
+                override fun matchesSafely(item: EditText): Boolean {
                     val recyclerView = item.parent.findAscendingRecyclerView() // findViewByIdでは上手くいかない｡
                         ?: throw IllegalStateException("Recycler view was not found.")
                     if (recyclerView.id != mRecyclerViewId) return false

@@ -35,6 +35,11 @@ class MainActivity : AppCompatActivity() {
             vModel.initLiveList(it.toMutableList())
         }
     }
+
+    override fun onPause() {
+        super.onPause()
+        saveListToTextFile(baseContext, vModel.getLiveList())
+    }
     // Activity Event
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -57,22 +62,18 @@ class MainActivity : AppCompatActivity() {
     }
     // Private function
     private fun makeOriginFragment(savedInstanceState: Bundle?, model: MainViewModel) {
-        val resultOptional = savedInstanceState?.getStringArrayList(CURRENT_ITEMS)
-        val result =
-            if (resultOptional.isNullOrEmpty()) arrayListOf(
-                "one,knight,mage",
-                "two,Firion,Maria,Ricard,Minwu",
-                "three,Monk,White Mage,Thief,Dragoon,Summoner",
-                "four,Cecil,Kain,Rydia,Rosa,Edge",
-                "five,Bartz,Faris,Galuf,Lenna,Krile",
-                "six,Terra,Locke,Celes,Shadow,seven",
-                "seven,Cloud,Tifa,Aeris,eight",
-                "eight,Squall,Rinoa,Quistis",
-                "nine,Zidane,Vivi,Garnet,Freya",
-                "ten,Yuna"
-            )
-            else resultOptional
-
+        val result = loadListFromTextFile(baseContext, VOICELIST_FILE) ?: listOf(
+            "one,knight,mage",
+            "two,Firion,Maria,Ricard,Minwu",
+            "three,Monk,White Mage,Thief,Dragoon,Summoner",
+            "four,Cecil,Kain,Rydia,Rosa,Edge",
+            "five,Bartz,Faris,Galuf,Lenna,Krile",
+            "six,Terra,Locke,Celes,Shadow,seven",
+            "seven,Cloud,Tifa,Aeris,eight",
+            "eight,Squall,Rinoa,Quistis",
+            "nine,Zidane,Vivi,Garnet,Freya",
+            "ten,Yuna"
+        )
         model.initLiveList(result.toMutableList())
 
         if (savedInstanceState == null) { // 初回起動でのみフラグメント追加

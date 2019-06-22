@@ -21,6 +21,7 @@ class OriginListAdaptor(
 
     // String   "title(contents):root, descending1 , descending2 , ..."
     private lateinit var mHandler: OriginFragment.DeliverEventToActivity
+    private var previousKeyEvent = 0
 
     // Lifecycle of Recycler View
     override fun getItemCount(): Int = vModel.getOriginList().size + 1 // データ＋入力用フッタ
@@ -65,6 +66,7 @@ class OriginListAdaptor(
             mHandler.transitOriginToChild(list[0])
         }
         iV.rowEditText.setOnKeyListener { v, keyCode, event ->
+            Log.i("keyLog", ", $position and Event is $event ")
             when (keyCode) {
                 KeyEvent.KEYCODE_DPAD_UP -> {
                     moveToUpperRow(v, position)
@@ -82,7 +84,7 @@ class OriginListAdaptor(
                 onContentsEditorEnd(editText, position)
                 return@setOnEditorActionListener true
             }
-            if (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) { // Enterキー押したとき
+            if (event?.keyCode == KeyEvent.KEYCODE_ENTER) { // Enterキー押したとき
                 onContentsEditorEnd(editText, position)
                 return@setOnEditorActionListener true
             }
@@ -97,7 +99,7 @@ class OriginListAdaptor(
                 onFooterEditorEnd(editText, position)
                 return@setOnEditorActionListener true
             }
-            if (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
+            if (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
                 onFooterEditorEnd(editText, position)
                 return@setOnEditorActionListener true
             }
@@ -138,6 +140,11 @@ class OriginListAdaptor(
             val editorUpper = it.findEditorAtPosition(position + 1)
             editorUpper?.requestFocus()
         }
+    }
+
+    private fun avoidDoubleTouching(keyCode: Int) {
+
+
     }
     private fun onContentsEditorEnd(view: View, position: Int) {
         val parent = view.parent
