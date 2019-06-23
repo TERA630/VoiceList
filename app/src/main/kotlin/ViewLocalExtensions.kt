@@ -1,6 +1,7 @@
 package com.example.voicelist
 
 import android.content.Context
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
@@ -108,4 +109,27 @@ fun findDescendingViewAnimator(viewGroup: ViewGroup): ViewAnimator? {
         }
     }
     return null
+}
+
+class DiffCallback(
+    private val oldList: List<String>,
+    private val newList: List<String>
+) : DiffUtil.Callback() {
+    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        return (oldItemPosition == newItemPosition)
+    }
+
+    override fun getOldListSize(): Int {
+        return oldList.size
+    }
+
+    override fun getNewListSize(): Int {
+        return newList.size
+    }
+
+    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        val oldItem = oldList[oldItemPosition]
+        val newItem = newList[newItemPosition]
+        return (oldItem == newItem)
+    }
 }

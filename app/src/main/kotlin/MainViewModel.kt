@@ -5,8 +5,10 @@ import android.arch.lifecycle.ViewModel
 import android.util.Log
 
 class MainViewModel : ViewModel() {
-    private val errorList = listOf("OriginList", "was", "null", "or", "empty", "Check", "code.")
+    private val errorList = listOf("OriginList", "was", "null", "or", "empty")
     var liveList: MutableLiveData<MutableList<String>> = MutableLiveData()
+    var previousLiveListStr = listOf("origin")
+
     val navigationHistory = mutableListOf("origin")
     var deleteHistory = mutableListOf<String>()
 
@@ -73,7 +75,6 @@ class MainViewModel : ViewModel() {
         val list = headAndChildCSV.split(",")
         return list.drop(1)
     }
-
     fun getChildOf(_parent: String): List<String> {
         val indexOfOrigin = indexOfOriginOf(_parent)
         return if (indexOfOrigin >= 0) {
@@ -98,6 +99,11 @@ class MainViewModel : ViewModel() {
         }
         return safeLiveListHeaders
     }
+
+
+    fun storePreviousAndPost
+
+
 
     fun pushNextNavigation(_traceOfParent: String) {
         navigationHistory.add(_traceOfParent)

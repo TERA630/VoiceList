@@ -21,8 +21,8 @@ class OriginListAdaptor(
 
     // String   "title(contents):root, descending1 , descending2 , ..."
     private lateinit var mHandler: OriginFragment.DeliverEventToActivity
-    private var previousKeyEvent = 0
 
+    private var mLastfocus = 0
     // Lifecycle of Recycler View
     override fun getItemCount(): Int = vModel.getOriginList().size + 1 // データ＋入力用フッタ
     override fun getItemViewType(position: Int): Int {
@@ -76,26 +76,38 @@ class OriginListAdaptor(
                     moveToLowerRow(v, position)
                     return@setOnKeyListener true
                 }
+                KeyEvent.KEYCODE_ENTER -> {
+                    onContentsEditorEnd(v, position)
+                    return@setOnKeyListener true
+                }
                 else -> return@setOnKeyListener false
             }
         }
         iV.rowEditText.setOnEditorActionListener { editText, actionId, event ->
+            Log.i("keyLog", ", $position and Event is $event ")
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 onContentsEditorEnd(editText, position)
                 return@setOnEditorActionListener true
             }
-            if (event?.keyCode == KeyEvent.KEYCODE_ENTER) { // Enterキー押したとき
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                onContentsEditorEnd(editText, position)
+                return@setOnEditorActionListener true
+            }
+            if (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) { // Enterキー押したとき
                 onContentsEditorEnd(editText, position)
                 return@setOnEditorActionListener true
             }
             return@setOnEditorActionListener false
-
         }
     }
     private fun bindFooter(holder: ViewHolderOfCell, position: Int) {
         val iV = holder.itemView
         iV.originNewText.setOnEditorActionListener { editText, actionId, event: KeyEvent? ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
+                onFooterEditorEnd(editText, position)
+                return@setOnEditorActionListener true
+            }
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
                 onFooterEditorEnd(editText, position)
                 return@setOnEditorActionListener true
             }
@@ -141,11 +153,6 @@ class OriginListAdaptor(
             editorUpper?.requestFocus()
         }
     }
-
-    private fun avoidDoubleTouching(keyCode: Int) {
-
-
-    }
     private fun onContentsEditorEnd(view: View, position: Int) {
         val parent = view.parent
         val recyclerView = parent.findAscendingRecyclerView()
@@ -174,8 +181,6 @@ class OriginListAdaptor(
             vModel.addLiveList(newText)
             it.text.clear()
             it.hideSoftKeyBoard()
-            val nextEditor = recyclerView.findEditorAtPosition(position + 1)
-            nextEditor?.requestFocus()
         }
 
 
