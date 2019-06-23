@@ -56,26 +56,21 @@ class MainActivity : AppCompatActivity() {
                 vModel.restoreDeleted()
                 true
             }
+            R.id.action_restoreDefault -> {
+                vModel.setLiveListDefault()
+                true
+            }
+            R.id.action_saveCurrentToFile -> {
+                saveListToTextFile(baseContext, vModel.getLiveList())
+                true
+            }
             else -> super.onOptionsItemSelected(item)
-
         }
     }
     // Private function
     private fun makeOriginFragment(savedInstanceState: Bundle?, model: MainViewModel) {
-        val result = loadListFromTextFile(baseContext, VOICELIST_FILE) ?: listOf(
-            "one,knight,mage",
-            "two,Firion,Maria,Ricard,Minwu",
-            "three,Monk,White Mage,Thief,Dragoon,Summoner",
-            "four,Cecil,Kain,Rydia,Rosa,Edge",
-            "five,Bartz,Faris,Galuf,Lenna,Krile",
-            "six,Terra,Locke,Celes,Shadow,seven",
-            "seven,Cloud,Tifa,Aeris,eight",
-            "eight,Squall,Rinoa,Quistis",
-            "nine,Zidane,Vivi,Garnet,Freya",
-            "ten,Yuna"
-        )
-        model.initLiveList(result.toMutableList())
-
+        val result = loadListFromTextFile(baseContext, VOICELIST_FILE)
+        result?.let { model.initLiveList(it.toMutableList()) } ?: vModel.setLiveListDefault()
         if (savedInstanceState == null) { // 初回起動でのみフラグメント追加
             val originFragment = OriginFragment.newInstance()
             supportFragmentManager.beginTransaction()

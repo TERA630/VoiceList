@@ -58,8 +58,17 @@ class OriginListAdaptor(
     // View Binder
     private fun bindContentRow(vH: ViewHolderOfCell, position: Int) {
         val iV = vH.rowView // Holder item View
-        val list = vModel.getLiveList()[position].split(",") // 表示アイテムを先頭要素、子要素に分割する
-        iV.rowEditText.setText(list[0])
+        val list = vModel.getLiveList()[position].split(",") // 表示アイテムを先頭要素、子要素に分割する.
+
+        val rowDescriptionMatch = Regex("(^.+)(/[.+/])?")
+        val rowElement = list[0]
+        rowDescriptionMatch.matchEntire(rowElement)?.destructured?.let { (rowTitle, rowDescription) ->
+            Log.i("origin", "$rowTitle has description of $rowDescription")
+            iV.rowEditText.setText(rowTitle)
+        }
+
+
+
         iV.originGoChild.visibility = if (list.size >= 2) View.VISIBLE
         else View.GONE
         iV.originGoChild.setOnClickListener {

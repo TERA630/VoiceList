@@ -22,13 +22,13 @@ class MainViewModel : ViewModel() {
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         val safeLiveList = liveList.value as MutableList<String>
         safeLiveList.add(_value)
-        liveList.postValue(safeLiveList)
+        saveCurrentLiveListAndPostNew(safeLiveList)
     }
     private fun addLiveListAt(indexOfOrigin: Int, _value: String) {
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         val safeLiveList = liveList.value as MutableList<String>
         safeLiveList.add(indexOfOrigin, _value)
-        liveList.postValue(safeLiveList)
+        saveCurrentLiveListAndPostNew(safeLiveList)
     }
     fun appendChildAt(_indexOfOrigin: Int, _value: String) {
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
@@ -39,7 +39,7 @@ class MainViewModel : ViewModel() {
             safeLiveListDestructed.add(_value)
             val newListElement = safeLiveListDestructed.joinToString()
             safeLiveList[_indexOfOrigin] = newListElement
-            liveList.postValue(safeLiveList)
+            saveCurrentLiveListAndPostNew(safeLiveList)
         }
     }
     fun deleteLiveListAt(indexOfLiveList: Int) {
@@ -51,6 +51,7 @@ class MainViewModel : ViewModel() {
                 .toString()
             deleteHistory.add(itemToDelete)
             safeLiveList.removeAt(indexOfLiveList)
+            saveCurrentLiveListAndPostNew(safeLiveList)
         }
     }
 
@@ -63,11 +64,11 @@ class MainViewModel : ViewModel() {
             safeLiveListDestructed.removeAt(indexOfChild)
             val result = safeLiveListDestructed.joinToString()
             safeLiveList[indexOfOrigin] = result
-            liveList.postValue(safeLiveList)
+            saveCurrentLiveListAndPostNew(safeLiveList)
         }
     }
     fun indexOfOriginOf(_string: String): Int {
-        return getOriginList().indexOfFirst { it.contains(_string) }
+        return getOriginList().indexOfFirst { it.startsWith(_string) }
     }
 
     fun getChildListAt(indexOfLiveList: Int): List<String> {
@@ -100,11 +101,16 @@ class MainViewModel : ViewModel() {
         return safeLiveListHeaders
     }
 
+    fun getPreviousLiveList(): List<String> {
+        return previousLiveListStr
+    }
 
-    fun storePreviousAndPost
-
-
-
+    private fun saveCurrentLiveListAndPostNew(newList: MutableList<String>) {
+        previousLiveListStr =
+            liveList.value ?: throw java.lang.IllegalStateException("live list was not initialized at saveCurrent")
+        Log.i("Origin", "old list is $previousLiveListStr, new list is $newList")
+        liveList.postValue(newList)
+    }
     fun pushNextNavigation(_traceOfParent: String) {
         navigationHistory.add(_traceOfParent)
     }
@@ -115,7 +121,6 @@ class MainViewModel : ViewModel() {
         }
         return result
     }
-
     fun restoreDeleted() {
         if (deleteHistory.size == 0) return
         val itemToRestore = deleteHistory.last()
@@ -125,7 +130,6 @@ class MainViewModel : ViewModel() {
         }
         deleteHistory.removeAt(deleteHistory.lastIndex)
     }
-
     fun setLiveListAt(indexOfOrigin: Int, columnIndex: Int, _value: String) { // CSV 形式のリストに　値を設定します。
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         else {
@@ -135,7 +139,25 @@ class MainViewModel : ViewModel() {
 
             val newListElement = safeLiveListDestructed.joinToString()
             safeLiveList[indexOfOrigin] = newListElement
-            liveList.postValue(safeLiveList)
+            saveCurrentLiveListAndPostNew(safeLiveList)
         }
+    }
+
+    fun setLiveListDefault() {
+        Log.i("origin", "make list default.")
+        val list = listOf(
+            "one(Square 1987),light,chaos",
+            "two(Square 1988),Firion,Maria,Ricard,Minwu",
+            "three,Monk,White Mage,Thief,Dragoon,Summoner",
+            "four(Square 1990),Cecil,Kain,Rydia,Rosa,Edge",
+            "five,Bartz,Faris,Galuf,Lenna,Krile",
+            "six,Terra,Locke,Celes,Shadow,seven",
+            "seven,Cloud,Tifa,Aeris,eight",
+            "eight,Squall,Rinoa,Quistis",
+            "nine,Zidane,Vivi,Garnet,Freya",
+            "ten,Yuna"
+        )
+        saveCurrentLiveListAndPostNew(list.toMutableList())
+
     }
 }
