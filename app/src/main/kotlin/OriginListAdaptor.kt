@@ -60,10 +60,14 @@ class OriginListAdaptor(
         val iV = vH.rowView // Holder item View
         val list = vModel.getLiveList()[position].split(",") // 表示アイテムを先頭要素、子要素に分割する.
 
-        val rowDescriptionMatch = Regex("(^.+)(/[.+/])?")
+        val rowDescriptionMatch = Regex("""([^(]+)(\(.+?\))?""")
         val rowElement = list[0]
-        rowDescriptionMatch.matchEntire(rowElement)?.destructured?.let { (rowTitle, rowDescription) ->
-            Log.i("origin", "$rowTitle has description of $rowDescription")
+        rowDescriptionMatch.matchEntire(rowElement)?.destructured?.let { (rowTitle, rowDescriptionBlanket) ->
+            if (rowDescriptionBlanket.isNotBlank()) {
+                val descriptionRange = IntRange(1, rowDescriptionBlanket.length - 2)
+                val rowDescription = rowDescriptionBlanket.substring(descriptionRange)
+                Log.i("origin", "$rowTitle has description of $rowDescription")
+            }
             iV.rowEditText.setText(rowTitle)
         }
 
