@@ -22,6 +22,8 @@ class OriginListAdaptor(
     private lateinit var mHandler: OriginFragment.DeliverEventToActivity
 
     private var mLastfocus = 0
+    private val isOpened: MutableMap<String, Boolean> = mutableMapOf()
+
     // Lifecycle of Recycler View
     override fun getItemCount(): Int = vModel.getOriginList().size + 1 // データ＋入力用フッタ
     override fun getItemViewType(position: Int): Int {
@@ -67,6 +69,16 @@ class OriginListAdaptor(
                 val rowDescription = rowDescriptionBlanket.substring(descriptionRange)
                 Log.i("origin", "$rowTitle has description of $rowDescription")
                 iV.originGoDescription.visibility = View.VISIBLE
+                iV.originGoDescription.setOnClickListener { v ->
+                    val isrowOpened = isOpenedOrAbsent(rowTitle)
+                    
+
+                }
+                iV.originDescription.text = rowDescription
+                iV.originDescription.visibility = View.GONE
+            } else {
+                iV.originGoDescription.visibility = View.GONE
+                iV.originGoDescription.visibility = View.GONE
             }
             iV.rowEditText.setText(rowTitle)
 
@@ -209,5 +221,13 @@ class OriginListAdaptor(
             }
             .setNegativeButton(R.string.no, null)
             .show()
+    }
+
+    private fun isOpenedOrAbsent(_key: String): Boolean {
+        val value = isOpened[_key] ?: run {
+            isOpened.putIfAbsent(_key, false)
+            false
+        }
+        return value
     }
 }
