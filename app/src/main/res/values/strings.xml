@@ -14,5 +14,5 @@
     // Menu
     <string name="undo">元に戻す</string>
     <string name="restoreDefault">デフォルトアイテムとする</string>
-    <string name="saveCurrentToFile">現在のアイテムをファイルにセーブする</string>
+    <string name="saveCurrentFile">現在のファイルにセーブする</string>
 </resources>

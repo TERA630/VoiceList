@@ -14,7 +14,8 @@ const val VOICELIST_FILE = "voicelist.txt"
 fun saveListToTextFile(context: Context, _list: List<String>) {
     try {
         val fileOut = context.openFileOutput(VOICELIST_FILE, MODE_PRIVATE and MODE_APPEND)
-        val bw = BufferedWriter(OutputStreamWriter(fileOut, "UTF-8"))
+        val osw = OutputStreamWriter(fileOut, "UTF-8")
+        val bw = BufferedWriter(osw)
         for (index in _list.indices) {
             bw.write(_list[index])
             bw.newLine()

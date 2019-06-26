@@ -18,7 +18,6 @@ class OriginListAdaptor(
     // View Type Const
     private val cItem = 1
     private val cFooter = 2
-
     // String   "title(contents):root, descending1 , descending2 , ..."
     private lateinit var mHandler: OriginFragment.DeliverEventToActivity
 
@@ -67,12 +66,11 @@ class OriginListAdaptor(
                 val descriptionRange = IntRange(1, rowDescriptionBlanket.length - 2)
                 val rowDescription = rowDescriptionBlanket.substring(descriptionRange)
                 Log.i("origin", "$rowTitle has description of $rowDescription")
+                iV.originGoDescription.visibility = View.VISIBLE
             }
             iV.rowEditText.setText(rowTitle)
+
         }
-
-
-
         iV.originGoChild.visibility = if (list.size >= 2) View.VISIBLE
         else View.GONE
         iV.originGoChild.setOnClickListener {
@@ -87,10 +85,6 @@ class OriginListAdaptor(
                 }
                 KeyEvent.KEYCODE_DPAD_DOWN -> {
                     moveToLowerRow(v, position)
-                    return@setOnKeyListener true
-                }
-                KeyEvent.KEYCODE_ENTER -> {
-                    onContentsEditorEnd(v, position)
                     return@setOnKeyListener true
                 }
                 else -> return@setOnKeyListener false
@@ -112,6 +106,7 @@ class OriginListAdaptor(
             }
             return@setOnEditorActionListener false
         }
+
     }
     private fun bindFooter(holder: ViewHolderOfCell, position: Int) {
         val iV = holder.itemView
@@ -134,7 +129,6 @@ class OriginListAdaptor(
             onFooterEditorEnd(iV, position)
         }
     }
-
     // Key event
     private fun moveToUpperRow(view: View, position: Int) {
         if (position < 1) {
@@ -194,6 +188,8 @@ class OriginListAdaptor(
             vModel.addLiveList(newText)
             it.text.clear()
             it.hideSoftKeyBoard()
+            val nextEditor = recyclerView.findEditorAtPosition(position + 1)
+            nextEditor?.requestFocus()
         }
 
 

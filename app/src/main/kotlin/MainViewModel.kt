@@ -157,7 +157,8 @@ class MainViewModel : ViewModel() {
             "nine,Zidane,Vivi,Garnet,Freya",
             "ten,Yuna"
         )
-        saveCurrentLiveListAndPostNew(list.toMutableList())
-
+        liveList.postValue(
+            list.toMutableList()
+        )
     }
 }

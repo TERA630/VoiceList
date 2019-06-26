@@ -13,5 +13,5 @@
           android:title="@string/restoreDefault"
     />
     <item android:id="@+id/action_saveCurrentToFile"
-          android:title="@string/saveCurrentToFile"/>
+          android:title="@string/saveCurrentFile"/>
 </menu>

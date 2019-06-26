@@ -232,7 +232,7 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
             animatorCurrent?.showPrevious()
             val animatorUpper = findViewAnimatorAt(it, position - 1)
             animatorUpper?.showNext()
-            val editorUpper = it.findEditorAtPosition(position - 1)?.requestFocus()
+            it.findEditorAtPosition(position - 1)?.requestFocus()
         }
     }
 
