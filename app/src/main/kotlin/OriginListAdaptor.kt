@@ -66,22 +66,26 @@ class OriginListAdaptor(
         rowDescriptionMatch.matchEntire(rowElement)?.destructured?.let { (rowTitle, rowDescriptionBlanket) ->
             if (rowDescriptionBlanket.isNotBlank()) {
                 val descriptionRange = IntRange(1, rowDescriptionBlanket.length - 2)
-                val rowDescription = rowDescriptionBlanket.substring(descriptionRange)
+                val rowDescription = rowDescriptionBlanket.substring(descriptionRange) //　前後の()を削除
                 Log.i("origin", "$rowTitle has description of $rowDescription")
                 iV.originGoDescription.visibility = View.VISIBLE
                 iV.originGoDescription.setOnClickListener { v ->
-                    val isrowOpened = isOpenedOrAbsent(rowTitle)
-                    
-
+                    if(isOpenedOrAbsent(rowTitle)) {
+                        isOpened[rowTitle] = false
+                        iV.originDescription.visibility = View.GONE
+                        notifyItemChanged(position)
+                    } else {
+                        isOpened[rowTitle] = true
+                        iV.originDescription.visibility = View.VISIBLE
+                        iV.originDescription.text = rowDescription
+                        notifyItemChanged(position)
+                    }
                 }
-                iV.originDescription.text = rowDescription
-                iV.originDescription.visibility = View.GONE
             } else {
-                iV.originGoDescription.visibility = View.GONE
+                iV.originDescription.visibility = View.GONE
                 iV.originGoDescription.visibility = View.GONE
             }
             iV.rowEditText.setText(rowTitle)
-
         }
         iV.originGoChild.visibility = if (list.size >= 2) View.VISIBLE
         else View.GONE
