@@ -8,6 +8,8 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
 import kotlinx.android.synthetic.main.origin_footer.view.*
 import kotlinx.android.synthetic.main.originlist_contents.view.*
@@ -23,8 +25,15 @@ class OriginListAdaptor(
 
     private var mLastfocus = 0
     private val isOpened: MutableMap<String, Boolean> = mutableMapOf()
+    private lateinit var inAnimation: Animation
+    private lateinit var outAnimation: Animation
 
-    // Lifecycle of Recycler View
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        val context = recyclerView.context
+        inAnimation = AnimationUtils.loadAnimation(context, R.anim.slide_in_top)  // View Animation
+        outAnimation = AnimationUtils.loadAnimation(context, R.anim.slide_out_top)
+    }
     override fun getItemCount(): Int = vModel.getOriginList().size + 1 // データ＋入力用フッタ
     override fun getItemViewType(position: Int): Int {
         val itemRange = IntRange(0, vModel.getOriginList().lastIndex)
@@ -59,43 +68,18 @@ class OriginListAdaptor(
     // View Binder
     private fun bindContentRow(vH: ViewHolderOfCell, position: Int) {
         val iV = vH.rowView // Holder item View
-        val list = vModel.getLiveList()[position].split(",") // 表示アイテムを先頭要素、子要素に分割する.
-
-        val rowDescriptionMatch = Regex("""([^(]+)(\(.+?\))?""")
-        val rowElement = list[0]
-        rowDescriptionMatch.matchEntire(rowElement)?.destructured?.let { (rowTitle, rowDescriptionBlanket) ->
-            if (rowDescriptionBlanket.isNotBlank()) {
-                val descriptionRange = IntRange(1, rowDescriptionBlanket.length - 2)
-                val rowDescription = rowDescriptionBlanket.substring(descriptionRange) //　前後の()を削除
-                Log.i("origin", "$rowTitle has description of $rowDescription")
-                iV.originGoDescription.visibility = View.VISIBLE
-                iV.originGoDescription.setOnClickListener { // TODO アニメーションできると素敵かも
-                    if(isOpenedOrAbsent(rowTitle)) { // 開いている状態でクリックされた場合 // TODO ロジック見直し
-                        isOpened[rowTitle] = false
-                        iV.originDescription.visibility = View.GONE
-                        notifyItemChanged(position)
-                    } else { // 閉じている状態でクリックされた場合
-                        isOpened[rowTitle] = true
-                        iV.originDescription.visibility = View.VISIBLE
-                        iV.originDescription.text = rowDescription
-                        notifyItemChanged(position)
-                    }
-                }
-                iV.originDescription.setOnLongClickListener { v->
-                    mHandler.transitOriginToDescription(position,0)
-                    true
-                }
-            } else {
+        val (rowTitle, description) = vModel.getPairTitleAndDescription(position, 0)
+        if (description != null) bindContentDescription(rowTitle, description, iV, position)
+        else {  // descriptionがNULLの時
                 iV.originDescription.visibility = View.GONE
                 iV.originGoDescription.setOnClickListener(null)
                 iV.originGoDescription.visibility = View.GONE
             }
-            iV.rowEditText.setText(rowTitle)
-        }
-        iV.originGoChild.visibility = if (list.size >= 2) View.VISIBLE
+        iV.rowEditText.setText(rowTitle)
+        iV.originGoChild.visibility = if (vModel.getChildListAt(position).isNotEmpty()) View.VISIBLE
             else View.GONE
         iV.originGoChild.setOnClickListener {
-            mHandler.transitOriginToChild(list[0])
+            mHandler.transitOriginToChild(rowTitle)
         }            // 子階層に行くボタン
         iV.rowEditText.setOnKeyListener { v, keyCode, event ->
             Log.i("keyLog", ", $position and Event is $event ")
@@ -126,7 +110,24 @@ class OriginListAdaptor(
                 return@setOnEditorActionListener true
             }
             return@setOnEditorActionListener false
-        }       // タイトルの編集終了イベント
+        }
+
+    }
+
+    private fun bindContentDescription(rowTitle: String, rowDescription: String, iV: View, position: Int) {
+        iV.originGoDescription.visibility = View.VISIBLE
+        iV.originGoDescription.setOnClickListener {
+            if (isOpenedOrAbsent(rowTitle)) {
+                isOpened[rowTitle] = false
+                iV.originDescription.visibility = View.GONE
+                notifyItemChanged(position)
+            } else {
+                isOpened[rowTitle] = true
+                iV.originDescription.visibility = View.VISIBLE
+                iV.originDescription.text = rowDescription
+                notifyItemChanged(position)
+            }
+        }
     }
     private fun bindFooter(holder: ViewHolderOfCell, position: Int) {
         val iV = holder.itemView
@@ -205,7 +206,7 @@ class OriginListAdaptor(
         editor?.let {
             val newText = it.text.toString()
             if (newText.isBlank()) return
-            vModel.addLiveList(newText)
+            vModel.appendLiveList(newText)
             it.text.clear()
             it.hideSoftKeyBoard()
             val nextEditor = recyclerView.findEditorAtPosition(position + 1)
@@ -230,7 +231,8 @@ class OriginListAdaptor(
             .setNegativeButton(R.string.no, null)
             .show()
     }
-    private fun isOpenedOrAbsent(_key: String): Boolean {
+
+    private fun isOpenedOrAbsent(_key: String): Boolean { //初回のバインドでタイトルをキーとして開閉状態を保存する｡
         val value = isOpened[_key] ?: run {
             isOpened.putIfAbsent(_key, true)
             true

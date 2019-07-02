@@ -39,13 +39,15 @@ class OriginFragment : Fragment() {
                 }
 
             override fun transitOriginToDescription(indexOfOrigin: Int, indexOfChild: Int) {
-                activity?.let{
+                Log.i("transit", "transitOriginToDescription was called")
+            }
+/*                activity?.let{
                     it.supportFragmentManager.beginTransaction()
                         .replace(R.id.activityFrame,EditDescriptionFragment.newInstance(indexOfOrigin,indexOfChild))
                         .commit()
                         Log.i("transit","origin to edit description at $indexOfOrigin with $indexOfChild")
                 }
-            }
+            }*/
         })
     }
 

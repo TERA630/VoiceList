@@ -3,8 +3,6 @@ package com.example.voicelist
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.util.Log
-import android.view.View
-import kotlinx.android.synthetic.main.originlist_contents.view.*
 
 class MainViewModel : ViewModel() {
     private val errorList = listOf("OriginList", "was", "null", "or", "empty")
@@ -19,17 +17,17 @@ class MainViewModel : ViewModel() {
         liveList.postValue(_list)
     }
     // Public methods which deals liveList
-
-    fun addLiveList(_value: String) {
-        if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
-        val safeLiveList = liveList.value as MutableList<String>
-        safeLiveList.add(_value)
-        saveCurrentLiveListAndPostNew(safeLiveList)
-    }
     private fun addLiveListAt(indexOfOrigin: Int, _value: String) {
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         val safeLiveList = liveList.value as MutableList<String>
         safeLiveList.add(indexOfOrigin, _value)
+        saveCurrentLiveListAndPostNew(safeLiveList)
+    }
+
+    fun appendLiveList(_value: String) {
+        if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
+        val safeLiveList = liveList.value as MutableList<String>
+        safeLiveList.add(_value)
         saveCurrentLiveListAndPostNew(safeLiveList)
     }
     fun appendChildAt(_indexOfOrigin: Int, _value: String) {
@@ -56,7 +54,6 @@ class MainViewModel : ViewModel() {
             saveCurrentLiveListAndPostNew(safeLiveList)
         }
     }
-
     fun deleteChildOfOriginAt(indexOfOrigin: Int, indexOfChild: Int) {
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         else {
@@ -102,16 +99,19 @@ class MainViewModel : ViewModel() {
         }
         return safeLiveListHeaders
     }
-    fun getOriginDescriptionAt(indexOfOrigin:Int,indexOfChild: Int):String?{
+
+    fun getPairTitleAndDescription(indexOfOrigin: Int, indexOfChild: Int): Pair<String, String?> {
+
         val element = getLiveList()[indexOfOrigin].split(",")[indexOfChild]
-        val rowDescriptionMatch = Regex("""[^(]+(\(.+?\))?""")
-        rowDescriptionMatch.matchEntire(element)?.destructured?.let { (rowDescriptionBlanket) ->
-            return if (rowDescriptionBlanket.isNotBlank()) {
+        val rowDescriptionMatch = Regex("""([^(]+)(\(.+?\))?""")
+        rowDescriptionMatch.matchEntire(element)?.destructured?.let { (rowTitle, rowDescriptionBlanket) ->
+            if (rowDescriptionBlanket.isNotBlank()) {
                 val descriptionRange = IntRange(1, rowDescriptionBlanket.length - 2)
-                rowDescriptionBlanket.substring(descriptionRange) //　前後の()を削除
-            } else null
+                val rowDescription = rowDescriptionBlanket.substring(descriptionRange) //　前後の()を削除
+                return Pair(rowTitle, rowDescription)
+            } else return Pair(rowTitle, null)
         }
-        return null
+        throw java.lang.IllegalStateException("rowTitle was null at getPairTitleAndDescription")
     }
     fun getPreviousLiveList(): List<String> {
         return previousLiveListStr
