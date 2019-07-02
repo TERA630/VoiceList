@@ -76,11 +76,14 @@ class OriginListAdaptor(
                 iV.originGoDescription.visibility = View.GONE
             }
         iV.rowEditText.setText(rowTitle)
-        iV.originGoChild.visibility = if (vModel.getChildListAt(position).isNotEmpty()) View.VISIBLE
-            else View.GONE
-        iV.originGoChild.setOnClickListener {
-            mHandler.transitOriginToChild(rowTitle)
-        }            // 子階層に行くボタン
+        if (vModel.getChildListAt(position).isNotEmpty()) { // 子階層があれば移動ボタンの表示とイベント
+            iV.originGoChild.visibility = View.VISIBLE
+            iV.originGoChild.setOnClickListener {
+                mHandler.transitOriginToChild(rowTitle)
+            }
+        } else {
+            iV.originGoChild.visibility = View.GONE
+        }
         iV.rowEditText.setOnKeyListener { v, keyCode, event ->
             Log.i("keyLog", ", $position and Event is $event ")
             when (keyCode) {
@@ -118,14 +121,16 @@ class OriginListAdaptor(
         iV.originGoDescription.visibility = View.VISIBLE
         iV.originGoDescription.setOnClickListener {
             if (isOpenedOrAbsent(rowTitle)) {
-                isOpened[rowTitle] = false
+                iV.originDescription.startAnimation(inAnimation)
                 iV.originDescription.visibility = View.GONE
                 notifyItemChanged(position)
+                isOpened[rowTitle] = false
             } else {
-                isOpened[rowTitle] = true
+                iV.originDescription.startAnimation(outAnimation)
                 iV.originDescription.visibility = View.VISIBLE
                 iV.originDescription.text = rowDescription
                 notifyItemChanged(position)
+                isOpened[rowTitle] = true
             }
         }
     }
