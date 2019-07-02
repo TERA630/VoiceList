@@ -3,6 +3,8 @@ package com.example.voicelist
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.util.Log
+import android.view.View
+import kotlinx.android.synthetic.main.originlist_contents.view.*
 
 class MainViewModel : ViewModel() {
     private val errorList = listOf("OriginList", "was", "null", "or", "empty")
@@ -100,11 +102,20 @@ class MainViewModel : ViewModel() {
         }
         return safeLiveListHeaders
     }
-
+    fun getOriginDescriptionAt(indexOfOrigin:Int,indexOfChild: Int):String?{
+        val element = getLiveList()[indexOfOrigin].split(",")[indexOfChild]
+        val rowDescriptionMatch = Regex("""[^(]+(\(.+?\))?""")
+        rowDescriptionMatch.matchEntire(element)?.destructured?.let { (rowDescriptionBlanket) ->
+            return if (rowDescriptionBlanket.isNotBlank()) {
+                val descriptionRange = IntRange(1, rowDescriptionBlanket.length - 2)
+                rowDescriptionBlanket.substring(descriptionRange) //　前後の()を削除
+            } else null
+        }
+        return null
+    }
     fun getPreviousLiveList(): List<String> {
         return previousLiveListStr
     }
-
     private fun saveCurrentLiveListAndPostNew(newList: MutableList<String>) {
         previousLiveListStr =
             liveList.value ?: throw java.lang.IllegalStateException("live list was not initialized at saveCurrent")

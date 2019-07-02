@@ -25,7 +25,7 @@ class OriginFragment : Fragment() {
         super.onCreate(savedInstanceState)
         vModel = ViewModelProviders.of(this.activity!!).get(MainViewModel::class.java)
         mAdaptor = OriginListAdaptor(vModel)
-        mAdaptor.setUIHandler(object : DeliverEventToActivity {
+        mAdaptor.setUIHandler(object : EventToFragment {
             override fun transitOriginToChild(parentToGo: String) {
                 val activity = this@OriginFragment.activity
                 activity?.let {
@@ -37,18 +37,27 @@ class OriginFragment : Fragment() {
                         vModel.pushNextNavigation(parentToGo)
                     }
                 }
-            })
-        }
+
+            override fun transitOriginToDescription(indexOfOrigin: Int, indexOfChild: Int) {
+                activity?.let{
+                    it.supportFragmentManager.beginTransaction()
+                        .replace(R.id.activityFrame,EditDescriptionFragment.newInstance(indexOfOrigin,indexOfChild))
+                        .commit()
+                        Log.i("transit","origin to edit description at $indexOfOrigin with $indexOfChild")
+                }
+            }
+        })
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_origin, container, false)
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         originList.adapter = mAdaptor
     }
-
     override fun onStart() {
         super.onStart()
         vModel.liveList.observe(this, Observer {
@@ -61,7 +70,8 @@ class OriginFragment : Fragment() {
             diff.dispatchUpdatesTo(mAdaptor)
         })
     }
-    interface DeliverEventToActivity {
+    interface EventToFragment {
         fun transitOriginToChild(parentToGo: String)
+        fun transitOriginToDescription(indexOfOrigin:Int,indexOfChild:Int)
     }
 }

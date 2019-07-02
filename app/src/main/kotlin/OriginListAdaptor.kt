@@ -19,7 +19,7 @@ class OriginListAdaptor(
     private val cItem = 1
     private val cFooter = 2
     // String   "title(contents):root, descending1 , descending2 , ..."
-    private lateinit var mHandler: OriginFragment.DeliverEventToActivity
+    private lateinit var mHandler: OriginFragment.EventToFragment
 
     private var mLastfocus = 0
     private val isOpened: MutableMap<String, Boolean> = mutableMapOf()
@@ -51,7 +51,7 @@ class OriginListAdaptor(
         }
     }
     // public method
-    fun setUIHandler(_handler: OriginFragment.DeliverEventToActivity) {
+    fun setUIHandler(_handler: OriginFragment.EventToFragment) {
         this.mHandler = _handler
     }
     class ViewHolderOfCell(val rowView: View) : RecyclerView.ViewHolder(rowView)
@@ -69,29 +69,34 @@ class OriginListAdaptor(
                 val rowDescription = rowDescriptionBlanket.substring(descriptionRange) //　前後の()を削除
                 Log.i("origin", "$rowTitle has description of $rowDescription")
                 iV.originGoDescription.visibility = View.VISIBLE
-                iV.originGoDescription.setOnClickListener { v ->
-                    if(isOpenedOrAbsent(rowTitle)) {
+                iV.originGoDescription.setOnClickListener { // TODO アニメーションできると素敵かも
+                    if(isOpenedOrAbsent(rowTitle)) { // 開いている状態でクリックされた場合 // TODO ロジック見直し
                         isOpened[rowTitle] = false
                         iV.originDescription.visibility = View.GONE
                         notifyItemChanged(position)
-                    } else {
+                    } else { // 閉じている状態でクリックされた場合
                         isOpened[rowTitle] = true
                         iV.originDescription.visibility = View.VISIBLE
                         iV.originDescription.text = rowDescription
                         notifyItemChanged(position)
                     }
                 }
+                iV.originDescription.setOnLongClickListener { v->
+                    mHandler.transitOriginToDescription(position,0)
+                    true
+                }
             } else {
                 iV.originDescription.visibility = View.GONE
+                iV.originGoDescription.setOnClickListener(null)
                 iV.originGoDescription.visibility = View.GONE
             }
             iV.rowEditText.setText(rowTitle)
         }
         iV.originGoChild.visibility = if (list.size >= 2) View.VISIBLE
-        else View.GONE
+            else View.GONE
         iV.originGoChild.setOnClickListener {
             mHandler.transitOriginToChild(list[0])
-        }
+        }            // 子階層に行くボタン
         iV.rowEditText.setOnKeyListener { v, keyCode, event ->
             Log.i("keyLog", ", $position and Event is $event ")
             when (keyCode) {
@@ -105,7 +110,7 @@ class OriginListAdaptor(
                 }
                 else -> return@setOnKeyListener false
             }
-        }
+        }                // タイトルのキーイベント
         iV.rowEditText.setOnEditorActionListener { editText, actionId, event ->
             Log.i("keyLog", ", $position and Event is $event ")
             if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -121,8 +126,7 @@ class OriginListAdaptor(
                 return@setOnEditorActionListener true
             }
             return@setOnEditorActionListener false
-        }
-
+        }       // タイトルの編集終了イベント
     }
     private fun bindFooter(holder: ViewHolderOfCell, position: Int) {
         val iV = holder.itemView
@@ -226,11 +230,10 @@ class OriginListAdaptor(
             .setNegativeButton(R.string.no, null)
             .show()
     }
-
     private fun isOpenedOrAbsent(_key: String): Boolean {
         val value = isOpened[_key] ?: run {
-            isOpened.putIfAbsent(_key, false)
-            false
+            isOpened.putIfAbsent(_key, true)
+            true
         }
         return value
     }
