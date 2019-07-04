@@ -101,7 +101,6 @@ class MainViewModel : ViewModel() {
     }
 
     fun getPairTitleAndDescription(indexOfOrigin: Int, indexOfChild: Int): Pair<String, String?> {
-
         val element = getLiveList()[indexOfOrigin].split(",")[indexOfChild]
         val rowDescriptionMatch = Regex("""([^(]+)(\(.+?\))?""")
         rowDescriptionMatch.matchEntire(element)?.destructured?.let { (rowTitle, rowDescriptionBlanket) ->
@@ -157,7 +156,12 @@ class MainViewModel : ViewModel() {
     fun setLiveListDefault() {
         Log.i("origin", "make list default.")
         val list = listOf(
-            "one(Square 1987),light,chaos",
+            """one(Square 1987
+                f
+                f
+                f
+                f
+                f),light,chaos""",
             "two(Square 1988),Firion,Maria,Ricard,Minwu",
             "three,Monk,White Mage,Thief,Dragoon,Summoner",
             "four(Square 1990),Cecil,Kain,Rydia,Rosa,Edge",
@@ -168,8 +172,6 @@ class MainViewModel : ViewModel() {
             "nine,Zidane,Vivi,Garnet,Freya",
             "ten,Yuna"
         )
-        liveList.postValue(
-            list.toMutableList()
-        )
+        saveCurrentLiveListAndPostNew(list.toMutableList())
     }
 }

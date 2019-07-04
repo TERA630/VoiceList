@@ -14,7 +14,6 @@ import kotlinx.android.synthetic.main.fragment_origin.*
 class OriginFragment : Fragment() {
     private lateinit var mAdaptor: OriginListAdaptor
     private lateinit var vModel: MainViewModel
-
     companion object {
         @JvmStatic
         fun newInstance(): OriginFragment {
@@ -27,7 +26,6 @@ class OriginFragment : Fragment() {
         mAdaptor = OriginListAdaptor(vModel)
         mAdaptor.setUIHandler(object : EventToFragment {
             override fun transitOriginToChild(parentToGo: String) {
-                val activity = this@OriginFragment.activity
                 activity?.let {
                     it.supportFragmentManager.beginTransaction()
                         .addToBackStack(null)
@@ -37,7 +35,6 @@ class OriginFragment : Fragment() {
                         vModel.pushNextNavigation(parentToGo)
                     }
                 }
-
             override fun transitOriginToDescription(indexOfOrigin: Int, indexOfChild: Int) {
                 Log.i("transit", "transitOriginToDescription was called")
             }
@@ -50,12 +47,9 @@ class OriginFragment : Fragment() {
             }*/
         })
     }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_origin, container, false)
     }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         originList.adapter = mAdaptor

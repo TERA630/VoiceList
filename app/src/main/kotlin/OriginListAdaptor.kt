@@ -1,6 +1,8 @@
 package com.example.voicelist
 
+import android.animation.LayoutTransition
 import android.content.DialogInterface
+import android.support.constraint.ConstraintLayout
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -43,11 +45,18 @@ class OriginListAdaptor(
         }
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val resID = when (viewType) {
-            cItem -> R.layout.originlist_contents // アイテム表示　(0～アイテムの個数)　編集可能TextView
-            else -> R.layout.origin_footer    // Footer アイテム追加
+        return when (viewType) {
+            cItem -> {
+                val itemView = LayoutInflater.from(parent.context).inflate(R.layout.originlist_contents, parent, false)
+                val containerView = itemView.findViewById<ConstraintLayout>(R.id.card)
+                containerView?.layoutTransition?.enableTransitionType(LayoutTransition.CHANGING)
+                ViewHolderOfCell(itemView)
+            } // アイテム表示　(0～アイテムの個数)　編集可能TextView
+            else -> {
+                val footerView = LayoutInflater.from(parent.context).inflate(R.layout.origin_footer ,parent,false)
+                ViewHolderOfCell(footerView)
+            }   // Footer アイテム追加
         }
-        return ViewHolderOfCell(LayoutInflater.from(parent.context).inflate(resID, parent, false))
     }
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val vH = holder as ViewHolderOfCell
@@ -121,15 +130,13 @@ class OriginListAdaptor(
         iV.originGoDescription.visibility = View.VISIBLE
         iV.originGoDescription.setOnClickListener {
             if (isOpenedOrAbsent(rowTitle)) {
-                iV.originDescription.startAnimation(inAnimation)
+          //      iV.originDescription.startAnimation(inAnimation)
                 iV.originDescription.visibility = View.GONE
-                notifyItemChanged(position)
                 isOpened[rowTitle] = false
             } else {
-                iV.originDescription.startAnimation(outAnimation)
+       //         iV.originDescription.startAnimation(outAnimation)
                 iV.originDescription.visibility = View.VISIBLE
                 iV.originDescription.text = rowDescription
-                notifyItemChanged(position)
                 isOpened[rowTitle] = true
             }
         }
