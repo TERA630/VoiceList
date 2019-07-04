@@ -23,7 +23,6 @@ class MainViewModel : ViewModel() {
         safeLiveList.add(indexOfOrigin, _value)
         saveCurrentLiveListAndPostNew(safeLiveList)
     }
-
     fun appendLiveList(_value: String) {
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         val safeLiveList = liveList.value as MutableList<String>
@@ -69,7 +68,6 @@ class MainViewModel : ViewModel() {
     fun indexOfOriginOf(_string: String): Int {
         return getOriginList().indexOfFirst { it.startsWith(_string) }
     }
-
     fun getChildListAt(indexOfLiveList: Int): List<String> {
         val headAndChildCSV = getLiveList()[indexOfLiveList]
         val list = headAndChildCSV.split(",")
@@ -80,10 +78,7 @@ class MainViewModel : ViewModel() {
         return if (indexOfOrigin >= 0) {
             val result = getChildListAt(indexOfOrigin)
             result
-        } else {
-            // ParentはChildを持っているはず､理論的には来ない
-            errorList
-        }
+        } else errorList
     }
     fun getLiveList(): List<String> {
         return if (liveList.value == null) errorList
@@ -112,6 +107,13 @@ class MainViewModel : ViewModel() {
         }
         throw java.lang.IllegalStateException("rowTitle was null at getPairTitleAndDescription")
     }
+    fun setDescriptionAt(rowTitle:String,description:String,indexOfOrigin: Int,indexOfChild: Int){
+        if(rowTitle.isEmpty() || description.isEmpty()) return
+        setLiveListAt(indexOfOrigin,indexOfChild,"$rowTitle($description)")
+    }
+
+
+
     fun getPreviousLiveList(): List<String> {
         return previousLiveListStr
     }

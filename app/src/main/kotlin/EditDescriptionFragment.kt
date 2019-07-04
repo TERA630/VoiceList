@@ -12,20 +12,17 @@ class EditDescriptionFragment : Fragment() {
     private lateinit var vModel: MainViewModel
     companion object {
         @JvmStatic
-        fun newInstance(originIndex:Int,childIndex:Int): OriginFragment {
+        fun newInstance(originIndex:Int,childIndex:Int): EditDescriptionFragment {
             val bundle = Bundle()
             bundle.putInt("originIndex",originIndex)
             bundle.putInt("childIndex",childIndex)
-            return OriginFragment()
+            return EditDescriptionFragment()
         }
     }
-
     // Fragment lifecycle
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         vModel = ViewModelProviders.of(this.activity!!).get(MainViewModel::class.java)
-        val originIndex = arguments?.getInt("originIndex") ?: 0
-        val childIndex = arguments?.getInt("childIndex") ?: 0
     }
 
     override fun onCreateView( inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?)
@@ -37,8 +34,21 @@ class EditDescriptionFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val originIndex = arguments?.getInt("originIndex") ?: 0
         val childIndex = arguments?.getInt("childIndex") ?: 0
-
         val (rowTitle,rowDescription) = vModel.getPairTitleAndDescription(originIndex,childIndex)
+        descriptionTitle.text = rowTitle
+        rowDescription?.let{ editDescription.setText(it)}
+        descriptionEditOK.setOnClickListener{
+            val newDescription = editDescription.text.toString()
+            if (newDescription.isNotEmpty()) vModel.setDescriptionAt(rowTitle,newDescription,originIndex,childIndex)
+        }
+        activity?.supportFragmentManager?.beginTransaction()
+            ?.addToBackStack(null)
+            ?.replace(R.id.activityFrame,OriginFragment.newInstance())
+            ?.commit()
+
+    }
+    private fun backToListView(){
+
 
 
     }

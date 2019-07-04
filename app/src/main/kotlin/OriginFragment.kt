@@ -37,16 +37,16 @@ class OriginFragment : Fragment() {
                 }
             override fun transitOriginToDescription(indexOfOrigin: Int, indexOfChild: Int) {
                 Log.i("transit", "transitOriginToDescription was called")
-            }
-/*                activity?.let{
-                    it.supportFragmentManager.beginTransaction()
+                    activity?.let{
+                        it.supportFragmentManager.beginTransaction()
+                        .addToBackStack(null)
                         .replace(R.id.activityFrame,EditDescriptionFragment.newInstance(indexOfOrigin,indexOfChild))
                         .commit()
                         Log.i("transit","origin to edit description at $indexOfOrigin with $indexOfChild")
                 }
-            }*/
+            }
         })
-    }
+    } // One Create
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_origin, container, false)
     }

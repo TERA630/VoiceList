@@ -24,18 +24,8 @@ class OriginListAdaptor(
     private val cFooter = 2
     // String   "title(contents):root, descending1 , descending2 , ..."
     private lateinit var mHandler: OriginFragment.EventToFragment
-
     private var mLastfocus = 0
     private val isOpened: MutableMap<String, Boolean> = mutableMapOf()
-    private lateinit var inAnimation: Animation
-    private lateinit var outAnimation: Animation
-
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-        super.onAttachedToRecyclerView(recyclerView)
-        val context = recyclerView.context
-        inAnimation = AnimationUtils.loadAnimation(context, R.anim.slide_in_top)  // View Animation
-        outAnimation = AnimationUtils.loadAnimation(context, R.anim.slide_out_top)
-    }
     override fun getItemCount(): Int = vModel.getOriginList().size + 1 // データ＋入力用フッタ
     override fun getItemViewType(position: Int): Int {
         val itemRange = IntRange(0, vModel.getOriginList().lastIndex)
@@ -60,8 +50,8 @@ class OriginListAdaptor(
     }
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val vH = holder as ViewHolderOfCell
-        val contentRange = IntRange(0, vModel.getOriginList().lastIndex)
-        val footRange = vModel.getOriginList().lastIndex + 1
+        val contentRange = IntRange(0, vModel.getOriginList().lastIndex)  // position 0～アイテム個数　コンテンツ
+        val footRange = vModel.getOriginList().lastIndex + 1         //　position 最終行　フッター
         when (position) {
             in contentRange -> bindContentRow(vH, position)
             footRange -> bindFooter(vH, position)
@@ -73,13 +63,12 @@ class OriginListAdaptor(
         this.mHandler = _handler
     }
     class ViewHolderOfCell(val rowView: View) : RecyclerView.ViewHolder(rowView)
-
     // View Binder
     private fun bindContentRow(vH: ViewHolderOfCell, position: Int) {
         val iV = vH.rowView // Holder item View
         val (rowTitle, description) = vModel.getPairTitleAndDescription(position, 0)
         if (description != null) bindContentDescription(rowTitle, description, iV, position)
-        else {  // descriptionがNULLの時
+        else {  // descriptionがNULL
                 iV.originDescription.visibility = View.GONE
                 iV.originGoDescription.setOnClickListener(null)
                 iV.originGoDescription.visibility = View.GONE
@@ -125,21 +114,22 @@ class OriginListAdaptor(
         }
 
     }
-
     private fun bindContentDescription(rowTitle: String, rowDescription: String, iV: View, position: Int) {
         iV.originGoDescription.visibility = View.VISIBLE
         iV.originGoDescription.setOnClickListener {
             if (isOpenedOrAbsent(rowTitle)) {
-          //      iV.originDescription.startAnimation(inAnimation)
                 iV.originDescription.visibility = View.GONE
                 isOpened[rowTitle] = false
             } else {
-       //         iV.originDescription.startAnimation(outAnimation)
                 iV.originDescription.visibility = View.VISIBLE
                 iV.originDescription.text = rowDescription
                 isOpened[rowTitle] = true
             }
         }
+        iV.originDescription.setOnLongClickListener {
+            mHandler.transitOriginToDescription(position,0)
+            true }
+
     }
     private fun bindFooter(holder: ViewHolderOfCell, position: Int) {
         val iV = holder.itemView
@@ -224,9 +214,8 @@ class OriginListAdaptor(
             val nextEditor = recyclerView.findEditorAtPosition(position + 1)
             nextEditor?.requestFocus()
         }
-
-
     }
+
     private fun confirmDelete(view: View, position: Int) {
         AlertDialog.Builder(view.context)
             .setTitle(R.string.itemDeleteTitle)
@@ -243,7 +232,6 @@ class OriginListAdaptor(
             .setNegativeButton(R.string.no, null)
             .show()
     }
-
     private fun isOpenedOrAbsent(_key: String): Boolean { //初回のバインドでタイトルをキーとして開閉状態を保存する｡
         val value = isOpened[_key] ?: run {
             isOpened.putIfAbsent(_key, true)
