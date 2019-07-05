@@ -8,7 +8,6 @@ class MainViewModel : ViewModel() {
     private val errorList = listOf("OriginList", "was", "null", "or", "empty")
     var liveList: MutableLiveData<MutableList<String>> = MutableLiveData()
     var previousLiveListStr = listOf("origin")
-
     val navigationHistory = mutableListOf("origin")
     var deleteHistory = mutableListOf<String>()
 
@@ -94,26 +93,29 @@ class MainViewModel : ViewModel() {
         }
         return safeLiveListHeaders
     }
-
     fun getPairTitleAndDescription(indexOfOrigin: Int, indexOfChild: Int): Pair<String, String?> {
         val element = getLiveList()[indexOfOrigin].split(",")[indexOfChild]
-        val rowDescriptionMatch = Regex("""([^(]+)(\(.+?\))?""")
+        val rowDescriptionMatch = Regex("""([^(]+)(\([\S\s]+?\))?""")
         rowDescriptionMatch.matchEntire(element)?.destructured?.let { (rowTitle, rowDescriptionBlanket) ->
             if (rowDescriptionBlanket.isNotBlank()) {
                 val descriptionRange = IntRange(1, rowDescriptionBlanket.length - 2)
                 val rowDescription = rowDescriptionBlanket.substring(descriptionRange) //　前後の()を削除
                 return Pair(rowTitle, rowDescription)
-            } else return Pair(rowTitle, null)
+            } else {
+                if (rowTitle.isNullOrEmpty()) {
+                    Log.e("regEx", "$element was not decoded ")
+                    return Pair("error", null)
+                }
+                return Pair(rowTitle, null)
+            }
         }
+        Log.e("regEx", "$element was not decoded ")
         throw java.lang.IllegalStateException("rowTitle was null at getPairTitleAndDescription")
     }
     fun setDescriptionAt(rowTitle:String,description:String,indexOfOrigin: Int,indexOfChild: Int){
         if(rowTitle.isEmpty() || description.isEmpty()) return
         setLiveListAt(indexOfOrigin,indexOfChild,"$rowTitle($description)")
     }
-
-
-
     fun getPreviousLiveList(): List<String> {
         return previousLiveListStr
     }
@@ -158,12 +160,7 @@ class MainViewModel : ViewModel() {
     fun setLiveListDefault() {
         Log.i("origin", "make list default.")
         val list = listOf(
-            """one(Square 1987
-                f
-                f
-                f
-                f
-                f),light,chaos""",
+            "one(Square 1987),light,chaos",
             "two(Square 1988),Firion,Maria,Ricard,Minwu",
             "three,Monk,White Mage,Thief,Dragoon,Summoner",
             "four(Square 1990),Cecil,Kain,Rydia,Rosa,Edge",

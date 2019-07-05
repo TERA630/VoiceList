@@ -10,8 +10,6 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
 import kotlinx.android.synthetic.main.origin_footer.view.*
 import kotlinx.android.synthetic.main.originlist_contents.view.*
@@ -111,8 +109,8 @@ class OriginListAdaptor(
                 return@setOnEditorActionListener true
             }
             return@setOnEditorActionListener false
-        }
 
+        }
     }
     private fun bindContentDescription(rowTitle: String, rowDescription: String, iV: View, position: Int) {
         iV.originGoDescription.visibility = View.VISIBLE
