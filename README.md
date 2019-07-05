@@ -24,6 +24,11 @@ EditorView
 
 ViewAnimator
 2つのViewを　ShowPrevious/ShowNextで切り替えられる
+##正規表現
+改行以外の任意の文字　.
+改行を含む任意の文字　[￥S￥s]
+
+
 ##テスト
 Espresso　AssertJ
 recyclerView.findViewHolderAtPosition(positon)
