@@ -40,11 +40,13 @@ class EditDescriptionFragment : Fragment() {
         descriptionEditOK.setOnClickListener{
             val newDescription = editDescription.text.toString()
             if (newDescription.isNotEmpty()) vModel.setDescriptionAt(rowTitle,newDescription,originIndex,childIndex)
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.addToBackStack(null)
+                ?.replace(R.id.activityFrame, OriginFragment.newInstance())
+                ?.commit()
         }
-        activity?.supportFragmentManager?.beginTransaction()
-            ?.addToBackStack(null)
-            ?.replace(R.id.activityFrame,OriginFragment.newInstance())
-            ?.commit()
+
+
 
     }
     private fun backToListView(){
