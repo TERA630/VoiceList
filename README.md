@@ -21,14 +21,11 @@ LayoutにanimateLayoutChanges=trueをセットすると子View追加時にAnimat
 ##View関連
 EditorView
 背景を@android/tranparentとすると下線が消える｡
-
 ViewAnimator
 2つのViewを　ShowPrevious/ShowNextで切り替えられる
 ##正規表現
 改行以外の任意の文字　.
-改行を含む任意の文字　[￥S￥s]
-
-
+改行を含む任意の文字　\S\s
 ##テスト
 Espresso　AssertJ
 recyclerView.findViewHolderAtPosition(positon)
