@@ -28,8 +28,7 @@ class EditDescriptionFragment : Fragment() {
         vModel = ViewModelProviders.of(this.activity!!).get(MainViewModel::class.java)
     }
 
-    override fun onCreateView( inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?)
-            : View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_edit_description, container, false)
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

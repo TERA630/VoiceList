@@ -17,7 +17,8 @@ fun saveListToTextFile(context: Context, _list: List<String>) {
         val osw = OutputStreamWriter(fileOut, "UTF-8")
         val bw = BufferedWriter(osw)
         for (index in _list.indices) {
-            bw.write(_list[index])
+            val rowElement = _list[index]
+            bw.write(rowElement)
             bw.newLine()
         }
         bw.close()

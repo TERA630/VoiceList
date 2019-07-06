@@ -2,7 +2,9 @@ package com.example.voicelist
 
 import android.animation.LayoutTransition
 import android.content.DialogInterface
+import android.graphics.drawable.Drawable
 import android.support.constraint.ConstraintLayout
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -22,8 +24,17 @@ class OriginListAdaptor(
     private val cFooter = 2
     // String   "title(contents):root, descending1 , descending2 , ..."
     private lateinit var mHandler: OriginFragment.EventToFragment
-    private var mLastfocus = 0
     private val isOpened: MutableSet<String> = mutableSetOf()
+    private lateinit var mMinusDrawable: Drawable
+    private lateinit var mPlusDrawable: Drawable
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        val context = recyclerView.context
+        mMinusDrawable = ContextCompat.getDrawable(context, R.drawable.ic_square_minus)
+            ?: throw java.lang.IllegalStateException("fail to get Drawable at OriginListAdapter")
+        mPlusDrawable = ContextCompat.getDrawable(context, R.drawable.ic_square_plus)
+            ?: throw java.lang.IllegalStateException("fail to get Drawable at OriginListAdapter")
+    }
     override fun getItemCount(): Int = vModel.getOriginList().size + 1 // データ＋入力用フッタ
     override fun getItemViewType(position: Int): Int {
         val itemRange = IntRange(0, vModel.getOriginList().lastIndex)
@@ -65,10 +76,15 @@ class OriginListAdaptor(
     private fun bindContentRow(vH: ViewHolderOfCell, position: Int) {
         val iV = vH.rowView // Holder item View
         val (rowTitle, description) = vModel.getPairTitleAndDescription(position, 0)
-        if (description != null) bindContentDescription(rowTitle, description, iV, position)
-        else {  // descriptionがNULL
+        if (description != null) {
+            bindContentDescription(rowTitle, description, iV, position)
+        } else {  // descriptionがNULL
+            iV.originGoDescription.setImageDrawable(mMinusDrawable)
+            iV.originGoDescription.setOnLongClickListener {
+                mHandler.transitOriginToDescription(position, 0)
+                true
+            }
                 iV.originDescription.visibility = View.GONE
-                iV.originGoDescription.visibility = View.GONE
             }
 
         iV.rowEditText.setText(rowTitle)
@@ -113,15 +129,21 @@ class OriginListAdaptor(
         }
     }
     private fun bindContentDescription(rowTitle: String, rowDescription: String, iV: View, position: Int) {
-        iV.originGoDescription.visibility = View.VISIBLE
+        if (isOpened.contains(rowTitle)) {
+            iV.originGoDescription.setImageDrawable(mMinusDrawable)
+        } else {
+            iV.originGoDescription.setImageDrawable(mPlusDrawable)
+        }
         iV.originGoDescription.setOnClickListener {
             if (isOpened.contains(rowTitle)) {
                 isOpened.remove(rowTitle)
+                iV.originGoDescription.setImageDrawable(mPlusDrawable)
                 iV.originDescription.visibility = View.GONE
             } else {
                 isOpened.add(rowTitle)
                 iV.originDescription.visibility = View.VISIBLE
                 iV.originDescription.text = rowDescription
+                iV.originGoDescription.setImageDrawable(mMinusDrawable)
             }
         }
         iV.originDescription.setOnLongClickListener {
