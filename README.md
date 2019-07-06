@@ -27,6 +27,8 @@ LayoutにanimateLayoutChanges=trueをセットすると子View追加時にAnimat
 サイズ変化はcontainerView?.layoutTransition?.enableTransitionType(LayoutTransition.CHANGING)をすると　Animationしてくれる
 
 ## View関連
+ImageView
+ContextCompat.getDrawable(context,R.drawable.hoge)がXMLからイメージを取ってくるのに便利
 EditorView
 背景を@android/tranparentとすると下線が消える｡
 ViewAnimator
