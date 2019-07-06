@@ -13,10 +13,13 @@ class EditDescriptionFragment : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance(originIndex:Int,childIndex:Int): EditDescriptionFragment {
-            val bundle = Bundle()
-            bundle.putInt("originIndex",originIndex)
-            bundle.putInt("childIndex",childIndex)
-            return EditDescriptionFragment()
+            val bundle = Bundle().apply {
+                putInt("originIndex", originIndex)
+                putInt("childIndex", childIndex)
+            }
+            val fragment = EditDescriptionFragment()
+            fragment.arguments = bundle
+            return fragment
         }
     }
     // Fragment lifecycle
@@ -29,7 +32,6 @@ class EditDescriptionFragment : Fragment() {
             : View? {
         return inflater.inflate(R.layout.fragment_edit_description, container, false)
     }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val originIndex = arguments?.getInt("originIndex") ?: 0
@@ -40,19 +42,18 @@ class EditDescriptionFragment : Fragment() {
         descriptionEditOK.setOnClickListener{
             val newDescription = editDescription.text.toString()
             if (newDescription.isNotEmpty()) vModel.setDescriptionAt(rowTitle,newDescription,originIndex,childIndex)
-            activity?.supportFragmentManager?.beginTransaction()
-                ?.addToBackStack(null)
-                ?.replace(R.id.activityFrame, OriginFragment.newInstance())
-                ?.commit()
+            backToListFragment()
         }
-
-
-
-    }
-    private fun backToListView(){
-
-
-
+        descriptionEditCancel.setOnClickListener { backToListFragment() }
     }
 
+    private fun backToListFragment() {
+        val fm = activity?.supportFragmentManager
+            ?: throw IllegalStateException("fail to approach fragment manager at EditDescriptionFragment.")
+        fm.beginTransaction()
+            .addToBackStack(null)
+            .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+            .replace(R.id.activityFrame, OriginFragment.newInstance())
+            .commit()
+    }
 }

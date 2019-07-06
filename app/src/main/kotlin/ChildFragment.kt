@@ -64,6 +64,12 @@ class ChildFragment : Fragment() {
     fun transitChildToOrigin() {
         activity!!.supportFragmentManager.beginTransaction()
             .addToBackStack(null)
+            .setCustomAnimations(
+                R.anim.slide_in_left,
+                R.anim.slide_out_right,
+                R.anim.slide_in_right,
+                R.anim.slide_out_left
+            )
             .replace(R.id.activityFrame, OriginFragment.newInstance())
             .commit()
     }

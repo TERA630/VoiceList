@@ -23,7 +23,7 @@ class OriginListAdaptor(
     // String   "title(contents):root, descending1 , descending2 , ..."
     private lateinit var mHandler: OriginFragment.EventToFragment
     private var mLastfocus = 0
-    private val isOpened: MutableMap<String, Boolean> = mutableMapOf()
+    private val isOpened: MutableSet<String> = mutableSetOf()
     override fun getItemCount(): Int = vModel.getOriginList().size + 1 // データ＋入力用フッタ
     override fun getItemViewType(position: Int): Int {
         val itemRange = IntRange(0, vModel.getOriginList().lastIndex)
@@ -68,9 +68,9 @@ class OriginListAdaptor(
         if (description != null) bindContentDescription(rowTitle, description, iV, position)
         else {  // descriptionがNULL
                 iV.originDescription.visibility = View.GONE
-                iV.originGoDescription.setOnClickListener(null)
                 iV.originGoDescription.visibility = View.GONE
             }
+
         iV.rowEditText.setText(rowTitle)
         if (vModel.getChildListAt(position).isNotEmpty()) { // 子階層があれば移動ボタンの表示とイベント
             iV.originGoChild.visibility = View.VISIBLE
@@ -115,19 +115,18 @@ class OriginListAdaptor(
     private fun bindContentDescription(rowTitle: String, rowDescription: String, iV: View, position: Int) {
         iV.originGoDescription.visibility = View.VISIBLE
         iV.originGoDescription.setOnClickListener {
-            if (isOpenedOrAbsent(rowTitle)) {
+            if (isOpened.contains(rowTitle)) {
+                isOpened.remove(rowTitle)
                 iV.originDescription.visibility = View.GONE
-                isOpened[rowTitle] = false
             } else {
+                isOpened.add(rowTitle)
                 iV.originDescription.visibility = View.VISIBLE
                 iV.originDescription.text = rowDescription
-                isOpened[rowTitle] = true
             }
         }
         iV.originDescription.setOnLongClickListener {
             mHandler.transitOriginToDescription(position,0)
             true }
-
     }
     private fun bindFooter(holder: ViewHolderOfCell, position: Int) {
         val iV = holder.itemView
@@ -213,7 +212,6 @@ class OriginListAdaptor(
             nextEditor?.requestFocus()
         }
     }
-
     private fun confirmDelete(view: View, position: Int) {
         AlertDialog.Builder(view.context)
             .setTitle(R.string.itemDeleteTitle)
@@ -230,11 +228,5 @@ class OriginListAdaptor(
             .setNegativeButton(R.string.no, null)
             .show()
     }
-    private fun isOpenedOrAbsent(_key: String): Boolean { //初回のバインドでタイトルをキーとして開閉状態を保存する｡
-        val value = isOpened[_key] ?: run {
-            isOpened.putIfAbsent(_key, true)
-            true
-        }
-        return value
-    }
+
 }

@@ -110,7 +110,7 @@ class MainViewModel : ViewModel() {
             }
         }
         Log.e("regEx", "$element was not decoded ")
-        throw java.lang.IllegalStateException("rowTitle was null at getPairTitleAndDescription")
+        return Pair("error", null)
     }
     fun setDescriptionAt(rowTitle:String,description:String,indexOfOrigin: Int,indexOfChild: Int){
         if(rowTitle.isEmpty() || description.isEmpty()) return
@@ -171,6 +171,7 @@ class MainViewModel : ViewModel() {
             "nine,Zidane,Vivi,Garnet,Freya",
             "ten,Yuna"
         )
-        saveCurrentLiveListAndPostNew(list.toMutableList())
+        if (liveList.value.isNullOrEmpty()) initLiveList(list.toMutableList())
+        else saveCurrentLiveListAndPostNew(list.toMutableList())
     }
 }

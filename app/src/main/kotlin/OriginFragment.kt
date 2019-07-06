@@ -29,6 +29,12 @@ class OriginFragment : Fragment() {
                 activity?.let {
                     it.supportFragmentManager.beginTransaction()
                         .addToBackStack(null)
+                        .setCustomAnimations(
+                            R.anim.slide_in_left,
+                            R.anim.slide_out_right,
+                            R.anim.slide_in_right,
+                            R.anim.slide_out_left
+                        )
                         .replace(R.id.activityFrame, ChildFragment.newInstance())
                         .commit()
                         Log.i("transit", "origin to $parentToGo")
@@ -40,6 +46,12 @@ class OriginFragment : Fragment() {
                     activity?.let{
                         it.supportFragmentManager.beginTransaction()
                         .addToBackStack(null)
+                            .setCustomAnimations(
+                                R.anim.slide_in_left,
+                                R.anim.slide_out_right,
+                                R.anim.slide_in_right,
+                                R.anim.slide_out_left
+                            )
                         .replace(R.id.activityFrame,EditDescriptionFragment.newInstance(indexOfOrigin,indexOfChild))
                         .commit()
                         Log.i("transit","origin to edit description at $indexOfOrigin with $indexOfChild")
