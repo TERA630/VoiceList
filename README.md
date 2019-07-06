@@ -27,18 +27,12 @@ LayoutにanimateLayoutChanges=trueをセットすると子View追加時にAnimat
 サイズ変化はcontainerView?.layoutTransition?.enableTransitionType(LayoutTransition.CHANGING)をすると　Animationしてくれる
 
 ## View関連
-dpi|幅|倍率|解像度|アプリアイコン|Action Barアイコン
----|---|---|---
-xxhdpi|480dpi|×3|1920×1080|144×144|96×96
-
-ImageView
-ContextCompat.getDrawable(context,R.drawable.hoge)がXMLからイメージを取ってくるのに便利
 EditorView
 背景を@android/tranparentとすると下線が消える｡
 ViewAnimator
 2つのViewを　ShowPrevious/ShowNextで切り替えられる
-
 ## 正規表現
+0か1 ?
 改行以外の任意の文字　.
 改行を含む任意の文字　\S\s
 ## テスト
