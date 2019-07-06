@@ -27,9 +27,9 @@ LayoutにanimateLayoutChanges=trueをセットすると子View追加時にAnimat
 サイズ変化はcontainerView?.layoutTransition?.enableTransitionType(LayoutTransition.CHANGING)をすると　Animationしてくれる
 
 ## View関連
-dpi|幅|倍率|解像度
+dpi|幅|倍率|解像度|アプリアイコン|Action Barアイコン
 ---|---|---|---
-xxhdpi|480dpi|x3.0|1920*1080
+xxhdpi|480dpi|x3.0|1920*1080|144*144|96*96|
 
 ImageView
 ContextCompat.getDrawable(context,R.drawable.hoge)がXMLからイメージを取ってくるのに便利
