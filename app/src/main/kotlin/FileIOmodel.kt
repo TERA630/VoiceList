@@ -28,6 +28,32 @@ fun saveListToTextFile(context: Context, _list: List<String>) {
     }
 }
 
+fun saveCSVToTextFile(context: Context, _data: String) {
+    var bw: BufferedWriter? = null
+    try {
+        val fileOut = context.openFileOutput(VOICELIST_FILE, MODE_PRIVATE and MODE_APPEND)
+        val osw = OutputStreamWriter(fileOut, "UTF-8")
+        bw = BufferedWriter(osw)
+        bw.write(_data)
+        bw.flush()
+    } catch (e: Exception) {
+        Log.e("test", "${e.message} occur by ${e.cause} at saveListToTxtFileAtSdCard")
+        e.printStackTrace()
+    } finally {
+        bw?.close()
+    }
+}
+
+fun loadCSVFromTextFile(_context: Context): List<String>? {
+    return try {
+        inputStreamToLines(_context.openFileInput(VOICELIST_FILE))
+
+
+    } catch (e: Exception) {
+        Log.w("test", "${e.cause} bring {${e.message} at LoadListFromTextFile")
+        null
+    }
+}
 fun loadListFromTextFile(_context: Context, _fileName: String): List<String>? {
     return try {
         inputStreamToLines(_context.openFileInput(_fileName))

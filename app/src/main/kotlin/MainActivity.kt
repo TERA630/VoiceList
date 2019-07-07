@@ -38,7 +38,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        saveListToTextFile(baseContext, vModel.getLiveList())
+        val liveListCSV = vModel.getLiveList().joinToString(",")
+        saveCSVToTextFile(baseContext, liveListCSV)
+        //  saveListToTextFile(baseContext, vModel.getLiveList())
     }
     // Activity Event
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

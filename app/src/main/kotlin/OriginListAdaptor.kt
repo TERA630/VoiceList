@@ -87,6 +87,7 @@ class OriginListAdaptor(
                 iV.originDescription.visibility = View.GONE
             }
 
+
         iV.rowEditText.setText(rowTitle)
         if (vModel.getChildListAt(position).isNotEmpty()) { // 子階層があれば移動ボタンの表示とイベント
             iV.originGoChild.visibility = View.VISIBLE
