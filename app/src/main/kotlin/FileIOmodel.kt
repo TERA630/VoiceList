@@ -4,10 +4,7 @@ import android.content.Context
 import android.content.Context.MODE_APPEND
 import android.content.Context.MODE_PRIVATE
 import android.util.Log
-import java.io.BufferedReader
-import java.io.BufferedWriter
-import java.io.InputStreamReader
-import java.io.OutputStreamWriter
+import java.io.*
 
 const val VOICELIST_FILE = "voicelist.txt"
 
@@ -44,12 +41,13 @@ fun saveCSVToTextFile(context: Context, _data: String) {
     }
 }
 
-fun loadCSVFromTextFile(_context: Context): List<String>? {
+fun loadCSVFromTextFile(_context: Context): String? {
     return try {
-        inputStreamToLines(_context.openFileInput(VOICELIST_FILE))
-
-
-    } catch (e: Exception) {
+        val br = BufferedReader(FileReader(VOICELIST_FILE))
+        var result = CharArray(1)
+        val number = br.read(result)
+        return result.toString()
+    } catch (e: IOException) {
         Log.w("test", "${e.cause} bring {${e.message} at LoadListFromTextFile")
         null
     }
