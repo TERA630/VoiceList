@@ -25,8 +25,9 @@ fun saveListToTextFile(context: Context, _list: List<String>) {
     }
 }
 
-fun saveCSVToTextFile(context: Context, _data: String) {
+fun saveListAsSCSV(context: Context, _list: List<String>) {
     var bw: BufferedWriter? = null
+    val _data = _list.joinToString(";")
     try {
         val fileOut = context.openFileOutput(VOICELIST_FILE, MODE_PRIVATE and MODE_APPEND)
         val osw = OutputStreamWriter(fileOut, "UTF-8")
@@ -41,12 +42,13 @@ fun saveCSVToTextFile(context: Context, _data: String) {
     }
 }
 
-fun loadCSVFromTextFile(_context: Context): String? {
+fun loadSCSVFromTextFile(_context: Context): List<String>? {
     return try {
-        val br = BufferedReader(FileReader(VOICELIST_FILE))
-        var result = CharArray(1)
-        val number = br.read(result)
-        return result.toString()
+        val listWithLine = inputStreamToLines(_context.openFileInput(VOICELIST_FILE))
+        if (listWithLine.isNullOrEmpty()) return null
+        val result = listWithLine.joinToString("\n")
+        val list = result.split(";")
+        return list
     } catch (e: IOException) {
         Log.w("test", "${e.cause} bring {${e.message} at LoadListFromTextFile")
         null
@@ -61,10 +63,9 @@ fun loadListFromTextFile(_context: Context, _fileName: String): List<String>? {
     }
 }
 
-fun inputStreamToLines(_inputStream: java.io.InputStream): List<String>? {
+fun inputStreamToLines(_inputStream: InputStream): List<String>? {
     return try {
-        val isr = InputStreamReader(_inputStream)
-        val br = BufferedReader(isr)
+        val br = BufferedReader(InputStreamReader(_inputStream))
         val result = br.readLines()
         br.close()
         result

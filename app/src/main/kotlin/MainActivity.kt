@@ -27,7 +27,6 @@ class MainActivity : AppCompatActivity() {
             putStringArrayList(CURRENT_ITEMS, ArrayList(vModel.getLiveList()))
         }
     }
-
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
         super.onRestoreInstanceState(savedInstanceState)
         val stringArray = savedInstanceState?.getStringArrayList(CURRENT_ITEMS)
@@ -38,8 +37,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        val liveListCSV = vModel.getLiveList().joinToString(",")
-        saveCSVToTextFile(baseContext, liveListCSV)
+        saveListAsSCSV(baseContext, vModel.getLiveList())
         //  saveListToTextFile(baseContext, vModel.getLiveList())
     }
     // Activity Event
@@ -71,7 +69,7 @@ class MainActivity : AppCompatActivity() {
     }
     // Private function
     private fun makeOriginFragment(savedInstanceState: Bundle?, model: MainViewModel) {
-        val result = loadListFromTextFile(baseContext, VOICELIST_FILE)
+        val result = loadSCSVFromTextFile(baseContext)
         result?.let { model.initLiveList(it.toMutableList()) } ?: vModel.setLiveListDefault()
         if (savedInstanceState == null) { // 初回起動でのみフラグメント追加
             val originFragment = OriginFragment.newInstance()

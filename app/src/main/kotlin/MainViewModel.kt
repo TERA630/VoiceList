@@ -102,7 +102,7 @@ class MainViewModel : ViewModel() {
                 val rowDescription = rowDescriptionBlanket.substring(descriptionRange) //　前後の()を削除
                 return Pair(rowTitle, rowDescription)
             } else {
-                if (rowTitle.isNullOrEmpty()) {
+                if (rowTitle.isEmpty()) {
                     Log.e("regEx", "$element was not decoded ")
                     return Pair("error", null)
                 }
