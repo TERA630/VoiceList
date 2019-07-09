@@ -30,8 +30,7 @@ fun saveListAsSCSV(context: Context, _list: List<String>) {
     val _data = _list.joinToString(";")
     try {
         val fileOut = context.openFileOutput(VOICELIST_FILE, MODE_PRIVATE and MODE_APPEND)
-        val osw = OutputStreamWriter(fileOut, "UTF-8")
-        bw = BufferedWriter(osw)
+        bw = BufferedWriter(OutputStreamWriter(fileOut, "UTF-8"))
         bw.write(_data)
         bw.flush()
     } catch (e: Exception) {

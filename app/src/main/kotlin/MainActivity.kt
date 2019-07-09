@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.action_saveCurrentToFile -> {
-                saveListToTextFile(baseContext, vModel.getLiveList())
+                saveListAsSCSV(baseContext, vModel.getLiveList())
                 true
             }
             else -> super.onOptionsItemSelected(item)
