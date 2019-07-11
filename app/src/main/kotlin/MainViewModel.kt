@@ -7,7 +7,7 @@ import android.util.Log
 class MainViewModel : ViewModel() {
     private val errorList = listOf("OriginList", "was", "null", "or", "empty")
     var liveList: MutableLiveData<MutableList<String>> = MutableLiveData()
-    var previousLiveListStr = listOf("origin")
+    private var previousLiveListStr = listOf("origin")
     val navigationHistory = mutableListOf("origin")
     var deleteHistory = mutableListOf<String>()
 
@@ -29,15 +29,17 @@ class MainViewModel : ViewModel() {
         saveCurrentLiveListAndPostNew(safeLiveList)
     }
     fun appendChildAt(_indexOfOrigin: Int, _value: String) {
-        if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
-        else if (_value.isBlank()) return
-        else {
-            val safeLiveList = liveList.value as MutableList<String>
-            val safeLiveListDestructed = safeLiveList[_indexOfOrigin].split(",").toMutableList()
-            safeLiveListDestructed.add(_value)
-            val newListElement = safeLiveListDestructed.joinToString()
-            safeLiveList[_indexOfOrigin] = newListElement
-            saveCurrentLiveListAndPostNew(safeLiveList)
+        when {
+            liveList.value == null -> throw IllegalStateException("Live list was not initialized.")
+            _value.isBlank() -> return
+            else -> {
+                val safeLiveList = liveList.value as MutableList<String>
+                val safeLiveListDestructed = safeLiveList[_indexOfOrigin].split(",").toMutableList()
+                safeLiveListDestructed.add(_value)
+                val newListElement = safeLiveListDestructed.joinToString()
+                safeLiveList[_indexOfOrigin] = newListElement
+                saveCurrentLiveListAndPostNew(safeLiveList)
+            }
         }
     }
     fun deleteLiveListAt(indexOfLiveList: Int) {

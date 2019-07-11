@@ -8,30 +8,13 @@ import java.io.*
 
 const val VOICELIST_FILE = "voicelist.txt"
 
-fun saveListToTextFile(context: Context, _list: List<String>) {
-    try {
-        val fileOut = context.openFileOutput(VOICELIST_FILE, MODE_PRIVATE and MODE_APPEND)
-        val osw = OutputStreamWriter(fileOut, "UTF-8")
-        val bw = BufferedWriter(osw)
-        for (index in _list.indices) {
-            val rowElement = _list[index]
-            bw.write(rowElement)
-            bw.newLine()
-        }
-        bw.close()
-    } catch (e: Exception) {
-        Log.e("test", "${e.message} occur by ${e.cause} at saveListToTxtFileAtSdCard")
-        e.printStackTrace()
-    }
-}
-
 fun saveListAsSCSV(context: Context, _list: List<String>) {
     var bw: BufferedWriter? = null
-    val _data = _list.joinToString(";")
+    val listJoined = _list.joinToString(";")
     try {
         val fileOut = context.openFileOutput(VOICELIST_FILE, MODE_PRIVATE and MODE_APPEND)
         bw = BufferedWriter(OutputStreamWriter(fileOut, "UTF-8"))
-        bw.write(_data)
+        bw.write(listJoined)
         bw.flush()
     } catch (e: Exception) {
         Log.e("test", "${e.message} occur by ${e.cause} at saveListToTxtFileAtSdCard")
@@ -46,8 +29,7 @@ fun loadSCSVFromTextFile(_context: Context): List<String>? {
         val listWithLine = inputStreamToLines(_context.openFileInput(VOICELIST_FILE))
         if (listWithLine.isNullOrEmpty()) return null
         val result = listWithLine.joinToString("\n")
-        val list = result.split(";")
-        return list
+        return result.split(";")
     } catch (e: IOException) {
         Log.w("test", "${e.cause} bring {${e.message} at LoadListFromTextFile")
         null

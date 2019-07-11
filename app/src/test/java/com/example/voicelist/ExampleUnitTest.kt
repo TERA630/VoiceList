@@ -19,7 +19,7 @@ class ExampleUnitTest {
 
 @RunWith(Theories::class)
 class RegexTest {
-    val sampleData = listOf(
+    private val sampleData = listOf(
         "one,knight,mage",
         "two,Firion,Maria,Ricard,Minwu",
         "three,Monk,White Mage,Thief,Dragoon,Summoner",

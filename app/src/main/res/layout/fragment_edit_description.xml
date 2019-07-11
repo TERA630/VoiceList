@@ -43,6 +43,6 @@
               android:inputType="textMultiLine"
               android:hint="@string/enterDescription"
               tools:text="@string/enterDescription"
-    />
+              android:importantForAutofill="no"/>
 
 </android.support.constraint.ConstraintLayout>

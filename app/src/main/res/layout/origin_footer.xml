@@ -18,7 +18,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:imeOptions="actionDone"
             android:hint="@string/enterNewItem"
-            android:inputType="text"/>
+            android:inputType="text" android:importantForAutofill="no"/>
     <ImageView
             android:id="@+id/originAddButton"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
