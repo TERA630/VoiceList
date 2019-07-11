@@ -49,7 +49,6 @@ class ChildFragment : Fragment() {
         childList.adapter = mAdaptor
 
     }
-
     /*   override fun onStart() {
            super.onStart()
            vModel.liveList.observe(this, Observer{

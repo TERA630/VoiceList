@@ -34,7 +34,6 @@ class MainActivity : AppCompatActivity() {
             vModel.initLiveList(it.toMutableList())
         }
     }
-
     override fun onPause() {
         super.onPause()
         saveListAsSCSV(baseContext, vModel.getLiveList())

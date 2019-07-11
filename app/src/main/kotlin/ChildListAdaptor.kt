@@ -92,9 +92,9 @@ class ChildListAdaptor(private val vModel: MainViewModel) : RecyclerView.Adapter
     }
     private fun bindContents(rowView: View, position: Int) {
         val childHeader = mList[position - 1]
-        rowView.childContents.text = childHeader
+        rowView.childRowTitle.text = childHeader
         rowView.childEditor.setText(childHeader)
-        rowView.childContents.setOnClickListener {
+        rowView.childRowTitle.setOnClickListener {
             rowView.childTextWrapper.showNext()
         }
         rowView.childEditor.setOnKeyListener { v, keyCode, event ->
