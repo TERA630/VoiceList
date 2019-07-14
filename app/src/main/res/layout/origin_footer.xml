@@ -7,8 +7,8 @@
         android:theme="@style/ThemeOverlay.AppCompat.Light"
         app:cardCornerRadius="4dp"
         app:cardElevation="1dp"
-        app:cardUseCompatPadding="true"
->
+        app:cardUseCompatPadding="true">
+
     <EditText
             android:id="@+id/originNewText"
             android:layout_width="200dp" android:layout_height="wrap_content"
@@ -19,13 +19,20 @@
             android:imeOptions="actionDone"
             android:hint="@string/enterNewItem"
             android:inputType="text" android:importantForAutofill="no"/>
+
+    <ImageView
+            android:id="@+id/originVoiceButton"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            app:srcCompat="@android:drawable/ic_input_add"
+    />
+
     <ImageView
             android:id="@+id/originAddButton"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:layout_gravity="end|center_vertical"
             android:layout_marginEnd="8dp"
             app:srcCompat="@android:drawable/ic_input_add"
-            android:contentDescription="@string/button"
     />
 
 </android.support.v7.widget.CardView>
