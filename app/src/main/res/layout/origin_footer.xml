@@ -8,31 +8,37 @@
         app:cardCornerRadius="4dp"
         app:cardElevation="1dp"
         app:cardUseCompatPadding="true">
+    <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content">
 
-    <EditText
-            android:id="@+id/originNewText"
-            android:layout_width="200dp" android:layout_height="wrap_content"
-            android:layout_gravity="start|bottom"
-            android:layout_marginStart="8dp"
-            android:background="@android:color/transparent"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:imeOptions="actionDone"
-            android:hint="@string/enterNewItem"
-            android:inputType="text" android:importantForAutofill="no"/>
+        <EditText
+                android:id="@+id/originNewText"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
+                app:layout_constraintEnd_toStartOf="@id/originVoiceButton"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:background="@android:color/transparent"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:imeOptions="actionDone"
+                android:hint="@string/enterNewItem"
+                android:inputType="text"/>
 
-    <ImageView
-            android:id="@+id/originVoiceButton"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            app:srcCompat="@android:drawable/ic_input_add"
-    />
-
-    <ImageView
-            android:id="@+id/originAddButton"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:layout_gravity="end|center_vertical"
-            android:layout_marginEnd="8dp"
-            app:srcCompat="@android:drawable/ic_input_add"
-    />
+        <ImageView
+                android:id="@+id/originAddButton"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginEnd="8dp"
+                app:srcCompat="@android:drawable/ic_input_add"/>
+        <ImageView
+                android:id="@+id/originVoiceButton"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/originAddButton" android:layout_marginEnd="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:srcCompat="@android:drawable/ic_input_add"/>
+    </android.support.constraint.ConstraintLayout>
 
 </android.support.v7.widget.CardView>

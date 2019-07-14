@@ -7,13 +7,13 @@ import android.util.Log
 import kotlin.concurrent.withLock
 
 class VoiceRecorder(private val mCallback: Callback) {
-    private val SAMPLE_RATE_CANDIDATES = intArrayOf(16000, 11025, 22050, 44100)
-    private val CHANNEL = AudioFormat.CHANNEL_IN_MONO
-    private val ENCODING = AudioFormat.ENCODING_PCM_16BIT
+    private val mSampleRateCandidates = intArrayOf(16000, 11025, 22050, 44100)
+    private val mChannel = AudioFormat.CHANNEL_IN_MONO
+    private val mEncoding = AudioFormat.ENCODING_PCM_16BIT
 
-    private val AMPLITUDE_THRESHOLD = 1500
-    private val SPEECH_TIMEOUT_MILLIS = 2000
-    private val MAX_SPEECH_LENGTH_MILLIS = 30 * 1000
+    private val mAmplitudeThreshold = 1500
+    private val mSpeechTimeoutMs = 2000
+    private val mMaxSpeechLengthMs = 30 * 1000
 
     interface Callback {
         fun onVoiceStart()  // called when the recorder starts hearing voice.
@@ -21,9 +21,7 @@ class VoiceRecorder(private val mCallback: Callback) {
             // @param data: The audio data in AudioFormat#ENCORDING_PCM_16BIT
             // @param size: The size of actual data in
         }
-
         fun onVoiceEnd() {} // called when the recorder stops hearing voice.
-
     }
 
     private var mAudioRecord: AudioRecord? = null
@@ -38,11 +36,10 @@ class VoiceRecorder(private val mCallback: Callback) {
 
     fun start() {
         stop() // if it is current ongoing, stop it.
-        mAudioRecord = createAudioRecord()
-        if (mAudioRecord == null) throw java.lang.RuntimeException("Cannot instantiate VoiceRecorder")
-        else {
+        mAudioRecord = createAudioRecord() ?: throw RuntimeException("Cannot instantiate VoiceRecorder")
+        mAudioRecord?.let {
             Log.i("test", "voice recorder started..")
-            mAudioRecord?.startRecording()
+            it.startRecording()
             mThread = Thread(ProcessVoice())
             mThread!!.start()
         }
@@ -80,14 +77,14 @@ class VoiceRecorder(private val mCallback: Callback) {
 
     private fun createAudioRecord(): AudioRecord? {
 
-        for (sampleRate in SAMPLE_RATE_CANDIDATES) {
-            val sizeInBytes = AudioRecord.getMinBufferSize(sampleRate, CHANNEL, ENCODING)
+        for (sampleRate in mSampleRateCandidates) {
+            val sizeInBytes = AudioRecord.getMinBufferSize(sampleRate, mChannel, mEncoding)
             if (sizeInBytes == AudioRecord.ERROR_BAD_VALUE) {
                 continue
             }
             val audioRecord = AudioRecord(
                 MediaRecorder.AudioSource.MIC,
-                sampleRate, CHANNEL, ENCODING, sizeInBytes
+                sampleRate, mChannel, mEncoding, sizeInBytes
             )
             if (audioRecord.state == AudioRecord.STATE_INITIALIZED) {
                 mBuffer = ByteArray(sizeInBytes)
@@ -114,10 +111,10 @@ class VoiceRecorder(private val mCallback: Callback) {
                             }
                             mCallback.onVoice(mBuffer, size)
                             mLastVoiceHeardMillis = now
-                            if (now - mVoiceStartedMillis > MAX_SPEECH_LENGTH_MILLIS) end() // 経過30秒で終わり
+                            if (now - mVoiceStartedMillis > mMaxSpeechLengthMs) end() // 経過30秒で終わり
                         } else if (mLastVoiceHeardMillis != Long.MAX_VALUE) {
                             mCallback.onVoice(mBuffer, size)
-                            if (now - mVoiceStartedMillis > SPEECH_TIMEOUT_MILLIS) end() // 無音は2秒でタイムアウト
+                            if (now - mVoiceStartedMillis > mSpeechTimeoutMs) end() // 無音は2秒でタイムアウト
                         }
                     }
 
@@ -136,7 +133,7 @@ class VoiceRecorder(private val mCallback: Callback) {
                 if (s < 0) s *= -1 // 負数なら正数に
                 s = s shl 8 // 上位バイト　
                 s += Math.abs(buffer[i].toInt()) //　下位バイト
-                if (s > AMPLITUDE_THRESHOLD) return true
+                if (s > mAmplitudeThreshold) return true
             }
             return false
         }

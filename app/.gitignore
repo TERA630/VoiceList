@@ -1,3 +1,5 @@
 /build
 /setting.gradle
 /raw
+/src/main/raw
+credential.json
