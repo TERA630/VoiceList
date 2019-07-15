@@ -6,4 +6,7 @@
     <color name="shadow">#aaaaaa</color>
     <color name="whiteGray">#dedddd</color>
     <color name="linen">#FAF0E6</color>
+
+    <color name="status_hearing">#7B1FA2</color>
+    <color name="status_not_hearing">#757575</color>
 </resources>

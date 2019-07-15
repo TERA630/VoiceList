@@ -2,11 +2,13 @@ package com.example.voicelist
 
 import android.Manifest
 import android.arch.lifecycle.ViewModelProviders
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.IBinder
 import android.os.PersistableBundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
@@ -15,19 +17,26 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
 
 const val CURRENT_ITEMS ="currentItems"
+const val REQUEST_CODE_RECORD = 1
+const val COLOR_HEARING = "colorHearing"
+const val COLOR_NOT_HEARING = "colorNotHearing"
 
 class MainActivity : AppCompatActivity() {
+
     private lateinit var vModel: MainViewModel
-    private lateinit var mServiceConnection: ServiceConnection // initialized by onCreate
-    private lateinit var mVoiceCallback: VoiceRecorder.Callback // initialized by onCreate
 
     private var mSpeechService: SpeechService? = null // given after SpeechService begun
     private var mVoiceRecorder: VoiceRecorder? = null // given after on Start and permission was granted
 
-
+    private lateinit var mSpeechServiceListener: SpeechService.Listener // initialized by on Create
+    private lateinit var mServiceConnection: ServiceConnection // initialized by onCreate
+    private lateinit var mVoiceCallback: VoiceRecorder.Callback // initialized by onCreate
+    private var mColorHearing = 0
+    private var mColorNotHearing = 0
     // Activity life cycles
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +44,10 @@ class MainActivity : AppCompatActivity() {
         vModel = ViewModelProviders.of(this@MainActivity).get(MainViewModel::class.java)
         setSupportActionBar(toolbar)
         makeOriginFragment(savedInstanceState, vModel)
+        mColorHearing = getColor(R.color.status_hearing)
+        mColorNotHearing = getColor(R.color.status_not_hearing)
+        instantiateSpeechDealers()
+
     }
 
     override fun onStart() {
@@ -46,7 +59,6 @@ class MainActivity : AppCompatActivity() {
         val audioPermission = ContextCompat.checkSelfPermission(this.baseContext, Manifest.permission.RECORD_AUDIO)
         if (audioPermission == PackageManager.PERMISSION_GRANTED) {
             Log.i("test", "this app has already permission.")
-            startVoiceRecorder()
         } else if (shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO)) {
             AlertDialog.Builder(this)
                 .setTitle("permission")
@@ -56,8 +68,15 @@ class MainActivity : AppCompatActivity() {
             Log.w("test", "this app has no permission yet.")
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_CODE_RECORD)
         }
-
     }
+
+    override fun onStop() {
+        //  mSpeechService?.removeListener(mSpeechServiceListener)
+        unbindService(mServiceConnection)
+        mSpeechService = null
+        super.onStop()
+    }
+
     override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
         // on Pauseや回転後 on Stop前
         super.onSaveInstanceState(outState, outPersistentState)
@@ -105,6 +124,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
     // Private function
+
     private fun makeOriginFragment(savedInstanceState: Bundle?, model: MainViewModel) {
         val result = loadSCSVFromTextFile(baseContext)
         result?.let { model.initLiveList(it.toMutableList()) } ?: vModel.setLiveListDefault()
@@ -116,9 +136,68 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun instantiateSpeechDealers() {
+        mSpeechServiceListener = object : SpeechService.Listener {
+            override fun onSpeechRecognized(text: String, isFinal: Boolean) {
+                if (isFinal) mVoiceRecorder?.dismiss()
+                if (text.isNotEmpty()) {
+                    runOnUiThread {
+                        if (isFinal) {
+                            conditionLabel.text = ""
+                        } else conditionLabel.text = text
+                    }
+                }
+            }
+        }
+        mServiceConnection = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, service: IBinder) {
+                mSpeechService = SpeechService().from(service)
+                mSpeechService?.addListener(listener = mSpeechServiceListener)
+                status.visibility = View.VISIBLE
+            }
+
+            override fun onServiceDisconnected(name: ComponentName?) {
+                mSpeechService = null
+            }
+        }
+        mVoiceCallback = object : VoiceRecorder.Callback { // 音声認識エンジン
+            override fun onVoiceStart() {
+                showStatus(true)
+                val sampleRate = mVoiceRecorder?.getSampleRate()
+                if (sampleRate != null && sampleRate != 0) {
+                    mSpeechService?.startRecognizing(sampleRate)
+                }
+            }
+
+            override fun onVoice(data: ByteArray, size: Int) {
+                super.onVoice(data, size)
+                mSpeechService?.recognize(data, size)
+            }
+
+            override fun onVoiceEnd() {
+                showStatus(false)
+                mSpeechService?.finishRecognizing()
+            }
+        }
+    }
+
     private fun startVoiceRecorder() {
         mVoiceRecorder?.stop()
         mVoiceRecorder = VoiceRecorder(mVoiceCallback)
         mVoiceRecorder?.start()
     }
+
+    private fun stopVoiceRecorder() {
+        mVoiceRecorder?.stop()
+        mVoiceRecorder = null
+    }
+
+    private fun showStatus(hearingVoice: Boolean) {
+        runOnUiThread {
+            // UIスレッドにカラー変更処置を投げる。
+            val color = if (hearingVoice) mColorHearing else mColorNotHearing
+            status.setTextColor(color)
+        }
+    }
+
 }
