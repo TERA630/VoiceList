@@ -25,12 +25,15 @@ ViewModel　Activity,Fragment､Adapterからデータ処理を伴うイベン�
 詳細のViewのExpand、Collapseを切り替える場合は､ViewHolder以外で開閉状態を保持。
 LayoutにanimateLayoutChanges=trueをセットすると子View追加時にAnimationしてくれる。
 サイズ変化はcontainerView?.layoutTransition?.enableTransitionType(LayoutTransition.CHANGING)をすると　Animationしてくれる
-
 ## View関連
 EditorView
 背景を@android/tranparentとすると下線が消える｡
 ViewAnimator
 2つのViewを　ShowPrevious/ShowNextで切り替えられる
+##Appbar layout
+linerLayoutを継承　CoordinatorLayoutの直下にないと動かない。
+兄弟となるScroliing view(scrolling sibling)に@string/appbar_scrolling_view_behaviorで
+AppBarLayout.ScrollingViewBehaviorのbehavior classをセットしておく。
 ## 正規表現
 0か1 ?
 改行以外の任意の文字　.
