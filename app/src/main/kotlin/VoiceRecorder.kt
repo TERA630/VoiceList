@@ -126,7 +126,6 @@ class VoiceRecorder(private val mCallback: Callback) {
             mLastVoiceHeardMillis = Long.MAX_VALUE
             mCallback.onVoiceEnd()
         }
-
         private fun isHearingVoice(buffer: ByteArray, size: Int): Boolean {
             for (i in 0 until size - 1 step 2) {
                 var s = buffer[i + 1].toInt() // Little endian  上位バイト
