@@ -29,24 +29,20 @@ import kotlin.math.max
 const val ACCESS_TOKEN_EXPIRATION_TOLERANCE = 30 * 60 * 1000 // thirty minutes
 /** We refresh the current access token before it expires.  */
 const val ACCESS_TOKEN_FETCH_MARGIN = 60 * 1000 // one minute
-
+const val HOSTNAME = "speech.googleapis.com"
 const val PREF_ACCESS_TOKEN_EXPIRATION_TIME = "access_token_expiration_time"
+const val PREF_ACCESS_TOKEN_VALUE = "access_token_value"
 
 class SpeechService : Service() {
     private val TAG = "SpeechService"
-
-    private val HOSTNAME = "speech.googleapis.com"
     private val PORT = 443
-
     private val PREFS = "SpeechService"
-    private val PREF_ACCESS_TOKEN_VALUE = "access_token_value"
     private val SCOPE = Collections.singletonList("https://www.googleapis.com/auth/cloud-platform")
 
     private val mBinder: SpeechBinder = SpeechBinder()
     private var mHandler: Handler? = null
     private var mAccessTokenTask: AccessTokenTask? = null
     private val mListeners = mutableListOf<Listener>()
-
     //
     private lateinit var mApi: SpeechGrpc.SpeechStub
     private lateinit var mFileResponseObserver: StreamObserver<RecognizeResponse>
@@ -79,11 +75,9 @@ class SpeechService : Service() {
                     }
                 }
             }
-
             override fun onCompleted() {
                 Log.i(TAG, "API completed.")
             }
-
             override fun onError(t: Throwable?) {
                 Log.e(TAG, "Error calling the API.", t)
             }
@@ -141,17 +135,13 @@ class SpeechService : Service() {
     fun addListener(listener: Listener) {
         mListeners.add(listener)
     }
-
     fun removeListener(listener: Listener) {
         mListeners.remove(listener)
     }
-
     fun from(binder: IBinder): SpeechService {
         return (binder as SpeechBinder).getService()
     }
-
     private fun fetchAccessToken() {
-
         if (mAccessTokenTask != null) {
             return
         } else {
@@ -184,23 +174,19 @@ class SpeechService : Service() {
             mRequestObserver?.onNext(streamingRecognizeRequest)
         }
     }
-
     fun recognize(data: ByteArray, size: Int) {
         val streamingRecognizeRequest = StreamingRecognizeRequest.newBuilder()
             .setAudioContent(ByteString.copyFrom(data, 0, size))
             .build()
         mRequestObserver?.onNext(streamingRecognizeRequest)
     }
-
     fun finishRecognizing() {
         mRequestObserver?.let {
             it.onCompleted()
             mRequestObserver = null
         }
     }
-
     private fun getAccessTokenFromPreference(): AccessToken? {
-
         val prefs: SharedPreferences = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val tokenValue = prefs.getString(PREF_ACCESS_TOKEN_VALUE, null)
         val expirationTime: Long = prefs.getLong(PREF_ACCESS_TOKEN_EXPIRATION_TIME, -1L)
@@ -210,10 +196,7 @@ class SpeechService : Service() {
             AccessToken(tokenValue, Date(expirationTime))
         else null
     }
-
-
     private inner class AccessTokenTask : AsyncTask<Void, Void, AccessToken>() {
-
         override fun doInBackground(vararg params: Void?): AccessToken? {
             val tokenFromPref = getAccessTokenFromPreference()
             if (tokenFromPref != null) return tokenFromPref
@@ -230,7 +213,7 @@ class SpeechService : Service() {
                     .apply()
                 return token
             } catch (e: IOException) {
-                Log.e(TAG, "Fail to obtain access token $e")
+                Log.e("accessToken", "Fail to obtain access token $e")
             }
             return null
         }

@@ -1,6 +1,4 @@
 package com.example.voicelist
-
-
 import android.Manifest
 import android.Manifest.permission
 import android.arch.lifecycle.ViewModelProviders
@@ -23,6 +21,10 @@ import android.view.MenuItem
 import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
 
+
+// Activityへの参照からVoice startや認識したテキストをもらおうかな？
+
+
 const val CURRENT_ITEMS ="currentItems"
 const val REQUEST_CODE_RECORD = 1
 const val COLOR_HEARING = "colorHearing"
@@ -32,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var vModel: MainViewModel
 
-    private var mSpeechService: SpeechService? = null // given after SpeechService begun
+    private var mSpeechService: SpeechService? = null
     private var mVoiceRecorder: VoiceRecorder? = null // given after on Start and permission was granted
 
     private lateinit var mSpeechServiceListener: SpeechService.Listener // initialized by on Create
@@ -117,7 +119,6 @@ class MainActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
-
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (grantResults.isNotEmpty() && grantResults[0] == PERMISSION_GRANTED) {
             // AUDIO RECORD Permission Granted
@@ -162,7 +163,6 @@ class MainActivity : AppCompatActivity() {
                 .commit()
         }
     }
-
     private fun startSpeechConnection() {
         mSpeechServiceListener = object : SpeechService.Listener {
             override fun onSpeechRecognized(text: String, isFinal: Boolean) {
@@ -172,6 +172,7 @@ class MainActivity : AppCompatActivity() {
                         if (isFinal) {
                             conditionLabel.text = ""
                         } else conditionLabel.text = text
+                        Log.i("voice", "voice coming..$text")
                     }
                 }
             }
@@ -183,35 +184,35 @@ class MainActivity : AppCompatActivity() {
                 status.visibility = View.VISIBLE
             }
             override fun onServiceDisconnected(name: ComponentName?) {
+                mSpeechService?.removeListener(mSpeechServiceListener)
                 mSpeechService = null
             }
         }
         mVoiceCallback = object : VoiceRecorder.Callback { // 音声認識エンジン
             override fun onVoiceStart() {
                 showStatus(true)
-                val sampleRate = mVoiceRecorder?.getSampleRate()
-                if (sampleRate != null && sampleRate != 0) {
-                    mSpeechService?.startRecognizing(sampleRate)
-                }
+                val sampleRate = mVoiceRecorder?.getSampleRate() ?: 0
+                if (sampleRate != 0) mSpeechService?.startRecognizing(sampleRate)
             }
             override fun onVoice(data: ByteArray, size: Int) {
                 super.onVoice(data, size)
                 showStatus(true)
                 mSpeechService?.recognize(data, size)
             }
-
             override fun onVoiceEnd() {
                 showStatus(false)
                 mSpeechService?.finishRecognizing()
             }
         }
     }
-    private fun startVoiceRecorder() {
+
+    fun startVoiceRecorder() {
         mVoiceRecorder?.stop()
         mVoiceRecorder = VoiceRecorder(mVoiceCallback)
         mVoiceRecorder?.start()
     }
-    private fun stopVoiceRecorder() {
+
+    fun stopVoiceRecorder() {
         mVoiceRecorder?.stop()
         mVoiceRecorder = null
     }

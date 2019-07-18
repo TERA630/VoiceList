@@ -24,9 +24,13 @@ class OriginListAdaptor(
     private val cFooter = 2
     // String   "title(contents):root, descending1 , descending2 , ..."
     private lateinit var mHandler: OriginFragment.EventToFragment
-    private val isOpened: MutableSet<String> = mutableSetOf()
     private lateinit var mMinusDrawable: Drawable
     private lateinit var mPlusDrawable: Drawable
+
+    private val isOpened: MutableSet<String> = mutableSetOf()
+    private var isVoiceHearing: Boolean = false
+
+
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
         val context = recyclerView.context
@@ -168,6 +172,22 @@ class OriginListAdaptor(
             }
             return@setOnEditorActionListener false
         }
+        iV.originVoiceButton.setOnClickListener { buttonView ->
+            val context = buttonView.context
+            isVoiceHearing = if (context is MainActivity) {
+                if (isVoiceHearing) {
+                    context.stopVoiceRecorder()
+                    buttonView.alpha = 0.3f
+                    false
+                } else {
+                    context.startVoiceRecorder()
+                    buttonView.alpha = 1.0f
+                    true
+                }
+            } else {
+                throw java.lang.IllegalStateException("Activity could not accessed by adaptor.")
+            }
+        }
         iV.originAddButton.setOnClickListener {
             onFooterEditorEnd(iV, position)
         }
@@ -180,25 +200,16 @@ class OriginListAdaptor(
         }
         val recyclerView = view.parent.findAscendingRecyclerView()
         recyclerView?.let {
-            val animatorCurrent = findViewAnimatorAt(it, position)
-            animatorCurrent?.showPrevious()
-            val animatorUpper = findViewAnimatorAt(it, position - 1)
-            animatorUpper?.showNext()
             val editorUpper = it.findEditorAtPosition(position - 1)
             editorUpper?.requestFocus()
         }
     }
     private fun moveToLowerRow(view: View, position: Int) {
         if (position > vModel.getOriginList().lastIndex - 1) {
-            Log.w("editor", "$position is at lower limit.")
             return
         }
         val recyclerView = view.parent.findAscendingRecyclerView()
         recyclerView?.let {
-            val animatorCurrent = findViewAnimatorAt(it, position)
-            animatorCurrent?.showPrevious()
-            val animatorUpper = findViewAnimatorAt(it, position + 1)
-            animatorUpper?.showNext()
             val editorUpper = it.findEditorAtPosition(position + 1)
             editorUpper?.requestFocus()
         }

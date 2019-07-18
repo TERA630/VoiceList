@@ -7,6 +7,7 @@ import android.util.Log
 import kotlin.concurrent.withLock
 
 class VoiceRecorder(private val mCallback: Callback) {
+
     private val mSampleRateCandidates = intArrayOf(16000, 11025, 22050, 44100)
     private val mChannel = AudioFormat.CHANNEL_IN_MONO
     private val mEncoding = AudioFormat.ENCODING_PCM_16BIT
@@ -14,6 +15,11 @@ class VoiceRecorder(private val mCallback: Callback) {
     private val mAmplitudeThreshold = 1500
     private val mSpeechTimeoutMs = 2000
     private val mMaxSpeechLengthMs = 30 * 1000
+    private var mAudioRecord: AudioRecord? = null
+    private var mThread: Thread? = null
+    private lateinit var mBuffer: ByteArray
+    private var mLock = java.util.concurrent.locks.ReentrantLock()
+
 
     interface Callback {
         fun onVoiceStart()  // called when the recorder starts hearing voice.
@@ -24,14 +30,7 @@ class VoiceRecorder(private val mCallback: Callback) {
         fun onVoiceEnd() {} // called when the recorder stops hearing voice.
     }
 
-    private var mAudioRecord: AudioRecord? = null
-    private var mThread: Thread? = null
-    private lateinit var mBuffer: ByteArray
-    private var mLock = java.util.concurrent.locks.ReentrantLock()
-
-    /** The timestamp of the last time that voice is heard.  */
     private var mLastVoiceHeardMillis = java.lang.Long.MAX_VALUE
-    /** The timestamp when the current voice is started.  */
     private var mVoiceStartedMillis: Long = 0
 
     fun start() {
@@ -87,6 +86,7 @@ class VoiceRecorder(private val mCallback: Callback) {
                 sampleRate, mChannel, mEncoding, sizeInBytes
             )
             if (audioRecord.state == AudioRecord.STATE_INITIALIZED) {
+                Log.i("audioRecord", "AudioRecord is initialized at $sampleRate,$sizeInBytes")
                 mBuffer = ByteArray(sizeInBytes)
                 return audioRecord
             } else {
