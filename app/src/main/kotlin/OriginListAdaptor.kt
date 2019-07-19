@@ -174,18 +174,14 @@ class OriginListAdaptor(
         }
         iV.originVoiceButton.setOnClickListener { buttonView ->
             val context = buttonView.context
-            isVoiceHearing = if (context is MainActivity) {
-                if (isVoiceHearing) {
-                    context.stopVoiceRecorder()
+            isVoiceHearing = if (isVoiceHearing) {
                     buttonView.alpha = 0.3f
+                mHandler.startHearing(iV.originNewText)
                     false
-                } else {
-                    context.startVoiceRecorder()
-                    buttonView.alpha = 1.0f
-                    true
-                }
             } else {
-                throw java.lang.IllegalStateException("Activity could not accessed by adaptor.")
+                    buttonView.alpha = 1.0f
+                mHandler.stopHearing()
+                    true
             }
         }
         iV.originAddButton.setOnClickListener {

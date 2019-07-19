@@ -6,7 +6,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.content.pm.PackageManager
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Bundle
 import android.os.IBinder
@@ -19,6 +18,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
 
     private var mSpeechService: SpeechService? = null
     private var mVoiceRecorder: VoiceRecorder? = null // given after on Start and permission was granted
+    private var mVoiceTarget: TextView? = null
 
     private lateinit var mSpeechServiceListener: SpeechService.Listener // initialized by on Create
     private lateinit var mServiceConnection: ServiceConnection // initialized by startSpeechConnection
@@ -60,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, SpeechService::class.java)
         bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE)
         val hasPermission = checkAudioPermission()
-        if (hasPermission) startVoiceRecorder()
+        //       if (hasPermission) startVoiceRecorder()
     }
     override fun onStop() {
         //  mSpeechService?.removeListener(mSpeechServiceListener)
@@ -122,7 +123,7 @@ class MainActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (grantResults.isNotEmpty() && grantResults[0] == PERMISSION_GRANTED) {
             // AUDIO RECORD Permission Granted
-            startVoiceRecorder()
+            // startVoiceRecorder()
         } else if (shouldShowRequestPermissionRationale(permission.RECORD_AUDIO)) {
             Log.w("test", "permission request was disabled")
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -135,7 +136,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkAudioPermission(): Boolean {
         val audioPermission = ContextCompat.checkSelfPermission(this.baseContext, Manifest.permission.RECORD_AUDIO)
         when {
-            audioPermission == PackageManager.PERMISSION_GRANTED -> {
+            audioPermission == PERMISSION_GRANTED -> {
                 Log.i("test", "this app has already permission.")
                 return true
             }
@@ -171,8 +172,10 @@ class MainActivity : AppCompatActivity() {
                     runOnUiThread {
                         if (isFinal) {
                             conditionLabel.text = ""
-                        } else conditionLabel.text = text
-                        Log.i("voice", "voice coming..$text")
+                        } else {
+                            conditionLabel.text = text
+                            mVoiceTarget?.text = text
+                        }
                     }
                 }
             }
@@ -206,9 +209,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun startVoiceRecorder() {
+    fun startVoiceRecorder(textView: TextView) {
         mVoiceRecorder?.stop()
         mVoiceRecorder = VoiceRecorder(mVoiceCallback)
+        mVoiceTarget = textView
         mVoiceRecorder?.start()
     }
 
