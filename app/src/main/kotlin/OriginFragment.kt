@@ -5,12 +5,12 @@ import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.util.DiffUtil
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import kotlinx.android.synthetic.main.fragment_origin.*
+import kotlinx.android.synthetic.main.origin_footer.*
 
 class OriginFragment : Fragment() {
     private lateinit var mAdaptor: OriginListAdaptor
@@ -32,17 +32,14 @@ class OriginFragment : Fragment() {
                         .addToBackStack(null)
                         .setCustomAnimations(
                             R.anim.slide_in_right, R.anim.slide_out_left,
-                            R.anim.slide_in_right,
-                            R.anim.slide_out_left
+                            R.anim.slide_in_right, R.anim.slide_out_left
                         )
                         .replace(R.id.activityFrame, ChildFragment.newInstance())
                         .commit()
-                        Log.i("transit", "origin to $parentToGo")
                         vModel.pushNextNavigation(parentToGo)
                     }
                 }
             override fun transitOriginToDescription(indexOfOrigin: Int, indexOfChild: Int) {
-                Log.i("transit", "transitOriginToDescription was called")
                     activity?.let{
                         it.supportFragmentManager.beginTransaction()
                         .addToBackStack(null)
@@ -52,20 +49,17 @@ class OriginFragment : Fragment() {
                             )
                         .replace(R.id.activityFrame,EditDescriptionFragment.newInstance(indexOfOrigin,indexOfChild))
                         .commit()
-                        Log.i("transit","origin to edit description at $indexOfOrigin with $indexOfChild")
                 }
             }
-
             override fun startHearing(textView: TextView) {
-                val activity =
-                    this@OriginFragment.activity ?: throw IllegalStateException("activity was not reached by fragment")
-                if (activity is MainActivity) activity.startVoiceRecorder(textView)
+                val activity = activity
+                if (activity != null && activity is MainActivity) activity.startVoiceRecorder(originNewText)
+                else throw IllegalStateException("activity was not reached by fragment")
             }
-
             override fun stopHearing() {
-                val activity =
-                    this@OriginFragment.activity ?: throw IllegalStateException("activity was not reached by fragment")
-                if (activity is MainActivity) activity.stopVoiceRecorder()
+                val activity = activity
+                if (activity != null && activity is MainActivity) activity.stopVoiceRecorder()
+                else throw IllegalStateException("activity was not reached by fragment")
             }
         })
     } // One Create

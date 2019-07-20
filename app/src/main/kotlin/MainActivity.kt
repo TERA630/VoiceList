@@ -21,10 +21,6 @@ import android.view.View
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.*
 
-
-// Activityへの参照からVoice startや認識したテキストをもらおうかな？
-
-
 const val CURRENT_ITEMS ="currentItems"
 const val REQUEST_CODE_RECORD = 1
 const val COLOR_HEARING = "colorHearing"
@@ -175,6 +171,7 @@ class MainActivity : AppCompatActivity() {
                         } else {
                             conditionLabel.text = text
                             mVoiceTarget?.text = text
+                            vModel.appendLiveList(text)
                         }
                     }
                 }

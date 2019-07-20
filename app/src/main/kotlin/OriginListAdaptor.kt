@@ -173,7 +173,6 @@ class OriginListAdaptor(
             return@setOnEditorActionListener false
         }
         iV.originVoiceButton.setOnClickListener { buttonView ->
-            val context = buttonView.context
             isVoiceHearing = if (isVoiceHearing) {
                     buttonView.alpha = 0.3f
                 mHandler.startHearing(iV.originNewText)
@@ -223,7 +222,7 @@ class OriginListAdaptor(
             } else {
                 vModel.setLiveListAt(position, 0, newText)
                 Log.i("Editor", "$position will be $newText")
-                this@OriginListAdaptor.notifyItemChanged(position)
+                //        this@OriginListAdaptor.notifyItemChanged(position)
             }
             view.hideSoftKeyBoard()
         }
@@ -238,8 +237,6 @@ class OriginListAdaptor(
             vModel.appendLiveList(newText)
             it.text.clear()
             it.hideSoftKeyBoard()
-            val nextEditor = recyclerView.findEditorAtPosition(position + 1)
-            nextEditor?.requestFocus()
         }
     }
     private fun confirmDelete(view: View, position: Int) {

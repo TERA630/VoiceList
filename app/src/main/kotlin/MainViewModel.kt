@@ -7,7 +7,7 @@ import android.util.Log
 class MainViewModel : ViewModel() {
     private val errorList = listOf("OriginList", "was", "null", "or", "empty")
     var liveList: MutableLiveData<MutableList<String>> = MutableLiveData()
-    private var previousLiveListStr = listOf("origin")
+    private var previousLiveListStr = mutableListOf("origin")
     val navigationHistory = mutableListOf("origin")
     var deleteHistory = mutableListOf<String>()
 
@@ -20,13 +20,15 @@ class MainViewModel : ViewModel() {
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         val safeLiveList = liveList.value as MutableList<String>
         safeLiveList.add(indexOfOrigin, _value)
-        saveCurrentLiveListAndPostNew(safeLiveList)
+        liveList.postValue(safeLiveList)
+
     }
     fun appendLiveList(_value: String) {
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         val safeLiveList = liveList.value as MutableList<String>
+        previousLiveListStr = safeLiveList.replaceAll()
         safeLiveList.add(_value)
-        saveCurrentLiveListAndPostNew(safeLiveList)
+        liveList.postValue(safeLiveList)
     }
     fun appendChildAt(_indexOfOrigin: Int, _value: String) {
         when {
