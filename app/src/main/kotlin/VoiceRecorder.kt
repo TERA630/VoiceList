@@ -65,8 +65,6 @@ class VoiceRecorder(private val mCallback: Callback) {
             mCallback.onVoiceEnd()
         }
     }
-    // Retries the sample rate currently used to record audio
-
     fun getSampleRate(): Int {
         return if (mAudioRecord != null) {
             val result = mAudioRecord?.sampleRate ?: 0
@@ -81,10 +79,7 @@ class VoiceRecorder(private val mCallback: Callback) {
             if (sizeInBytes == AudioRecord.ERROR_BAD_VALUE) {
                 continue
             }
-            val audioRecord = AudioRecord(
-                MediaRecorder.AudioSource.MIC,
-                sampleRate, mChannel, mEncoding, sizeInBytes
-            )
+            val audioRecord = AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, mChannel, mEncoding, sizeInBytes)
             if (audioRecord.state == AudioRecord.STATE_INITIALIZED) {
                 Log.i("audioRecord", "AudioRecord is initialized at $sampleRate,$sizeInBytes")
                 mBuffer = ByteArray(sizeInBytes)

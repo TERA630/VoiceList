@@ -7,7 +7,7 @@ import android.util.Log
 class MainViewModel : ViewModel() {
     private val errorList = listOf("OriginList", "was", "null", "or", "empty")
     var liveList: MutableLiveData<MutableList<String>> = MutableLiveData()
-    private var previousLiveListStr = mutableListOf("origin")
+    private var previousLiveListStr = listOf("origin")
     val navigationHistory = mutableListOf("origin")
     var deleteHistory = mutableListOf<String>()
 
@@ -16,77 +16,72 @@ class MainViewModel : ViewModel() {
         liveList.postValue(_list)
     }
     // Public methods which deals liveList
-    private fun addLiveListAt(indexOfOrigin: Int, _value: String) {
-        if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
-        val safeLiveList = liveList.value as MutableList<String>
-        safeLiveList.add(indexOfOrigin, _value)
-        liveList.postValue(safeLiveList)
 
-    }
     fun appendLiveList(_value: String) {
-        if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
-        val safeLiveList = liveList.value as MutableList<String>
-        previousLiveListStr = safeLiveList.replaceAll()
-        safeLiveList.add(_value)
-        liveList.postValue(safeLiveList)
+        val current = if (liveList.value == null) listOf("")
+        else List(liveList.value!!.size) { index -> liveList.value!![index] }
+        val new = MutableList(current.size) { index -> current[index] }
+        new.add(_value)
+        saveCurrentLiveListAndPostNew(new, current)
     }
     fun appendChildAt(_indexOfOrigin: Int, _value: String) {
+        val current = if (liveList.value == null) listOf("")
+        else List(liveList.value!!.size) { index -> liveList.value!![index] }
+        val new = MutableList(current.size) { index -> current[index] }
         when {
-            liveList.value == null -> throw IllegalStateException("Live list was not initialized.")
             _value.isBlank() -> return
             else -> {
-                val safeLiveList = liveList.value as MutableList<String>
-                val safeLiveListDestructed = safeLiveList[_indexOfOrigin].split(",").toMutableList()
-                safeLiveListDestructed.add(_value)
-                val newListElement = safeLiveListDestructed.joinToString()
-                safeLiveList[_indexOfOrigin] = newListElement
-                saveCurrentLiveListAndPostNew(safeLiveList)
+                val currentElements = current[_indexOfOrigin].split(",").toMutableList()
+                currentElements.add(_value)
+                val newListElement = currentElements.joinToString()
+                new[_indexOfOrigin] = newListElement
+                saveCurrentLiveListAndPostNew(new, current)
             }
         }
     }
     fun deleteLiveListAt(indexOfLiveList: Int) {
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         else {
-            val safeLiveList = liveList.value as MutableList<String>
+            val current = List(liveList.value!!.size) { index -> liveList.value!![index] }
             val itemToDelete = StringBuilder("$indexOfLiveList:")
-                .append(safeLiveList[indexOfLiveList])
+                .append(current[indexOfLiveList])
                 .toString()
             deleteHistory.add(itemToDelete)
-            safeLiveList.removeAt(indexOfLiveList)
-            saveCurrentLiveListAndPostNew(safeLiveList)
+            val new = MutableList(liveList.value!!.size) { index -> liveList.value!![index] }
+            new.removeAt(indexOfLiveList)
+            saveCurrentLiveListAndPostNew(new, current)
         }
     }
     fun deleteChildOfOriginAt(indexOfOrigin: Int, indexOfChild: Int) {
         if (liveList.value == null) throw IllegalStateException("Live list was not initialized.")
         else {
-            val safeLiveList = liveList.value as MutableList<String>
-            val safeLiveListDestructed = safeLiveList[indexOfOrigin].split(",").toMutableList()
-            Log.i("Origin", "$safeLiveListDestructed[$indexOfChild] will be deleted..")
-            safeLiveListDestructed.removeAt(indexOfChild)
-            val result = safeLiveListDestructed.joinToString()
-            safeLiveList[indexOfOrigin] = result
-            saveCurrentLiveListAndPostNew(safeLiveList)
+            val current = List(liveList.value!!.size) { index -> liveList.value!![index] }
+            val element = current[indexOfOrigin].split(",").toMutableList()
+            element.removeAt(indexOfChild)
+            val result = element.joinToString()
+            val new = MutableList(liveList.value!!.size) { index -> liveList.value!![index] }
+            new[indexOfOrigin] = result
+            saveCurrentLiveListAndPostNew(new, current)
         }
     }
-    fun indexOfOriginOf(_string: String): Int {
-        return getOriginList().indexOfFirst { it.startsWith(_string) }
-    }
+
     fun getChildListAt(indexOfLiveList: Int): List<String> {
         val headAndChildCSV = getLiveList()[indexOfLiveList]
         val list = headAndChildCSV.split(",")
         return list.drop(1)
     }
+
     fun getChildOf(_parent: String): List<String> {
         val indexOfOrigin = indexOfOriginOf(_parent)
-        return if (indexOfOrigin >= 0) {
-            val result = getChildListAt(indexOfOrigin)
-            result
-        } else errorList
+        return if (indexOfOrigin >= 0) getChildListAt(indexOfOrigin)
+        else errorList
     }
+
     fun getLiveList(): List<String> {
         return if (liveList.value == null) errorList
         else liveList.value as MutableList<String>
     }
+
     fun getOriginList(): MutableList<String> {
         // Liveリストの先頭要素のみを並べたもの
         val safeLiveList = getLiveList()
@@ -97,6 +92,7 @@ class MainViewModel : ViewModel() {
         }
         return safeLiveListHeaders
     }
+
     fun getPairTitleAndDescription(indexOfOrigin: Int, indexOfChild: Int): Pair<String, String?> {
         val element = getLiveList()[indexOfOrigin].split(",")[indexOfChild]
         val rowDescriptionMatch = Regex("""([^(]+)(\([\S\s]+?\))?""")
@@ -116,6 +112,18 @@ class MainViewModel : ViewModel() {
         Log.e("regEx", "$element was not decoded ")
         return Pair("error", null)
     }
+
+    fun indexOfOriginOf(_string: String): Int {
+        return getOriginList().indexOfFirst { it.startsWith(_string) }
+    }
+
+    private fun insertLiveListAt(indexOfOrigin: Int, _value: String) {
+        val current = if (liveList.value == null) listOf("")
+        else List(liveList.value!!.size) { index -> liveList.value!![index] }
+        val new = MutableList(current.size) { index -> current[index] }
+        new.add(indexOfOrigin, _value)
+        saveCurrentLiveListAndPostNew(new, current)
+    }
     fun setDescriptionAt(rowTitle:String,description:String,indexOfOrigin: Int,indexOfChild: Int){
         if(rowTitle.isEmpty() || description.isEmpty()) return
         setLiveListAt(indexOfOrigin,indexOfChild,"$rowTitle($description)")
@@ -123,10 +131,10 @@ class MainViewModel : ViewModel() {
     fun getPreviousLiveList(): List<String> {
         return previousLiveListStr
     }
-    private fun saveCurrentLiveListAndPostNew(newList: MutableList<String>) {
-        previousLiveListStr =
-            liveList.value ?: throw java.lang.IllegalStateException("live list was not initialized at saveCurrent")
-        Log.i("Origin", "old list is $previousLiveListStr, new list is $newList")
+
+    private fun saveCurrentLiveListAndPostNew(newList: MutableList<String>, current: List<String>) {
+        val oldList = List(current.size) { index -> current[index] }
+        previousLiveListStr = oldList
         liveList.postValue(newList)
     }
     fun pushNextNavigation(_traceOfParent: String) {
@@ -144,7 +152,7 @@ class MainViewModel : ViewModel() {
         val itemToRestore = deleteHistory.last()
         Regex("(.+):(.+)").find(itemToRestore)?.destructured?.let { (index, originValue) ->
             Log.i("Origin", "$originValue will be restored at $index")
-            addLiveListAt(index.toInt(), originValue)
+            insertLiveListAt(index.toInt(), originValue)
         }
         deleteHistory.removeAt(deleteHistory.lastIndex)
     }

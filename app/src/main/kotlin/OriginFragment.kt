@@ -73,12 +73,9 @@ class OriginFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         vModel.liveList.observe(this, Observer {
-            val diff = DiffUtil.calculateDiff(
-                (DiffCallback(
-                    oldList = vModel.getPreviousLiveList(),
-                    newList = vModel.getLiveList()
-                )), false
-            )
+            val old = vModel.getPreviousLiveList()
+            val new = vModel.getLiveList()
+            val diff = DiffUtil.calculateDiff(DiffCallback(old, new), false)
             diff.dispatchUpdatesTo(mAdaptor)
         })
     }

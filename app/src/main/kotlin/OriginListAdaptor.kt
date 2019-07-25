@@ -217,11 +217,8 @@ class OriginListAdaptor(
             val newText = it.text.toString()
             if (newText.isBlank()) {
                 confirmDelete(view, position)
-                val origin = vModel.getOriginList()[position]
-                Log.i("Editor", "$origin at $position will be deleted.")
             } else {
                 vModel.setLiveListAt(position, 0, newText)
-                Log.i("Editor", "$position will be $newText")
                 //        this@OriginListAdaptor.notifyItemChanged(position)
             }
             view.hideSoftKeyBoard()
