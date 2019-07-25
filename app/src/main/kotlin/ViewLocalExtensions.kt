@@ -16,13 +16,11 @@ fun View.hideSoftKeyBoard() {
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.hideSoftInputFromWindow(windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
 }
-
 fun View.showSoftKeyBoard() {
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
     imm.hideSoftInputFromWindow(windowToken, InputMethodManager.SHOW_IMPLICIT)
 }
-
 fun ViewParent.findAscendingRecyclerView(): RecyclerView? {
     if (this is RecyclerView) return this
     var thisGroup: ViewGroup? = this as ViewGroup
@@ -37,7 +35,6 @@ fun ViewParent.findAscendingRecyclerView(): RecyclerView? {
     }
     return null
 }
-
 fun findDescendingEditorText(viewGroup: ViewGroup): EditText? {
     val groupCount = viewGroup.childCount
     for (i in 0..groupCount) {
@@ -50,7 +47,6 @@ fun findDescendingEditorText(viewGroup: ViewGroup): EditText? {
     }
     return null
 }
-
 fun findDescendingTextView(viewGroup: ViewGroup): TextView? {
     val groupCount = viewGroup.childCount
     for (i in 0..groupCount) {
@@ -63,7 +59,6 @@ fun findDescendingTextView(viewGroup: ViewGroup): TextView? {
     }
     return null
 }
-
 fun findRecyclerView(viewGroup: ViewGroup): RecyclerView? {
     if (viewGroup is RecyclerView) return viewGroup
     val groupCount = viewGroup.childCount
@@ -73,7 +68,6 @@ fun findRecyclerView(viewGroup: ViewGroup): RecyclerView? {
     }
     return null
 }
-
 fun findDescendingTextViewAtPosition(recyclerView: RecyclerView, position: Int): TextView? {
     val childView = recyclerView.getChildAt(position)
     if (childView is TextView) return childView
@@ -81,7 +75,6 @@ fun findDescendingTextViewAtPosition(recyclerView: RecyclerView, position: Int):
         findDescendingTextView(childView)
     } else null
 }
-
 fun RecyclerView.findEditorAtPosition(position: Int): EditText? {
     val childView = this.getChildAt(position)
     if (childView is EditText) return childView
@@ -97,7 +90,6 @@ fun findViewAnimatorAt(recyclerView: RecyclerView, position: Int): ViewAnimator?
         findDescendingViewAnimator(childView)
     } else null
 }
-
 fun findDescendingViewAnimator(viewGroup: ViewGroup): ViewAnimator? {
     val groupCount = viewGroup.childCount
     for (i in 0..groupCount) {
@@ -119,17 +111,12 @@ class DiffCallback(
         return (oldItemPosition == newItemPosition)
     }
 
-    override fun getOldListSize(): Int {
-        return oldList.size
-    }
-
-    override fun getNewListSize(): Int {
-        return newList.size
-    }
-
+    override fun getOldListSize(): Int = oldList.size
+    override fun getNewListSize(): Int = newList.size
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
         val oldItem = oldList[oldItemPosition]
         val newItem = newList[newItemPosition]
+
         return (oldItem == newItem)
     }
 }

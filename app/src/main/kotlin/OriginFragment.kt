@@ -40,16 +40,17 @@ class OriginFragment : Fragment() {
                     }
                 }
             override fun transitOriginToDescription(indexOfOrigin: Int, indexOfChild: Int) {
-                    activity?.let{
-                        it.supportFragmentManager.beginTransaction()
-                        .addToBackStack(null)
-                            .setCustomAnimations(
-                                R.anim.slide_in_right, R.anim.slide_out_left,
-                                R.anim.slide_in_left, R.anim.slide_out_right
-                            )
-                        .replace(R.id.activityFrame,EditDescriptionFragment.newInstance(indexOfOrigin,indexOfChild))
-                        .commit()
-                }
+                activity?.supportFragmentManager
+                    ?.beginTransaction()
+                    ?.addToBackStack(null)
+                    ?.setCustomAnimations(
+                        R.anim.slide_in_right,
+                        R.anim.slide_out_left,
+                        R.anim.slide_in_left,
+                        R.anim.slide_out_right
+                    )
+                    ?.replace(R.id.activityFrame, EditDescriptionFragment.newInstance(indexOfOrigin, indexOfChild))
+                    ?.commit()
             }
             override fun startHearing(textView: TextView) {
                 val activity = activity
@@ -62,7 +63,7 @@ class OriginFragment : Fragment() {
                 else throw IllegalStateException("activity was not reached by fragment")
             }
         })
-    } // One Create
+    }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_origin, container, false)
     }
@@ -75,7 +76,7 @@ class OriginFragment : Fragment() {
         vModel.liveList.observe(this, Observer {
             val old = vModel.getPreviousLiveList()
             val new = vModel.getLiveList()
-            val diff = DiffUtil.calculateDiff(DiffCallback(old, new), false)
+            val diff = DiffUtil.calculateDiff(DiffCallback(old, new), true)
             diff.dispatchUpdatesTo(mAdaptor)
         })
     }

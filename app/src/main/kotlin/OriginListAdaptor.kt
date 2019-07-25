@@ -1,5 +1,4 @@
 package com.example.voicelist
-
 import android.animation.LayoutTransition
 import android.content.DialogInterface
 import android.graphics.drawable.Drawable
@@ -13,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.widget.TextView
 import kotlinx.android.synthetic.main.origin_footer.view.*
 import kotlinx.android.synthetic.main.originlist_contents.view.*
 
@@ -29,7 +29,6 @@ class OriginListAdaptor(
 
     private val isOpened: MutableSet<String> = mutableSetOf()
     private var isVoiceHearing: Boolean = false
-
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
@@ -102,7 +101,6 @@ class OriginListAdaptor(
             iV.originGoChild.visibility = View.GONE
         }
         iV.rowEditText.setOnKeyListener { v, keyCode, event ->
-            Log.i("keyLog", ", $position and Event is $event ")
             when (keyCode) {
                 KeyEvent.KEYCODE_DPAD_UP -> {
                     moveToUpperRow(v, position)
@@ -117,11 +115,7 @@ class OriginListAdaptor(
         }                // タイトルのキーイベント
         iV.rowEditText.setOnEditorActionListener { editText, actionId, event ->
             Log.i("keyLog", ", $position and Event is $event ")
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                onContentsEditorEnd(editText, position)
-                return@setOnEditorActionListener true
-            }
-            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
                 onContentsEditorEnd(editText, position)
                 return@setOnEditorActionListener true
             }
@@ -184,7 +178,7 @@ class OriginListAdaptor(
             }
         }
         iV.originAddButton.setOnClickListener {
-            onFooterEditorEnd(iV, position)
+            onFooterEditorEnd(iV.originNewText, position)
         }
     }
     // Key event
@@ -209,32 +203,18 @@ class OriginListAdaptor(
             editorUpper?.requestFocus()
         }
     }
-    private fun onContentsEditorEnd(view: View, position: Int) {
-        val parent = view.parent
-        val recyclerView = parent.findAscendingRecyclerView()
-        val editor = recyclerView?.findEditorAtPosition(position)
-        editor?.let {
-            val newText = it.text.toString()
-            if (newText.isBlank()) {
-                confirmDelete(view, position)
-            } else {
-                vModel.setLiveListAt(position, 0, newText)
-                //        this@OriginListAdaptor.notifyItemChanged(position)
-            }
-            view.hideSoftKeyBoard()
-        }
+
+    private fun onContentsEditorEnd(editText: TextView, position: Int) {
+        val newText = editText.text.toString()
+        if (newText.isBlank()) confirmDelete(editText, position)
+        else vModel.setLiveListAt(position, 0, newText)
     }
-    private fun onFooterEditorEnd(view: View, position: Int) {
-        val parent = view.parent
-        val recyclerView = parent.findAscendingRecyclerView()
-        val editor = recyclerView?.findEditorAtPosition(position)
-        editor?.let {
-            val newText = it.text.toString()
+
+    private fun onFooterEditorEnd(editText: TextView, position: Int) {
+        val newText = editText.text.toString()
+        editText.clearComposingText()
             if (newText.isBlank()) return
             vModel.appendLiveList(newText)
-            it.text.clear()
-            it.hideSoftKeyBoard()
-        }
     }
     private fun confirmDelete(view: View, position: Int) {
         AlertDialog.Builder(view.context)
