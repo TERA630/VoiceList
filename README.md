@@ -38,6 +38,14 @@ AppBarLayout.ScrollingViewBehaviorのbehavior classをセットしておく。
 0か1 ?
 改行以外の任意の文字　.
 改行を含む任意の文字　\S\s
+##画面
+dp　160dpiの画面で1dp=1px
+sp  
+pt  1/72 inch 
+
+
+
+
 ## テスト
 Espresso　AssertJ
 recyclerView.findViewHolderAtPosition(positon)
